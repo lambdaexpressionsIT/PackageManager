@@ -1,0 +1,1 @@
+docker run --name pacman-DB -p13306:3306 -e MYSQL_ROOT_PASSWORD=!r00tP@$$w0rd! -d pacman-db-img

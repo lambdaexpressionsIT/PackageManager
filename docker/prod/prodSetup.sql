@@ -1,0 +1,16 @@
+create database package_manager;
+create table package_manager.package (id bigint not null auto_increment, appname varchar(255), path varchar(255), valid bit not null, version integer not null, primary key (id)) engine=InnoDB;
+create user 'pacman_user'@'localhost' identified by 'prOD_1337_#&|';
+create user 'pacman_user'@'%' identified by 'prOD_1337_#&|';
+GRANT CREATE ON package_manager.* to 'pacman_user'@'%';
+GRANT CREATE ON package_manager.* to 'pacman_user'@'localhost';
+GRANT DROP ON package_manager.* to 'pacman_user'@'%';
+GRANT DROP ON package_manager.* to 'pacman_user'@'localhost';
+GRANT SELECT ON package_manager.* to 'pacman_user'@'%';
+GRANT SELECT ON package_manager.* to 'pacman_user'@'localhost';
+GRANT INSERT ON package_manager.* to 'pacman_user'@'%';
+GRANT INSERT ON package_manager.* to 'pacman_user'@'localhost';
+GRANT UPDATE ON package_manager.* to 'pacman_user'@'%';
+GRANT UPDATE ON package_manager.* to 'pacman_user'@'localhost';
+GRANT DELETE ON package_manager.* to 'pacman_user'@'%';
+GRANT DELETE ON package_manager.* to 'pacman_user'@'localhost';

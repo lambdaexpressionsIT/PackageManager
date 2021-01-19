@@ -1,0 +1,15 @@
+create database package_manager_dev;
+create user 'pacman_user_dev'@'localhost' identified by 'dEv_1337_@$!';
+create user 'pacman_user_dev'@'%' identified by 'dEv_1337_@$!';
+GRANT CREATE ON package_manager_dev.* to 'pacman_user_dev'@'%';
+GRANT CREATE ON package_manager_dev.* to 'pacman_user_dev'@'localhost';
+GRANT DROP ON package_manager_dev.* to 'pacman_user_dev'@'%';
+GRANT DROP ON package_manager_dev.* to 'pacman_user_dev'@'localhost';
+GRANT SELECT ON package_manager_dev.* to 'pacman_user_dev'@'%';
+GRANT SELECT ON package_manager_dev.* to 'pacman_user_dev'@'localhost';
+GRANT INSERT ON package_manager_dev.* to 'pacman_user_dev'@'%';
+GRANT INSERT ON package_manager_dev.* to 'pacman_user_dev'@'localhost';
+GRANT UPDATE ON package_manager_dev.* to 'pacman_user_dev'@'%';
+GRANT UPDATE ON package_manager_dev.* to 'pacman_user_dev'@'localhost';
+GRANT DELETE ON package_manager_dev.* to 'pacman_user_dev'@'%';
+GRANT DELETE ON package_manager_dev.* to 'pacman_user_dev'@'localhost';
