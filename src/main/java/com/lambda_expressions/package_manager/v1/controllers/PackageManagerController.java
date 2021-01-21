@@ -3,6 +3,7 @@ package com.lambda_expressions.package_manager.v1.controllers;
 import com.lambda_expressions.package_manager.exceptions.*;
 import com.lambda_expressions.package_manager.services.AuthenticationService;
 import com.lambda_expressions.package_manager.services.PackageService;
+import com.lambda_expressions.package_manager.v1.controllers.utils.ControllerUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,7 +17,6 @@ import java.util.List;
  * on Monday 18 January 2021
  * at 9:31 AM
  */
-
 @RestController
 @RequestMapping("api/v1/")
 public class PackageManagerController {
@@ -33,8 +33,8 @@ public class PackageManagerController {
       consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public void uploadPackage(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version, @RequestBody byte[] file)
       throws UnauthenticatedRequestException, MalformedURLException, IOFileException {
-    int intVersion = this.checkVersionParameter(appName, version);
     this.authService.authenticateRequest(httpRequest);
+    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
     this.packageService.installPackageFile(appName, intVersion, file);
   }
@@ -43,8 +43,8 @@ public class PackageManagerController {
   @PatchMapping(value = {"invalidatePackage/{appName}/{version}", "invalidatePackage/{appName}/{version}/"})
   public void invalidatePackage(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
       throws UnauthenticatedRequestException, MalformedURLException, IOFileException, PackageNotFoundException {
-    int intVersion = this.checkVersionParameter(appName, version);
     this.authService.authenticateRequest(httpRequest);
+    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
     this.packageService.invalidatePackage(appName, intVersion);
   }
@@ -55,8 +55,8 @@ public class PackageManagerController {
   public @ResponseBody
   byte[] downloadPackage(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
       throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException, IOFileException, InvalidPackageException {
-    int intVersion = this.checkVersionParameter(appName, version);
     this.authService.authenticateRequest(httpRequest);
+    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
     return this.packageService.getPackageFile(appName, intVersion);
   }
@@ -83,22 +83,10 @@ public class PackageManagerController {
   @GetMapping(value={"listPackages/{appName}/{version}", "listPackages/{appName}/{version}/"})
   public PackageDTO getPackageUrl(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
       throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
-    int intVersion = this.checkVersionParameter(appName, version);
     this.authService.authenticateRequest(httpRequest);
+    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
     return this.packageService.getPackageInfo(appName, intVersion);
-  }
-
-  private int checkVersionParameter(String appName, String version) throws MalformedURLException {
-    int intVersion = 0;
-
-    try {
-      intVersion = Integer.parseInt(version);
-    } catch (NumberFormatException formatException) {
-      throw new MalformedURLException("Version is not a number", appName, version);
-    }
-
-    return intVersion;
   }
 
 }

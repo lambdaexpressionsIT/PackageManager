@@ -17,14 +17,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RESTExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(MalformedURLException.class)
-  public ResponseEntity<Object> handleMalformedURLException(MalformedURLException e, WebRequest webRequest) {
-    return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.BAD_REQUEST);
-  }
-
   @ExceptionHandler(UnauthenticatedRequestException.class)
   public ResponseEntity<Object> handleUnauthenticatedRequestException(UnauthenticatedRequestException e, WebRequest webRequest) {
     return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(MalformedURLException.class)
+  public ResponseEntity<Object> handleMalformedURLException(MalformedURLException e, WebRequest webRequest) {
+    return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(PackageNotFoundException.class)

@@ -9,15 +9,10 @@ import com.lambda_expressions.package_manager.services.PackageService;
 import com.lambda_expressions.package_manager.services.utils.PackageUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
