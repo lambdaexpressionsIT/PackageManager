@@ -2,10 +2,8 @@ package com.lambda_expressions.package_manager.domain;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by steccothal
@@ -23,6 +21,7 @@ public class Package {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   private String appname;
+  private String filename;
   private int version;
   private String path;
   private boolean valid;

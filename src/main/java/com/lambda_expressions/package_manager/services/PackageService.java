@@ -4,7 +4,9 @@ import com.lambda_expressions.package_manager.exceptions.InvalidPackageException
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
 import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
+import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -14,15 +16,15 @@ import java.util.List;
  */
 public interface PackageService {
 
-  List<PackageDTO> listAllPackages() throws PackageNotFoundException;
+  Collection<PackageListDTO> listAllPackages() throws PackageNotFoundException;
 
-  List<PackageDTO> listAllVersions(String appName) throws PackageNotFoundException;
+  PackageListDTO listAllVersions(String appName) throws PackageNotFoundException;
 
   PackageDTO getPackageInfo(String appName, int version) throws PackageNotFoundException;
 
   byte[] getPackageFile(String appName, int version) throws PackageNotFoundException, IOFileException, InvalidPackageException;
 
-  void installPackageFile(String appName, int version, byte[] file) throws  IOFileException;
+  void installPackageFile(String appName, int version, String fileName, byte[] file) throws  IOFileException;
 
   void invalidatePackage(String appName, int version) throws PackageNotFoundException;
 

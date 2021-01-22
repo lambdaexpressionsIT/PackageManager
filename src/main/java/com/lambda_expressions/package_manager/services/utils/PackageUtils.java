@@ -5,13 +5,15 @@ import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
+import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
+import com.lambda_expressions.package_manager.v1.model.VersionDTO;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by steccothal
@@ -29,9 +31,9 @@ public class PackageUtils {
   @Value("${packages.file.extension}")
   private String PACKAGES_FILE_EXTENSION;
 
-  public void savePackageFile(String appName, int version, byte[] file) throws IOFileException {
+  public void savePackageFile(String appName, int version, String fileName, byte[] file) throws IOFileException {
     try {
-      String localRelativePath = this.composeLocalRelativePath(appName, version);
+      String localRelativePath = this.composeLocalRelativePath(appName, version, fileName);
       FileUtils.writeByteArrayToFile(new File(this.composeAbsoluteLocalPath(localRelativePath)), file);
     } catch (Exception e) {
       throw new IOFileException("can't write file", appName, version);
@@ -50,19 +52,51 @@ public class PackageUtils {
     return file;
   }
 
-  public PackageDTO composeDTOFromPackage(Package packageInfo) {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .appName(packageInfo.getAppname())
-        .appVersion(packageInfo.getVersion())
-        .url(composeURLFromLocalPath(packageInfo.getPath()))
-        .valid(packageInfo.isValid())
+  public PackageListDTO composePackageListDTOFromPackage(List<Package> packageVersions, String appName) {
+    return PackageListDTO.builder()
+        .appName(appName)
+        .versions(packageVersions.stream()
+            .map(pInfo -> VersionDTO.builder()
+                .appVersion(pInfo.getVersion())
+                .fileName(pInfo.getFilename())
+                .valid(pInfo.isValid())
+                .url(composeURLFromLocalPath(pInfo.getPath()))
+                .build())
+            .collect(Collectors.toList()))
         .build();
-
-    return packageDTO;
   }
 
-  public String composeLocalRelativePath(String appName, int version) {
-    return String.format("%s%s%s%s%s%s", appName, File.separator, version, File.separator, appName, PACKAGES_FILE_EXTENSION);
+  public Collection<PackageListDTO> composePackageListDTOFromPackageList(Iterable<Package> packages) {
+    Map<String, PackageListDTO> packagesMap = new HashMap<>();
+
+    packages.forEach(pInfo -> {
+      packagesMap.putIfAbsent(pInfo.getAppname(), PackageListDTO.builder()
+          .appName(pInfo.getAppname())
+          .versions(new ArrayList<>())
+          .build());
+      packagesMap.get(pInfo.getAppname()).getVersions().add(VersionDTO.builder()
+          .appVersion(pInfo.getVersion())
+          .fileName(pInfo.getFilename())
+          .valid(pInfo.isValid())
+          .url(composeURLFromLocalPath(pInfo.getPath()))
+          .build());
+    });
+
+    return packagesMap.values();
+  }
+
+  public PackageDTO composePackageDTOFromPackage(Package packageInfo) {
+    return PackageDTO.builder()
+        .appName(packageInfo.getAppname())
+        .appVersion(packageInfo.getVersion())
+        .fileName(packageInfo.getFilename())
+        .valid(packageInfo.isValid())
+        .url(composeURLFromLocalPath(packageInfo.getPath()))
+        .build();
+  }
+
+  public String composeLocalRelativePath(String appName, int version, String fileName) {
+    return String.format("%s%s%s%s%s%s", appName, File.separator, version, File.separator, fileName, PACKAGES_FILE_EXTENSION);
   }
 
   public String composeAbsoluteLocalPath(String relativeLocalPath) {
@@ -80,18 +114,16 @@ public class PackageUtils {
     }
   }
 
-  public List<Package> checkDataRetrieved(List<Package> packageList, String appName, int version) throws PackageNotFoundException {
-    List<Package> packages = this.checkRepositoryResult(packageList, appName, version);
+  public void checkRepositoryIterableResult(Iterable<Package> packageList, String appName, boolean breakOnEmpty) throws PackageNotFoundException {
+    this.checkRepositoryResult(packageList, appName, -1);
 
-    if(packages.isEmpty()){
-      throw new PackageNotFoundException("Package not found", appName, version);
+    if (!packageList.iterator().hasNext() && breakOnEmpty) {
+      throw new PackageNotFoundException("Package not found", appName, -1);
     }
-
-    return packages;
   }
 
-  public <T> T checkRepositoryResult(T packageInfo, String appName, int version) throws PackageNotFoundException {
-    return Optional.ofNullable(packageInfo)
+  public <T> void checkRepositoryResult(T packageInfo, String appName, int version) throws PackageNotFoundException {
+    Optional.ofNullable(packageInfo)
         .orElseThrow(() -> new PackageNotFoundException("Package not found", appName, version));
   }
 }

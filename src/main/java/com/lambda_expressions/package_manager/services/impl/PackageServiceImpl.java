@@ -8,12 +8,13 @@ import com.lambda_expressions.package_manager.repositories.PackageRepository;
 import com.lambda_expressions.package_manager.services.PackageService;
 import com.lambda_expressions.package_manager.services.utils.PackageUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
+import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by steccothal
@@ -33,26 +34,21 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public List<PackageDTO> listAllPackages(){
+  public Collection<PackageListDTO> listAllPackages() throws PackageNotFoundException {
     Iterable<Package> packages = this.packageRepo.findAll();
-    List<PackageDTO> packagesList = new ArrayList<>();
 
-    try {
-      this.packageUtils.checkRepositoryResult(packages, "", -1)
-          .forEach(packageInfo -> packagesList.add(this.packageUtils.composeDTOFromPackage(packageInfo)));
-    }catch (PackageNotFoundException e){
-      log.info("No packages found in DB");
-    }
+    this.packageUtils.checkRepositoryIterableResult(packages, "", false);
 
-    return packagesList;
+    return this.packageUtils.composePackageListDTOFromPackageList(packages);
   }
 
   @Override
-  public List<PackageDTO> listAllVersions(String appName) throws PackageNotFoundException {
+  public PackageListDTO listAllVersions(String appName) throws PackageNotFoundException {
     List<Package> packages = this.packageRepo.findByAppnameIgnoreCase(appName);
 
-    return this.packageUtils.checkDataRetrieved(packages, appName, -1).stream()
-        .map(pInfo->this.packageUtils.composeDTOFromPackage(pInfo)).collect(Collectors.toList());
+    this.packageUtils.checkRepositoryIterableResult(packages, appName, true);
+
+    return this.packageUtils.composePackageListDTOFromPackage(packages, appName);
   }
 
   @Override
@@ -61,7 +57,7 @@ public class PackageServiceImpl implements PackageService {
 
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
 
-    return this.packageUtils.composeDTOFromPackage(packageInfo);
+    return this.packageUtils.composePackageDTOFromPackage(packageInfo);
   }
 
   @Override
@@ -75,11 +71,11 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public void installPackageFile(String appName, int version, byte[] file) throws IOFileException {
+  public void installPackageFile(String appName, int version, String fileName, byte[] file) throws IOFileException {
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
 
-    this.packageUtils.savePackageFile(appName, version, file);
-    this.persistNewPackageInfo(packageInfo, appName, version);
+    this.packageUtils.savePackageFile(appName, version, fileName, file);
+    this.persistNewPackageInfo(packageInfo, appName, version, fileName);
   }
 
   @Override
@@ -95,15 +91,16 @@ public class PackageServiceImpl implements PackageService {
     this.packageRepo.save(packageInfo);
   }
 
-  private void persistNewPackageInfo(Package packageInfo, String appName, int version){
+  private void persistNewPackageInfo(Package packageInfo, String appName, int version, String fileName){
     try{
       this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     } catch (PackageNotFoundException e){
       packageInfo = Package.builder()
           .appname(appName)
           .version(version)
+          .filename(fileName)
           .valid(false)
-          .path(this.packageUtils.composeLocalRelativePath(appName, version))
+          .path(this.packageUtils.composeLocalRelativePath(appName, version, fileName))
           .build();
     }
 

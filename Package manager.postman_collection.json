@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "fd9d1432-7a9a-4784-bbcc-bbd53a9a62ac",
+		"name": "Lottomatica - Package manager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "listAllPackages",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.1-SNAPSHOT/api/v1/listPackages/",
+					"protocol": "http",
+					"host": [
+						"10",
+						"142",
+						"0",
+						"4"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager-0.0.1-SNAPSHOT",
+						"api",
+						"v1",
+						"listPackages",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listOneApp",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.1-SNAPSHOT/api/v1/listPackages/Spending",
+					"protocol": "http",
+					"host": [
+						"10",
+						"142",
+						"0",
+						"4"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager-0.0.1-SNAPSHOT",
+						"api",
+						"v1",
+						"listPackages",
+						"Spending"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listOneVersion",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.1-SNAPSHOT/api/v1/listPackages/Spending/1",
+					"protocol": "http",
+					"host": [
+						"10",
+						"142",
+						"0",
+						"4"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager-0.0.1-SNAPSHOT",
+						"api",
+						"v1",
+						"listPackages",
+						"Spending",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOnePackageFile",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.1-SNAPSHOT/api/v1/downloadPackage/Spending/1",
+					"protocol": "http",
+					"host": [
+						"10",
+						"142",
+						"0",
+						"4"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager-0.0.1-SNAPSHOT",
+						"api",
+						"v1",
+						"downloadPackage",
+						"Spending",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "installOnePackage",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/octet-stream",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "/C:/tmp/LisXTe_1.0.10_b1.apk"
+					}
+				},
+				"url": {
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.1-SNAPSHOT/api/v1/uploadPackage/LisXTe/1/LisXTe_1.0.10_b1",
+					"protocol": "http",
+					"host": [
+						"10",
+						"142",
+						"0",
+						"4"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager-0.0.1-SNAPSHOT",
+						"api",
+						"v1",
+						"uploadPackage",
+						"LisXTe",
+						"1",
+						"LisXTe_1.0.10_b1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "invalidateOnePackage",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.1-SNAPSHOT/api/v1/invalidatePackage/LisXTe/1",
+					"protocol": "http",
+					"host": [
+						"10",
+						"142",
+						"0",
+						"4"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager-0.0.1-SNAPSHOT",
+						"api",
+						"v1",
+						"invalidatePackage",
+						"LisXTe",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
