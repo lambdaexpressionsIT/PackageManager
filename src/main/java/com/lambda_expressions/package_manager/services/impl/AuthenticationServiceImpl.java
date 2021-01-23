@@ -25,16 +25,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   public void authenticateRequest(HttpServletRequest httpReq) throws UnauthenticatedRequestException {
     String token = this.getUserTokenFromRequest(httpReq);
 
-    if(!this.authenticateUser(token)){
-      throw new UnauthenticatedRequestException(httpReq, token, "User cannot be authenticated");
+    if (!this.authenticateUser(token)) {
+      throw new UnauthenticatedRequestException(token, "User cannot be authenticated");
     }
   }
 
-  private String getUserTokenFromRequest(HttpServletRequest httpReq){
+  private String getUserTokenFromRequest(HttpServletRequest httpReq) {
     return httpReq.getHeader(AUTH_TOKEN_HTTP_HEADER);
   }
 
-  private boolean authenticateUser(String token){
+  private boolean authenticateUser(String token) {
     return true;
   }
 }

@@ -9,7 +9,7 @@ import com.lambda_expressions.package_manager.exceptions.MalformedURLException;
  */
 public class ControllerUtils {
   public static int checkVersionParameter(String appName, String version) throws MalformedURLException {
-    int intVersion = 0;
+    int intVersion;
 
     try {
       intVersion = Integer.parseInt(version);

@@ -1,6 +1,5 @@
 package com.lambda_expressions.package_manager.v1.model;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -12,8 +11,8 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class VersionDTO {
-  private int appVersion;
-  private String fileName;
-  private String url;
-  private boolean valid;
+  private final int appVersion;
+  private final String fileName;
+  private final String url;
+  private final boolean valid;
 }

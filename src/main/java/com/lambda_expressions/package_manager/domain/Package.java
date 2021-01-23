@@ -1,9 +1,12 @@
 package com.lambda_expressions.package_manager.domain;
 
+
 import lombok.*;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 /**
  * Created by steccothal

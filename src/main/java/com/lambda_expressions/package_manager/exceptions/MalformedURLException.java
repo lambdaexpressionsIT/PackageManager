@@ -5,12 +5,8 @@ package com.lambda_expressions.package_manager.exceptions;
  * on Monday 18 January 2021
  * at 12:01 PM
  */
-public class MalformedURLException extends PackageException{
-  String appName;
-  String version;
-
+public class MalformedURLException extends PackageException {
   public MalformedURLException(String message, String appName, String version) {
     super(message, appName, version);
   }
-
 }

@@ -1,18 +1,18 @@
 package com.lambda_expressions.package_manager.services.impl;
 
 import com.lambda_expressions.package_manager.domain.Package;
+import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
-import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.repositories.PackageRepository;
 import com.lambda_expressions.package_manager.services.PackageService;
+import com.lambda_expressions.package_manager.services.utils.FileIOUtils;
 import com.lambda_expressions.package_manager.services.utils.PackageUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,10 +27,12 @@ public class PackageServiceImpl implements PackageService {
 
   PackageRepository packageRepo;
   PackageUtils packageUtils;
+  FileIOUtils fileIOUtils;
 
-  public PackageServiceImpl(PackageRepository packageRepo, PackageUtils packageUtils) {
+  public PackageServiceImpl(PackageRepository packageRepo, PackageUtils packageUtils, FileIOUtils fileIOUtils) {
     this.packageRepo = packageRepo;
     this.packageUtils = packageUtils;
+    this.fileIOUtils = fileIOUtils;
   }
 
   @Override
@@ -67,14 +69,14 @@ public class PackageServiceImpl implements PackageService {
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     this.packageUtils.checkPackageValidity(packageInfo);
 
-    return this.packageUtils.loadPackageFile(packageInfo);
+    return this.fileIOUtils.loadPackageFile(packageInfo);
   }
 
   @Override
   public void installPackageFile(String appName, int version, String fileName, byte[] file) throws IOFileException {
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
 
-    this.packageUtils.savePackageFile(appName, version, fileName, file);
+    this.fileIOUtils.savePackageFile(appName, version, fileName, file, this.packageUtils);
     this.persistNewPackageInfo(packageInfo, appName, version, fileName);
   }
 
@@ -86,15 +88,15 @@ public class PackageServiceImpl implements PackageService {
     this.persistPackageInvalidation(packageInfo);
   }
 
-  private void persistPackageInvalidation(Package packageInfo){
+  private void persistPackageInvalidation(Package packageInfo) {
     packageInfo.setValid(false);
     this.packageRepo.save(packageInfo);
   }
 
-  private void persistNewPackageInfo(Package packageInfo, String appName, int version, String fileName){
-    try{
+  private void persistNewPackageInfo(Package packageInfo, String appName, int version, String fileName) {
+    try {
       this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
-    } catch (PackageNotFoundException e){
+    } catch (PackageNotFoundException e) {
       packageInfo = Package.builder()
           .appname(appName)
           .version(version)
@@ -104,7 +106,7 @@ public class PackageServiceImpl implements PackageService {
           .build();
     }
 
-    if(!packageInfo.isValid()){
+    if (!packageInfo.isValid()) {
       packageInfo.setValid(true);
       this.packageRepo.save(packageInfo);
     }

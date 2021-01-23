@@ -1,13 +1,12 @@
 package com.lambda_expressions.package_manager.services;
 
+import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
-import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by steccothal
@@ -24,7 +23,7 @@ public interface PackageService {
 
   byte[] getPackageFile(String appName, int version) throws PackageNotFoundException, IOFileException, InvalidPackageException;
 
-  void installPackageFile(String appName, int version, String fileName, byte[] file) throws  IOFileException;
+  void installPackageFile(String appName, int version, String fileName, byte[] file) throws IOFileException;
 
   void invalidatePackage(String appName, int version) throws PackageNotFoundException;
 

@@ -1,7 +1,5 @@
 package com.lambda_expressions.package_manager.v1.model;
 
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -12,6 +10,6 @@ import lombok.experimental.SuperBuilder;
  */
 @Getter
 @SuperBuilder
-public class PackageDTO extends VersionDTO{
-  private String appName;
+public class PackageDTO extends VersionDTO {
+  private final String appName;
 }

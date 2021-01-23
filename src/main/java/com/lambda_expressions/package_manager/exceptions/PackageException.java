@@ -8,18 +8,18 @@ import lombok.extern.slf4j.Slf4j;
  * at 12:33 PM
  */
 @Slf4j
-public class PackageException extends Exception{
+public class PackageException extends Exception {
   String appName;
   String version;
 
   public PackageException(String message, String appName, int version) {
-    this(message, appName, version>=0?String.valueOf(version):"");
+    this(message, appName, version >= 0 ? String.valueOf(version) : "");
   }
 
   public PackageException(String message, String appName, String version) {
     super(message);
     this.appName = appName;
     this.version = version;
-    log.error(String.format("%s: %s %s",message, appName, version));
+    log.error(String.format("%s: %s %s", message, appName, version));
   }
 }

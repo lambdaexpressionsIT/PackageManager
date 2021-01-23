@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by steccothal
@@ -45,7 +44,7 @@ public class PackageManagerController {
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping(value = {"invalidatePackage/{appName}/{version}", "invalidatePackage/{appName}/{version}/"})
   public void invalidatePackage(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
-      throws UnauthenticatedRequestException, MalformedURLException, IOFileException, PackageNotFoundException {
+      throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
     int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
@@ -65,7 +64,7 @@ public class PackageManagerController {
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value={"listPackages", "listPackages/"})
+  @GetMapping(value = {"listPackages", "listPackages/"})
   public Collection<PackageListDTO> listPackages(HttpServletRequest httpRequest)
       throws UnauthenticatedRequestException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
@@ -83,8 +82,8 @@ public class PackageManagerController {
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value={"listPackages/{appName}/{version}", "listPackages/{appName}/{version}/"})
-  public PackageDTO getPackageUrl(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
+  @GetMapping(value = {"listPackages/{appName}/{version}", "listPackages/{appName}/{version}/"})
+  public PackageDTO listPackageInfo(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
       throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
     int intVersion = ControllerUtils.checkVersionParameter(appName, version);

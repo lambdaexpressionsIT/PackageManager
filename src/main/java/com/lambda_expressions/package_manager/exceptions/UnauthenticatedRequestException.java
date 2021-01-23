@@ -1,20 +1,16 @@
 package com.lambda_expressions.package_manager.exceptions;
 
-import javax.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by steccothal
  * on Monday 18 January 2021
  * at 11:47 AM
  */
-public class UnauthenticatedRequestException extends Exception{
-
-  private HttpServletRequest httpRequest;
-  private String userToken;
-
-  public UnauthenticatedRequestException(HttpServletRequest httpRequest, String userToken, String message) {
+@Slf4j
+public class UnauthenticatedRequestException extends Exception {
+  public UnauthenticatedRequestException(String userToken, String message) {
     super(message);
-    this.httpRequest = httpRequest;
-    this.userToken = userToken;
+    log.error(String.format("%s. UserToken: %s", message, userToken));
   }
 }

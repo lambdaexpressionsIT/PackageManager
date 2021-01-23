@@ -5,7 +5,7 @@ package com.lambda_expressions.package_manager.exceptions;
  * on Monday 18 January 2021
  * at 8:35 PM
  */
-public class InvalidPackageException extends PackageException{
+public class InvalidPackageException extends PackageException {
   public InvalidPackageException(String message, String appName, int version) {
     super(message, appName, version);
   }

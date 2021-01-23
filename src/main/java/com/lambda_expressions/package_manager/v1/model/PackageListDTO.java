@@ -1,7 +1,7 @@
 package com.lambda_expressions.package_manager.v1.model;
 
-import lombok.Data;
 import lombok.Builder;
+import lombok.Data;
 
 import java.util.List;
 
