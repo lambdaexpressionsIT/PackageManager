@@ -40,7 +40,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PackageServiceImplTest {
 
-  private static final String PACKAGES_FILE_EXTENSION = ".bib";
+  private static final String PACKAGES_FILE_EXTENSION = "bib";
   private static final String PACKAGES_WEBSERVER_BASEURL = "http://bob.bub";
   private static final String PACKAGE_FILENAME = "fileName";
   private static final String PACKAGE_APPNAME = "appName";
@@ -50,7 +50,7 @@ class PackageServiceImplTest {
 
   private static final Package PACKAGE_V1_INFO = Package.builder()
       .filename(PACKAGE_FILENAME)
-      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
+      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
       .valid(true)
       .version(PACKAGE_VERSION_1)
       .appname(PACKAGE_APPNAME)
@@ -58,7 +58,7 @@ class PackageServiceImplTest {
 
   private static final Package PACKAGE_V2_INFO = Package.builder()
       .filename(PACKAGE_FILENAME)
-      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_2 + File.separator + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
+      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_2 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
       .valid(true)
       .version(PACKAGE_VERSION_2)
       .appname(PACKAGE_APPNAME)
@@ -66,7 +66,7 @@ class PackageServiceImplTest {
 
   private static final PackageDTO PACKAGE_DTO = PackageDTO.builder()
       .fileName(PACKAGE_FILENAME)
-      .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
+      .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
       .appName(PACKAGE_APPNAME)
@@ -74,14 +74,14 @@ class PackageServiceImplTest {
 
   private static final VersionDTO VERSION_1_DTO = VersionDTO.builder()
       .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION))
+      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION))
       .valid(true)
       .appVersion(PACKAGE_VERSION_1)
       .build();
 
   private static final VersionDTO VERSION_2_DTO = VersionDTO.builder()
       .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION))
+      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION))
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
       .build();
@@ -201,7 +201,7 @@ class PackageServiceImplTest {
   void invalidatePackage() throws PackageNotFoundException {
     Package packageToInvalidate = Package.builder()
         .filename(PACKAGE_FILENAME)
-        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
+        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
         .valid(true)
         .version(PACKAGE_VERSION_1)
         .appname(PACKAGE_APPNAME)
@@ -247,7 +247,7 @@ class PackageServiceImplTest {
   void getPackageFileInvalid() {
     Package invalidPackage = Package.builder()
         .filename(PACKAGE_FILENAME)
-        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
+        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
         .valid(false)
         .version(PACKAGE_VERSION_1)
         .appname(PACKAGE_APPNAME)

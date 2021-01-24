@@ -70,7 +70,7 @@ public class PackageUtils {
   }
 
   public String composeLocalRelativePath(String appName, int version, String fileName) {
-    return String.format("%s%s%s%s%s%s", appName, File.separator, version, File.separator, fileName, PACKAGES_FILE_EXTENSION);
+    return String.format("%s%s%s%s%s%s%s", appName, File.separator, version, File.separator, fileName, ".", PACKAGES_FILE_EXTENSION);
   }
 
   public String composeURLFromLocalPath(String localPath) {
