@@ -11,7 +11,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.1/api/v1/listPackages/",
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.2/api/v1/listPackages/",
 					"protocol": "http",
 					"host": [
 						"10",
@@ -21,7 +21,7 @@
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.1",
+						"package-manager-0.0.2",
 						"api",
 						"v1",
 						"listPackages",
@@ -37,7 +37,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.1/api/v1/listPackages/Spending",
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.2/api/v1/listPackages/Spending",
 					"protocol": "http",
 					"host": [
 						"10",
@@ -47,7 +47,7 @@
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.1",
+						"package-manager-0.0.2",
 						"api",
 						"v1",
 						"listPackages",
@@ -63,7 +63,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.1/api/v1/listPackages/Spending/1",
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.2/api/v1/listPackages/Spending/1",
 					"protocol": "http",
 					"host": [
 						"10",
@@ -73,11 +73,37 @@
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.1",
+						"package-manager-0.0.2",
 						"api",
 						"v1",
 						"listPackages",
 						"Spending",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listOneVersionById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.2/api/v1/getPackage/1",
+					"protocol": "http",
+					"host": [
+						"10",
+						"142",
+						"0",
+						"4"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager-0.0.2",
+						"api",
+						"v1",
+						"getPackage",
 						"1"
 					]
 				}
@@ -90,7 +116,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.1/api/v1/downloadPackage/Spending/1",
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.2/api/v1/downloadPackage/Spending/1",
 					"protocol": "http",
 					"host": [
 						"10",
@@ -100,7 +126,7 @@
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.1",
+						"package-manager-0.0.2",
 						"api",
 						"v1",
 						"downloadPackage",
@@ -129,7 +155,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.1/api/v1/uploadPackage/LisXTe/1/LisXTe_1.0.10_b1",
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.2/api/v1/uploadPackage/LisXTe/1/LisXTe_1.0.10_b1",
 					"protocol": "http",
 					"host": [
 						"10",
@@ -139,7 +165,7 @@
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.1",
+						"package-manager-0.0.2",
 						"api",
 						"v1",
 						"uploadPackage",
@@ -157,7 +183,7 @@
 				"method": "PATCH",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.1/api/v1/invalidatePackage/LisXTe/1",
+					"raw": "http://10.142.0.4:8080/package-manager-0.0.2/api/v1/invalidatePackage/LisXTe/1",
 					"protocol": "http",
 					"host": [
 						"10",
@@ -167,7 +193,7 @@
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.1",
+						"package-manager-0.0.2",
 						"api",
 						"v1",
 						"invalidatePackage",

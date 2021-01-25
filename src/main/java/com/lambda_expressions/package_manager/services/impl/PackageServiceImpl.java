@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by steccothal
@@ -60,6 +61,15 @@ public class PackageServiceImpl implements PackageService {
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
 
     return this.packageUtils.composePackageDTOFromPackage(packageInfo);
+  }
+
+  @Override
+  public PackageDTO getPackageInfoById(long id) throws PackageNotFoundException {
+    Optional<Package> packageInfo = this.packageRepo.findById(id);
+
+    packageInfo.orElseThrow(()->new PackageNotFoundException("ID not found", Long.toString(id), -1));
+
+    return this.packageUtils.composePackageDTOFromPackage(packageInfo.get());
   }
 
   @Override

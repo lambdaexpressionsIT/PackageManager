@@ -31,6 +31,7 @@ public class PackageUtils {
         .appName(appName)
         .versions(packageVersions.stream()
             .map(pInfo -> VersionDTO.builder()
+                .id(pInfo.getId())
                 .appVersion(pInfo.getVersion())
                 .fileName(pInfo.getFilename())
                 .valid(pInfo.isValid())
@@ -49,6 +50,7 @@ public class PackageUtils {
           .versions(new ArrayList<>())
           .build());
       packagesMap.get(pInfo.getAppname()).getVersions().add(VersionDTO.builder()
+          .id(pInfo.getId())
           .appVersion(pInfo.getVersion())
           .fileName(pInfo.getFilename())
           .valid(pInfo.isValid())
@@ -61,6 +63,7 @@ public class PackageUtils {
 
   public PackageDTO composePackageDTOFromPackage(Package packageInfo) {
     return PackageDTO.builder()
+        .id(packageInfo.getId())
         .appName(packageInfo.getAppname())
         .appVersion(packageInfo.getVersion())
         .fileName(packageInfo.getFilename())

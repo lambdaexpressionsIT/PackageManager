@@ -21,6 +21,8 @@ public interface PackageService {
 
   PackageDTO getPackageInfo(String appName, int version) throws PackageNotFoundException;
 
+  PackageDTO getPackageInfoById(long id) throws PackageNotFoundException;
+
   byte[] getPackageFile(String appName, int version) throws PackageNotFoundException, IOFileException, InvalidPackageException;
 
   void installPackageFile(String appName, int version, String fileName, byte[] file) throws IOFileException;

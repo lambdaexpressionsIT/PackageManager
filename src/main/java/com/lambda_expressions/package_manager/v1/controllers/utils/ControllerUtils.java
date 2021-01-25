@@ -19,4 +19,16 @@ public class ControllerUtils {
 
     return intVersion;
   }
+
+  public static long checkIdParameter(String appId) throws MalformedURLException {
+    long longId;
+
+    try {
+      longId = Long.parseLong(appId);
+    } catch (NumberFormatException formatException) {
+      throw new MalformedURLException("ID is not a number", "unknown appName", appId);
+    }
+
+    return longId;
+  }
 }

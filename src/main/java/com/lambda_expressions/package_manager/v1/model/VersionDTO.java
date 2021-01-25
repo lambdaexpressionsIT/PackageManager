@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 public class VersionDTO {
+  private final long id;
   private final int appVersion;
   private final String fileName;
   private final String url;

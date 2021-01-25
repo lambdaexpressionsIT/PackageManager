@@ -50,6 +50,8 @@ class PackageManagerControllerTest {
   private static final String PACKAGES_WEBSERVER_BASEURL = "http://localhost:8080";
   private static final String PACKAGE_FILENAME = "Spending_1.9";
   private static final String PACKAGE_APPNAME = "Spending";
+  private static final long PACKAGE_V1_ID = 100;
+  private static final long PACKAGE_V2_ID = 200;
   private static final int PACKAGE_VERSION_1 = 1;
   private static final int PACKAGE_VERSION_2 = 2;
   private static final byte[] DUMMY_BYTE_ARRAY = "This is the payload of an uploadPackage request, the byte array of a package file".getBytes();
@@ -59,16 +61,19 @@ class PackageManagerControllerTest {
   private static final String LIST_ALL_PACKAGES_URL = REST_SERVICES_BASE_URL + "/listPackages";
   private static final String LIST_PACKAGE_VERSIONS_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending";
   private static final String LIST_VERSION_INFO_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending/2";
+  private static final String GET_PACKAGE_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackage/100";
   private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/2";
   private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage/Spending/1/Spending_1.9";
   private static final String GET_PACKAGE_FILE_URL = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/2";
 
   private static final String LIST_VERSION_INFO_URL_MALFORMED = REST_SERVICES_BASE_URL + "/listPackages/Spending/NaN";
+  private static final String GET_PACKAGE_BY_ID_URL_MALFORMED = REST_SERVICES_BASE_URL + "/getPackage/NaN";
   private static final String INVALIDATE_PACKAGE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/NaN";
   private static final String UPLOAD_PACKAGE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/uploadPackage/Spending/NaN/Spending_1.9";
   private static final String GET_PACKAGE_FILE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/NaN";
 
   private static final VersionDTO version1DTO = VersionDTO.builder()
+      .id(PACKAGE_V1_ID)
       .fileName(PACKAGE_FILENAME)
       .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION))
       .valid(true)
@@ -76,6 +81,7 @@ class PackageManagerControllerTest {
       .build();
 
   private static final VersionDTO version2DTO = VersionDTO.builder()
+      .id(PACKAGE_V2_ID)
       .fileName("Spending_2.5")
       .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + "Spending_2.5" + PACKAGES_FILE_EXTENSION))
       .valid(true)
@@ -118,6 +124,7 @@ class PackageManagerControllerTest {
         .versions(lisXTeVersionDTOArrayList)
         .build();
     VersionDTO lisXTeVersion1 = VersionDTO.builder()
+        .id(300l)
         .appVersion(1)
         .fileName("LisXTe_1.0.10_b1.apk")
         .url(PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk")
@@ -143,10 +150,12 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$[0].appName").value(spendingPackageListDTO.getAppName()))
         .andExpect(jsonPath("$[0].versions").isArray())
         .andExpect(jsonPath("$[0].versions.length()").value(spendingPackageListDTO.getVersions().size()))
+        .andExpect(jsonPath("$[0].versions[0].id").value(spendingPackageListDTO.getVersions().get(0).getId()))
         .andExpect(jsonPath("$[0].versions[0].appVersion").value(spendingPackageListDTO.getVersions().get(0).getAppVersion()))
         .andExpect(jsonPath("$[0].versions[0].fileName").value(spendingPackageListDTO.getVersions().get(0).getFileName()))
         .andExpect(jsonPath("$[0].versions[0].valid").value(spendingPackageListDTO.getVersions().get(0).isValid()))
         .andExpect(jsonPath("$[0].versions[0].url").value(spendingPackageListDTO.getVersions().get(0).getUrl()))
+        .andExpect(jsonPath("$[0].versions[1].id").value(spendingPackageListDTO.getVersions().get(1).getId()))
         .andExpect(jsonPath("$[0].versions[1].appVersion").value(spendingPackageListDTO.getVersions().get(1).getAppVersion()))
         .andExpect(jsonPath("$[0].versions[1].fileName").value(spendingPackageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$[0].versions[1].valid").value(spendingPackageListDTO.getVersions().get(1).isValid()))
@@ -155,7 +164,8 @@ class PackageManagerControllerTest {
             fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server"),
             fieldWithPath("[].appName").description("Nome dell'applicazione"),
             fieldWithPath("[].versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
-            fieldWithPath("[].versions[].appVersion").description("Identificativo della versione dell'applicazione (intero)"),
+            fieldWithPath("[].versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
+            fieldWithPath("[].versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
             fieldWithPath("[].versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("[].versions[].valid").description("Flag indicante la validita di un package. Se settato a false, il file corrispondente non puo essere scaricato tromaite il servizio 'downloadPackage'"),
             fieldWithPath("[].versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -201,10 +211,12 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.appName").value(packageListDTO.getAppName()))
         .andExpect(jsonPath("$.versions").isArray())
         .andExpect(jsonPath("$.versions.length()").value(packageListDTO.getVersions().size()))
+        .andExpect(jsonPath("$.versions[0].id").value(packageListDTO.getVersions().get(0).getId()))
         .andExpect(jsonPath("$.versions[0].appVersion").value(packageListDTO.getVersions().get(0).getAppVersion()))
         .andExpect(jsonPath("$.versions[0].fileName").value(packageListDTO.getVersions().get(0).getFileName()))
         .andExpect(jsonPath("$.versions[0].valid").value(packageListDTO.getVersions().get(0).isValid()))
         .andExpect(jsonPath("$.versions[0].url").value(packageListDTO.getVersions().get(0).getUrl()))
+        .andExpect(jsonPath("$.versions[1].id").value(packageListDTO.getVersions().get(1).getId()))
         .andExpect(jsonPath("$.versions[1].appVersion").value(packageListDTO.getVersions().get(1).getAppVersion()))
         .andExpect(jsonPath("$.versions[1].fileName").value(packageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$.versions[1].valid").value(packageListDTO.getVersions().get(1).isValid()))
@@ -212,7 +224,8 @@ class PackageManagerControllerTest {
         .andDo(document("listPackageVersions", responseFields(
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
             fieldWithPath("versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
-            fieldWithPath("versions[].appVersion").description("Identificativo della versione dell'applicazione (intero)"),
+            fieldWithPath("versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
+            fieldWithPath("versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
             fieldWithPath("versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("versions[].valid").description("Flag indicante la validita di un package. Se settato a false, il file corrispondente non puo essere scaricato tromaite il servizio 'downloadPackage'"),
             fieldWithPath("versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -237,6 +250,7 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackageVersion() throws Exception {
     PackageDTO packageDTO = PackageDTO.builder()
+        .id(PACKAGE_V1_ID)
         .fileName(PACKAGE_FILENAME)
         .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
         .valid(true)
@@ -249,14 +263,16 @@ class PackageManagerControllerTest {
     mockMvc.perform(get(LIST_VERSION_INFO_URL))
         //then
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(packageDTO.getId()))
         .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
         .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
         .andDo(document("listPackageVersionInfo", responseFields(
+            fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
-            fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione (intero)"),
+            fieldWithPath("appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
             fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("valid").description("Flag indicante la validita di un package. Se settato a false, il file corrispondente non puo essere scaricato tromaite il servizio 'downloadPackage'"),
             fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -285,6 +301,65 @@ class PackageManagerControllerTest {
         .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
         .andDo(document("listPackageVersionInfoMalformedURL"));
   }
+
+  /*
+   * getPackageById
+   */
+  @Test
+  public void testGetPackageById() throws Exception {
+    PackageDTO packageDTO = PackageDTO.builder()
+        .id(PACKAGE_V1_ID)
+        .fileName(PACKAGE_FILENAME)
+        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
+        .valid(true)
+        .appVersion(PACKAGE_VERSION_1)
+        .appName(PACKAGE_APPNAME)
+        .build();
+    //given
+    given(packageService.getPackageInfoById(anyLong())).willReturn(packageDTO);
+    //when
+    mockMvc.perform(get(GET_PACKAGE_BY_ID_URL))
+        //then
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(packageDTO.getId()))
+        .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
+        .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
+        .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
+        .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
+        .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
+        .andDo(document("getPackageById", responseFields(
+            fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
+            fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
+            fieldWithPath("appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
+            fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
+            fieldWithPath("valid").description("Flag indicante la validita di un package. Se settato a false, il file corrispondente non puo essere scaricato tromaite il servizio 'downloadPackage'"),
+            fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
+        )));
+  }
+
+  @Test
+  public void testGetPackageByIdNotFound() throws Exception {
+    //given
+    given(packageService.getPackageInfoById(anyLong())).willThrow(PackageNotFoundException.class);
+    //when
+    mockMvc.perform(get(REST_SERVICES_BASE_URL + "/getPackage/1010101"))
+        //then
+        .andExpect(status().isNotFound())
+        .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
+        .andDo(document("getPackageByIdNotFound"));
+  }
+
+  @Test
+  public void testGetPackageByIdMalformedURL() throws Exception {
+    //given
+    //when
+    mockMvc.perform(get(GET_PACKAGE_FILE_URL_MALFORMED))
+        //then
+        .andExpect(status().isBadRequest())
+        .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
+        .andDo(document("getPackageByIdMalformedURL"));
+  }
+
 
   /*
    * downloadPackage

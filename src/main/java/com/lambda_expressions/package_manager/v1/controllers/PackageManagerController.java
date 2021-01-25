@@ -91,4 +91,14 @@ public class PackageManagerController {
     return this.packageService.getPackageInfo(appName, intVersion);
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = {"getPackage/{appId}", "listPackages/{appId}/"})
+  public PackageDTO getPackageInfoById(HttpServletRequest httpRequest, @PathVariable String appId)
+      throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
+    this.authService.authenticateRequest(httpRequest);
+    long longId = ControllerUtils.checkIdParameter(appId);
+
+    return this.packageService.getPackageInfoById(longId);
+  }
+
 }

@@ -72,7 +72,7 @@ include::{snippets}/listNotFoundPackageVersions/http-request.adoc[]
 .HTTP response
 include::{snippets}/listNotFoundPackageVersions/http-response.adoc[]
 
-=== Informazioni di una specifica versione
+=== Informazioni di una specifica versione (per applicazione/versione)
 
 Questo servizio ritorna tutte le informazioni relative a una singola versione di un'applicazione presente sul server.
 Risponde all'indirizzo
@@ -111,6 +111,48 @@ include::{snippets}/listPackageVersionInfoMalformedURL/http-request.adoc[]
 
 .HTTP response
 include::{snippets}/listPackageVersionInfoMalformedURL/http-response.adoc[]
+
+=== Informazioni di una specifica versione (per id)
+
+Questo servizio, come il precedente, ritorna tutte le informazioni relative a una singola versione di un'applicazione presente sul server.
+La differenza rispetto al precedente servizio risiede nel parametro di ricerca.
+In questo caso, invece di usare la combinazione applicazione/versione, si usa l'id, identificativo univoco della specifica combinazione applicazione/versione ricercata.
+Risponde all'indirizzo
+
+*_/api/v1/getPackage/appId_*
+
+dove *_appId_* è l'identificativo univoco della specifica combinazione applicazione/versione ricercata.
+
+.HTTP request
+include::{snippets}/getPackageById/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getPackageById/http-response.adoc[]
+
+.Elementi della HTTP response
+include::{snippets}/getPackageById/response-fields.adoc[]
+
+==== Errori
+
+===== Id non presente
+
+Nel caso in cui l'id ricercato non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
+
+.HTTP request
+include::{snippets}/getPackageByIdNotFound/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getPackageByIdNotFound/http-response.adoc[]
+
+===== Malformed URL
+
+Nel caso in cui il parametro *_appID_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
+
+.HTTP request
+include::{snippets}/getPackageByIdMalformedURL/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getPackageByIdMalformedURL/http-response.adoc[]
 
 === Invalidazione di un'applicazione
 
