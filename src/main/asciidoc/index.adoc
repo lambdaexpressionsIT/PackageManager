@@ -12,6 +12,10 @@ Il file _application.properties_ contiene diverse proprietà che devono essere c
 * *packages.file.extension*: contiene l'estensione assegnata ai files dei package da salvare sul server
 * *packages.filesystem.base.path*: path assoluto della cartella di partenza in cui vengono salvati i files dei packages
 * *packages.web.base.url*: url base in cui sono esposti i files per il download
+* *bandwidth.limitation.enabled*: booleano che attiva il servizio di limitazione della banda per l'applicazione
+* *bandwidth.max.kbitPerSecond*: banda massima allocata per l'applicazione (in kbps).
+* *download.max.kbitPerSecond*: velocità massima consentita di download dall'applicazione(in kbps)
+* *upload.max.kbitPerSecond*: velocità massima consentita per l'upload verso l'applicazione(in kbps)
 
 == Servizi REST
 

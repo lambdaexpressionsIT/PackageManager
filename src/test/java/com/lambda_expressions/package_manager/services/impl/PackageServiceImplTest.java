@@ -228,7 +228,7 @@ class PackageServiceImplTest {
   @Test
   void getPackageInfoByIdNotFound() {
     //given
-    given(repository.findById(anyLong())).willReturn(Optional.ofNullable(null));
+    given(repository.findById(anyLong())).willReturn(Optional.empty());
     //when
     //then
     assertThrows(PackageNotFoundException.class, () -> packageService.getPackageInfoById(PACKAGE_V2_ID));
