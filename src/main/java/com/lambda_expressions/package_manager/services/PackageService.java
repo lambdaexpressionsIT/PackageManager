@@ -7,6 +7,7 @@ import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by steccothal
@@ -22,6 +23,8 @@ public interface PackageService {
   PackageDTO getPackageInfo(String appName, int version) throws PackageNotFoundException;
 
   PackageDTO getPackageInfoById(long id) throws PackageNotFoundException;
+
+  Collection<PackageListDTO> getPackagesById(List<Long> idList) throws PackageNotFoundException;
 
   byte[] getPackageFile(String appName, int version) throws PackageNotFoundException, IOFileException, InvalidPackageException;
 

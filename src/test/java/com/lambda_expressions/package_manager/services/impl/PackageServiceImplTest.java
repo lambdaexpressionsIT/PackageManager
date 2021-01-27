@@ -211,6 +211,61 @@ class PackageServiceImplTest {
   }
 
   @Test
+  void getPackagesById() throws PackageNotFoundException {
+    List<Package> packageList = new ArrayList<>();
+    Package anotherPackage = Package.builder()
+        .id(PACKAGE_V2_ID)
+        .filename("anotherAppName")
+        .path("anotherAppName" + File.separator + PACKAGE_VERSION_2 + File.separator + "anotherAppName" + "." + PACKAGES_FILE_EXTENSION)
+        .valid(true)
+        .version(PACKAGE_VERSION_2)
+        .appname("anotherAppName")
+        .build();
+    String anotherPackageDTOUrl = (PACKAGES_WEBSERVER_BASEURL + "/" + "anotherAppName" + "/" +
+        PACKAGE_VERSION_2 + "/" + "anotherAppName" + "." + PACKAGES_FILE_EXTENSION);
+
+    packageList.add(PACKAGE_V1_INFO);
+    packageList.add(PACKAGE_V2_INFO);
+    packageList.add(anotherPackage);
+    //given
+    given(repository.findAllById(anyList())).willReturn(packageList);
+    //when
+    List<PackageListDTO> listDTOS = new ArrayList<>(packageService.getPackagesById(anyList()));
+    //then
+    assertEquals(listDTOS.size(), 2);
+    assertEquals(listDTOS.get(0).getAppName(), anotherPackage.getAppname());
+    assertEquals(listDTOS.get(0).getVersions().size(), 1);
+    assertEquals(listDTOS.get(0).getVersions().get(0).getId(), anotherPackage.getId());
+    assertEquals(listDTOS.get(0).getVersions().get(0).isValid(), anotherPackage.isValid());
+    assertEquals(listDTOS.get(0).getVersions().get(0).getAppVersion(), anotherPackage.getVersion());
+    assertEquals(listDTOS.get(0).getVersions().get(0).getFileName(), anotherPackage.getFilename());
+    assertEquals(listDTOS.get(0).getVersions().get(0).getUrl(), anotherPackageDTOUrl);
+    assertEquals(listDTOS.get(1).getAppName(), PACKAGE_V1_INFO.getAppname());
+    assertEquals(listDTOS.get(1).getVersions().size(), 2);
+    assertEquals(listDTOS.get(1).getVersions().get(0).getId(), VERSION_1_DTO.getId());
+    assertEquals(listDTOS.get(1).getVersions().get(0).isValid(), VERSION_1_DTO.isValid());
+    assertEquals(listDTOS.get(1).getVersions().get(0).getAppVersion(), VERSION_1_DTO.getAppVersion());
+    assertEquals(listDTOS.get(1).getVersions().get(0).getFileName(), VERSION_1_DTO.getFileName());
+    assertEquals(listDTOS.get(1).getVersions().get(0).getUrl(), VERSION_1_DTO.getUrl());
+    assertEquals(listDTOS.get(1).getVersions().get(1).getId(), VERSION_2_DTO.getId());
+    assertEquals(listDTOS.get(1).getVersions().get(1).isValid(), VERSION_2_DTO.isValid());
+    assertEquals(listDTOS.get(1).getVersions().get(1).getAppVersion(), VERSION_2_DTO.getAppVersion());
+    assertEquals(listDTOS.get(1).getVersions().get(1).getFileName(), VERSION_2_DTO.getFileName());
+    assertEquals(listDTOS.get(1).getVersions().get(1).getUrl(), VERSION_2_DTO.getUrl());
+  }
+
+  @Test
+  void getPackagesByIDNotFound() throws PackageNotFoundException {
+    List<Package> emptyList = new ArrayList<>();
+    //given
+    given(repository.findAllById(anyList())).willReturn(emptyList);
+    //when
+    Collection<PackageListDTO> listDTOS = packageService.getPackagesById(anyList());
+    //then
+    assertEquals(listDTOS.size(), 0);
+  }
+
+  @Test
   void getPackageInfoById() throws PackageNotFoundException {
     //given
     given(repository.findById(anyLong())).willReturn(Optional.of(PACKAGE_V2_INFO));

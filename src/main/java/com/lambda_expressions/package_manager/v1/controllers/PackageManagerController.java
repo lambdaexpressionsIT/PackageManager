@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by steccothal
@@ -92,13 +93,23 @@ public class PackageManagerController {
   }
 
   @ResponseStatus(HttpStatus.OK)
-  @GetMapping(value = {"getPackage/{appId}", "listPackages/{appId}/"})
+  @GetMapping(value = {"getPackage/{appId}", "getPackage/{appId}/"})
   public PackageDTO getPackageInfoById(HttpServletRequest httpRequest, @PathVariable String appId)
       throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
     long longId = ControllerUtils.checkIdParameter(appId);
 
     return this.packageService.getPackageInfoById(longId);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @GetMapping(value = {"getPackages", "getPackages/"})
+  public Collection<PackageListDTO> getPackagesById(HttpServletRequest httpRequest, @RequestParam List<String> idList)
+      throws UnauthenticatedRequestException, PackageNotFoundException {
+    this.authService.authenticateRequest(httpRequest);
+    List<Long> idLongList = ControllerUtils.convertIdList(idList);
+
+    return this.packageService.getPackagesById(idLongList);
   }
 
 }

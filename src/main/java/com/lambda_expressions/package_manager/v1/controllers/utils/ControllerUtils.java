@@ -2,6 +2,9 @@ package com.lambda_expressions.package_manager.v1.controllers.utils;
 
 import com.lambda_expressions.package_manager.exceptions.MalformedURLException;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by steccothal
  * on Tuesday 19 January 2021
@@ -31,4 +34,20 @@ public class ControllerUtils {
 
     return longId;
   }
+
+  public static List<Long> convertIdList(List<String> stringIds) {
+    return stringIds.stream().filter(ControllerUtils::isParsableToLong)
+        .map(parsable->Long.parseLong(parsable))
+        .collect(Collectors.toList());
+  }
+
+  private static boolean isParsableToLong(String stringVal){
+    try{
+      Long.parseLong(stringVal);
+    }catch (NumberFormatException e){
+      return false;
+    }
+    return true;
+  }
+
 }

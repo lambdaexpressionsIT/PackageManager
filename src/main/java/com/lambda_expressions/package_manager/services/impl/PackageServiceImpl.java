@@ -70,6 +70,15 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
+  public Collection<PackageListDTO> getPackagesById(List<Long> idList) throws PackageNotFoundException {
+    Iterable<Package> packages = this.packageRepo.findAllById(idList);
+
+    this.packageUtils.checkRepositoryIterableResult(packages, "", false);
+
+    return this.packageUtils.composePackageListDTOFromPackageList(packages);
+  }
+
+  @Override
   public byte[] getPackageFile(String appName, int version) throws PackageNotFoundException, IOFileException, InvalidPackageException {
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
 

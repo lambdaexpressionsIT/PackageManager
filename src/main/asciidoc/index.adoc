@@ -46,6 +46,62 @@ include::{snippets}/listAllPackagesEmpty/http-request.adoc[]
 .HTTP response
 include::{snippets}/listAllPackagesEmpty/http-response.adoc[]
 
+=== Elenco dei packages: ricerca per id
+
+Questo servizio ritorna una lista di applicazioni, con le loro rispettive versioni, corrispondenti agli id ricercati e passati come parametri.
+Risponde all'indirizzo
+
+*_/api/v1/getPackages?idList={appIdList}_*
+
+Gli id ricercati devono essere inviati come parametri della HTTP request e possono essere codificati in due diversi modi come documentato sotto.
+
+.HTTP request - parametri separati con virgola
+include::{snippets}/getPackagesByIdListParams/http-request.adoc[]
+
+.HTTP request - elenco di parametri
+include::{snippets}/getPackagesByIdRepeatedParamNames/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getPackagesByIdListParams/http-response.adoc[]
+
+.Elementi della HTTP response
+include::{snippets}/getPackagesByIdListParams/response-fields.adoc[]
+
+==== Errori
+
+===== Id non presenti
+
+Nel caso in cui gli id ricercati non corrispondano a nessun package, o non vengano inviato alcun id, il servizio ritorna semplicemente un array vuoto
+
+.HTTP request - id non trovato
+include::{snippets}/getPackagesByIdEmpty/http-request.adoc[]
+
+.HTTP request - id non inviato
+include::{snippets}/getPackagesByIdEmptyParamList/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getPackagesByIdEmpty/http-response.adoc[]
+
+===== Id non convertibili in valori interi
+
+Nel caso in cui all'interno della lista dei parametri inviati siano presenti dei valori non convertibili in valori interi, vengono semplicemente ignorati
+
+.HTTP request
+include::{snippets}/getPackagesByIdMalformedURL/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getPackagesByIdMalformedURL/http-response.adoc[]
+
+===== Malformed URL
+
+Nel caso in cui nella HTTP request manchi completamente il nome dell'elenco di parametri, il srevizio risponde con una HTTP response vuota e HTTP status 400
+
+.HTTP request
+include::{snippets}/getPackagesByIdNoParams/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getPackagesByIdNoParams/http-response.adoc[]
+
 === Elenco delle versioni di un'applicazione
 
 Questo servizio ritorna la lista di tutte le versioni presenti sul server di una specifica applicazione.
