@@ -1,6 +1,7 @@
 package com.lambda_expressions.package_manager.bandwidth_limiter;
 
 import com.lambda_expressions.package_manager.bandwidth_limiter.utils.StreamManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -16,12 +17,18 @@ import java.io.IOException;
  */
 @Component
 @Order(1)
+@Slf4j
 public class ThrottlingFilter implements Filter {
 
   private final StreamManager streamManager;
 
   public ThrottlingFilter(StreamManager streamManager) {
     this.streamManager = streamManager;
+  }
+
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    log.info("Initializing bandwidth limiter filter");
   }
 
   @Override
