@@ -50,6 +50,7 @@ class PackageManagerControllerTest {
   private static final String PACKAGES_FILE_EXTENSION = ".apk";
   private static final String PACKAGES_WEBSERVER_BASEURL = "http://localhost:8080";
   private static final String PACKAGE_FILENAME = "Spending_1.9";
+  private static final String PACKAGE_PACKAGENAME = "com.package.spending";
   private static final String PACKAGE_APPNAME = "Spending";
   private static final long PACKAGE_V1_ID = 100;
   private static final long PACKAGE_V2_ID = 200;
@@ -64,13 +65,13 @@ class PackageManagerControllerTest {
   private static final String LIST_VERSION_INFO_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending/2";
   private static final String GET_PACKAGE_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackage/100";
   private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/2";
-  private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage/Spending/1/Spending_1.9";
+  private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage/com.package.Spending/Spending/1/Spending_1.9";
   private static final String GET_PACKAGE_FILE_URL = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/2";
 
   private static final String LIST_VERSION_INFO_URL_MALFORMED = REST_SERVICES_BASE_URL + "/listPackages/Spending/NaN";
   private static final String GET_PACKAGE_BY_ID_URL_MALFORMED = REST_SERVICES_BASE_URL + "/getPackage/NaN";
   private static final String INVALIDATE_PACKAGE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/NaN";
-  private static final String UPLOAD_PACKAGE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/uploadPackage/Spending/NaN/Spending_1.9";
+  private static final String UPLOAD_PACKAGE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/uploadPackage/com.package.Spending/Spending/NaN/Spending_1.9";
   private static final String GET_PACKAGE_FILE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/NaN";
 
   private static final VersionDTO version1DTO = VersionDTO.builder()
@@ -118,10 +119,12 @@ class PackageManagerControllerTest {
     ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
     PackageListDTO spendingPackageListDTO = PackageListDTO.builder()
         .appName(PACKAGE_APPNAME)
+        .packageName(PACKAGE_PACKAGENAME)
         .versions(versionDTOArrayList)
         .build();
     PackageListDTO lisXTePackageListDTO = PackageListDTO.builder()
         .appName("LisXTe")
+        .packageName("com.package.LisXTe")
         .versions(lisXTeVersionDTOArrayList)
         .build();
     VersionDTO lisXTeVersion1 = VersionDTO.builder()
@@ -149,6 +152,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
         .andExpect(jsonPath("$[0].appName").value(spendingPackageListDTO.getAppName()))
+        .andExpect(jsonPath("$[0].packageName").value(spendingPackageListDTO.getPackageName()))
         .andExpect(jsonPath("$[0].versions").isArray())
         .andExpect(jsonPath("$[0].versions.length()").value(spendingPackageListDTO.getVersions().size()))
         .andExpect(jsonPath("$[0].versions[0].id").value(spendingPackageListDTO.getVersions().get(0).getId()))
@@ -164,6 +168,7 @@ class PackageManagerControllerTest {
         .andDo(document("listAllPackages", responseFields(
             fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server"),
             fieldWithPath("[].appName").description("Nome dell'applicazione"),
+            fieldWithPath("[].packageName").description("Nome del package del'applicazione"),
             fieldWithPath("[].versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
             fieldWithPath("[].versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("[].versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
@@ -196,6 +201,7 @@ class PackageManagerControllerTest {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
     PackageListDTO packageListDTO = PackageListDTO.builder()
         .appName(PACKAGE_APPNAME)
+        .packageName(PACKAGE_PACKAGENAME)
         .versions(versionDTOArrayList)
         .build();
 
@@ -209,6 +215,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.appName").value(packageListDTO.getAppName()))
+        .andExpect(jsonPath("$.packageName").value(packageListDTO.getPackageName()))
         .andExpect(jsonPath("$.versions").isArray())
         .andExpect(jsonPath("$.versions.length()").value(packageListDTO.getVersions().size()))
         .andExpect(jsonPath("$.versions[0].id").value(packageListDTO.getVersions().get(0).getId()))
@@ -223,6 +230,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.versions[1].url").value(packageListDTO.getVersions().get(1).getUrl()))
         .andDo(document("listPackageVersions", responseFields(
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
+            fieldWithPath("packageName").description("Nome del package dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
             fieldWithPath("versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
             fieldWithPath("versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
@@ -256,6 +264,7 @@ class PackageManagerControllerTest {
         .valid(true)
         .appVersion(PACKAGE_VERSION_1)
         .appName(PACKAGE_APPNAME)
+        .packageName((PACKAGE_PACKAGENAME))
         .build();
     //given
     given(packageService.getPackageInfo(anyString(), anyInt())).willReturn(packageDTO);
@@ -265,6 +274,7 @@ class PackageManagerControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(packageDTO.getId()))
         .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
+        .andExpect(jsonPath("$.packageName").value(packageDTO.getPackageName()))
         .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
@@ -272,6 +282,7 @@ class PackageManagerControllerTest {
         .andDo(document("listPackageVersionInfo", responseFields(
             fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
+            fieldWithPath("packageName").description("Nome del package dell'applicazione"),
             fieldWithPath("appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
             fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
@@ -314,6 +325,7 @@ class PackageManagerControllerTest {
         .valid(true)
         .appVersion(PACKAGE_VERSION_1)
         .appName(PACKAGE_APPNAME)
+        .packageName(PACKAGE_PACKAGENAME)
         .build();
     //given
     given(packageService.getPackageInfoById(anyLong())).willReturn(packageDTO);
@@ -323,6 +335,7 @@ class PackageManagerControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(packageDTO.getId()))
         .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
+        .andExpect(jsonPath("$.packageName").value(packageDTO.getPackageName()))
         .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
@@ -330,6 +343,7 @@ class PackageManagerControllerTest {
         .andDo(document("getPackageById", responseFields(
             fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
+            fieldWithPath("packageName").description("Nome del package dell'applicazione"),
             fieldWithPath("appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
             fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
@@ -388,10 +402,12 @@ class PackageManagerControllerTest {
     ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
     PackageListDTO spendingPackageListDTO = PackageListDTO.builder()
         .appName(PACKAGE_APPNAME)
+        .packageName(PACKAGE_PACKAGENAME)
         .versions(versionDTOArrayList)
         .build();
     PackageListDTO lisXTePackageListDTO = PackageListDTO.builder()
         .appName("LisXTe")
+        .packageName("com.package.LisXTe")
         .versions(lisXTeVersionDTOArrayList)
         .build();
     VersionDTO lisXTeVersion1 = VersionDTO.builder()
@@ -418,6 +434,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
         .andExpect(jsonPath("$[0].appName").value(spendingPackageListDTO.getAppName()))
+        .andExpect(jsonPath("$[0].packageName").value(spendingPackageListDTO.getPackageName()))
         .andExpect(jsonPath("$[0].versions").isArray())
         .andExpect(jsonPath("$[0].versions.length()").value(spendingPackageListDTO.getVersions().size()))
         .andExpect(jsonPath("$[0].versions[0].id").value(spendingPackageListDTO.getVersions().get(0).getId()))
@@ -433,6 +450,7 @@ class PackageManagerControllerTest {
         .andDo(document(docName, responseFields(
             fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server"),
             fieldWithPath("[].appName").description("Nome dell'applicazione"),
+            fieldWithPath("[].packageName").description("Nome del package dell'applicazione"),
             fieldWithPath("[].versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
             fieldWithPath("[].versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("[].versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
@@ -590,7 +608,7 @@ class PackageManagerControllerTest {
   @Test
   public void testUploadPackageFile() throws Exception {
     //given
-    doNothing().when(packageService).installPackageFile(anyString(), anyInt(), anyString(), any(byte[].class));
+    doNothing().when(packageService).installPackageFile(anyString(), anyString(), anyInt(), anyString(), any(byte[].class));
     //when
     mockMvc.perform(post(UPLOAD_PACKAGE_URL).content(DUMMY_BYTE_ARRAY).contentType(MediaType.APPLICATION_OCTET_STREAM))
         //then
@@ -616,7 +634,7 @@ class PackageManagerControllerTest {
   @Test
   public void testUploadPackageFileUnableToWriteFile() throws Exception {
     //given
-    doThrow(IOFileException.class).when(packageService).installPackageFile(anyString(), anyInt(), anyString(),
+    doThrow(IOFileException.class).when(packageService).installPackageFile(anyString(), anyString(), anyInt(), anyString(),
         any(byte[].class));
     //when
     mockMvc.perform(post(UPLOAD_PACKAGE_URL).content(DUMMY_BYTE_ARRAY).contentType(MediaType.APPLICATION_OCTET_STREAM))

@@ -23,12 +23,10 @@ public class PackageUtils {
   @Value("${packages.web.base.url}")
   private String PACKAGES_WEBSERVER_BASEURL;
 
-  @Value("${packages.file.extension}")
-  private String PACKAGES_FILE_EXTENSION;
-
-  public PackageListDTO composePackageListDTOFromPackage(List<Package> packageVersions, String appName) {
+  public PackageListDTO composePackageListDTOFromPackage(List<Package> packageVersions, String appName, String packageName) {
     return PackageListDTO.builder()
         .appName(appName)
+        .packageName(packageName)
         .versions(packageVersions.stream()
             .map(pInfo -> VersionDTO.builder()
                 .id(pInfo.getId())
@@ -47,6 +45,7 @@ public class PackageUtils {
     packages.forEach(pInfo -> {
       packagesMap.putIfAbsent(pInfo.getAppname(), PackageListDTO.builder()
           .appName(pInfo.getAppname())
+          .packageName(pInfo.getPackagename())
           .versions(new ArrayList<>())
           .build());
       packagesMap.get(pInfo.getAppname()).getVersions().add(VersionDTO.builder()
@@ -64,6 +63,7 @@ public class PackageUtils {
   public PackageDTO composePackageDTOFromPackage(Package packageInfo) {
     return PackageDTO.builder()
         .id(packageInfo.getId())
+        .packageName(packageInfo.getPackagename())
         .appName(packageInfo.getAppname())
         .appVersion(packageInfo.getVersion())
         .fileName(packageInfo.getFilename())
@@ -73,7 +73,7 @@ public class PackageUtils {
   }
 
   public String composeLocalRelativePath(String appName, int version, String fileName) {
-    return String.format("%s%s%s%s%s%s%s", appName, File.separator, version, File.separator, fileName, ".", PACKAGES_FILE_EXTENSION);
+    return String.format("%s%s%s%s%s", appName, File.separator, version, File.separator, fileName);
   }
 
   public String composeURLFromLocalPath(String localPath) {
