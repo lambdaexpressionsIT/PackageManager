@@ -14,5 +14,6 @@ import java.util.List;
 @Builder
 public class PackageListDTO {
   private String appName;
+  private String packageName;
   private List<VersionDTO> versions;
 }

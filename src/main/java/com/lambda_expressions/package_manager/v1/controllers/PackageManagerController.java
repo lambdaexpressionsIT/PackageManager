@@ -31,15 +31,15 @@ public class PackageManagerController {
   }
 
   @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(value = {"uploadPackage/{appName}/{version}/{fileName}", "uploadPackage/{appName}/{version}/{fileName}/"},
+  @PostMapping(value = {"uploadPackage/{packageName}/{appName}/{version}/{fileName}", "uploadPackage/{packageName}/{appName}/{version}/{fileName}/"},
       consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-  public void uploadPackage(HttpServletRequest httpRequest, @PathVariable String appName,
+  public void uploadPackage(HttpServletRequest httpRequest, @PathVariable String packageName, @PathVariable String appName,
                             @PathVariable String version, @PathVariable String fileName, @RequestBody byte[] file)
       throws UnauthenticatedRequestException, MalformedURLException, IOFileException {
     this.authService.authenticateRequest(httpRequest);
     int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
-    this.packageService.installPackageFile(appName, intVersion, fileName, file);
+    this.packageService.installPackageFile(packageName, appName, intVersion, fileName, file);
   }
 
   @ResponseStatus(HttpStatus.OK)

@@ -9,7 +9,6 @@ _path_base/nome_applicazione/versione_applicazione/nome_file_
 
 Il file _application.properties_ contiene diverse proprietà che devono essere configurate per il corretto funzionamento dell'applicazione.
 
-* *packages.file.extension*: contiene l'estensione assegnata ai files dei package da salvare sul server
 * *packages.filesystem.base.path*: path assoluto della cartella di partenza in cui vengono salvati i files dei packages
 * *packages.web.base.url*: url base in cui sono esposti i files per il download
 * *bandwidth.limitation.enabled*: booleano che attiva il servizio di limitazione della banda per l'applicazione
@@ -312,9 +311,9 @@ include::{snippets}/downloadPackageUnreadableFile/http-response.adoc[]
 Questo servizio registra sul server un file di un'applicazione.
 Risponde all'indirizzo
 
-*_/api/v1/uploadPackage/appName/appVersion/fileName_*
+*_/api/v1/uploadPackage/packageName/appName/appVersion/fileName_*
 
-_appName_ e _appVersion_ sono coerenti con quanto specificato in precedenza, mentre _fileName_ sarà oltre che al rispettivo campo delle informazioni della versione dell'applicazione installata, anche il nome del file registrato sul server.
+_packageName_, _appName_ e _appVersion_ sono coerenti con quanto specificato in precedenza, mentre _fileName_ sarà oltre che al rispettivo campo delle informazioni della versione dell'applicazione installata, anche il nome del file registrato sul server.
 Il body della HTTP request conterrà il file che si vuole registrare sul server, e come _Content-Type: application/octet-stream_
 
 .HTTP request

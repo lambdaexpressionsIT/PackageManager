@@ -12,4 +12,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class PackageDTO extends VersionDTO {
   private final String appName;
+  private final String packageName;
 }

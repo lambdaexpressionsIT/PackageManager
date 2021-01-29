@@ -28,4 +28,5 @@ public class Package {
   private int version;
   private String path;
   private boolean valid;
+  private String packagename;
 }
