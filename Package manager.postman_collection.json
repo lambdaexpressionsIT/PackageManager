@@ -182,11 +182,11 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "/C:/tmp/LisXTe_1.0.10_b1.apk"
+						"src": "/C:/tmp/LISguida_1.8.0.apk"
 					}
 				},
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/uploadPackage/LisXTe/1/LisXTe_1.0.10_b1",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/uploadPackage/com.package.LISguida/LISguida/1/LISguida_1.8.0.apk",
 					"protocol": "http",
 					"host": [
 						"35",
@@ -200,9 +200,10 @@
 						"api",
 						"v1",
 						"uploadPackage",
-						"LisXTe",
+						"com.package.LISguida",
+						"LISguida",
 						"1",
-						"LisXTe_1.0.10_b1"
+						"LISguida_1.8.0.apk"
 					]
 				}
 			},

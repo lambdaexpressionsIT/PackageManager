@@ -50,7 +50,7 @@ public class PackageServiceImpl implements PackageService {
 
     this.packageUtils.checkRepositoryIterableResult(packages, appName, true);
 
-    return this.packageUtils.composePackageListDTOFromPackage(packages, appName);
+    return this.packageUtils.composePackageListDTOFromPackage(packages, appName, packages.get(0).getPackagename());
   }
 
   @Override
@@ -89,11 +89,11 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public void installPackageFile(String appName, int version, String fileName, byte[] file) throws IOFileException {
+  public void installPackageFile(String packageName, String appName, int version, String fileName, byte[] file) throws IOFileException {
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
 
     this.fileIOUtils.savePackageFile(appName, version, fileName, file, this.packageUtils);
-    this.persistNewPackageInfo(packageInfo, appName, version, fileName);
+    this.persistNewPackageInfo(packageInfo, packageName, appName, version, fileName);
   }
 
   @Override
@@ -109,12 +109,13 @@ public class PackageServiceImpl implements PackageService {
     this.packageRepo.save(packageInfo);
   }
 
-  private void persistNewPackageInfo(Package packageInfo, String appName, int version, String fileName) {
+  private void persistNewPackageInfo(Package packageInfo, String packageName, String appName, int version, String fileName) {
     try {
       this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     } catch (PackageNotFoundException e) {
       packageInfo = Package.builder()
           .appname(appName)
+          .packagename(packageName)
           .version(version)
           .filename(fileName)
           .valid(false)

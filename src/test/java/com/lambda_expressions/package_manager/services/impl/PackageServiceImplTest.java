@@ -41,9 +41,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PackageServiceImplTest {
 
-  private static final String PACKAGES_FILE_EXTENSION = "bib";
   private static final String PACKAGES_WEBSERVER_BASEURL = "http://bob.bub";
-  private static final String PACKAGE_FILENAME = "fileName";
+  private static final String PACKAGE_FILENAME = "fileName.apk";
+  private static final String PACKAGE_PACKAGENAME = "com.appName";
   private static final String PACKAGE_APPNAME = "appName";
   private static final long PACKAGE_V1_ID = 100;
   private static final long PACKAGE_V2_ID = 200;
@@ -54,7 +54,8 @@ class PackageServiceImplTest {
   private static final Package PACKAGE_V1_INFO = Package.builder()
       .id(PACKAGE_V1_ID)
       .filename(PACKAGE_FILENAME)
-      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
+      .packagename(PACKAGE_PACKAGENAME)
+      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
       .valid(true)
       .version(PACKAGE_VERSION_1)
       .appname(PACKAGE_APPNAME)
@@ -63,7 +64,8 @@ class PackageServiceImplTest {
   private static final Package PACKAGE_V2_INFO = Package.builder()
       .id(PACKAGE_V2_ID)
       .filename(PACKAGE_FILENAME)
-      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_2 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
+      .packagename(PACKAGE_PACKAGENAME)
+      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_2 + File.separator + PACKAGE_FILENAME)
       .valid(true)
       .version(PACKAGE_VERSION_2)
       .appname(PACKAGE_APPNAME)
@@ -72,7 +74,8 @@ class PackageServiceImplTest {
   private static final PackageDTO PACKAGE_DTO = PackageDTO.builder()
       .id(PACKAGE_V2_ID)
       .fileName(PACKAGE_FILENAME)
-      .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
+      .packageName(PACKAGE_PACKAGENAME)
+      .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME)
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
       .appName(PACKAGE_APPNAME)
@@ -81,7 +84,7 @@ class PackageServiceImplTest {
   private static final VersionDTO VERSION_1_DTO = VersionDTO.builder()
       .id(PACKAGE_V1_ID)
       .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION))
+      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME))
       .valid(true)
       .appVersion(PACKAGE_VERSION_1)
       .build();
@@ -89,7 +92,7 @@ class PackageServiceImplTest {
   private static final VersionDTO VERSION_2_DTO = VersionDTO.builder()
       .id(PACKAGE_V2_ID)
       .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION))
+      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME))
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
       .build();
@@ -108,9 +111,7 @@ class PackageServiceImplTest {
 
   @BeforeEach
   public void setUp() {
-//    ReflectionTestUtils.setField(packageUtils, "PACKAGES_FILESYSTEM_BASELOCATION", PACKAGES_FILESYSTEM_BASELOCATION);
     ReflectionTestUtils.setField(packageUtils, "PACKAGES_WEBSERVER_BASEURL", PACKAGES_WEBSERVER_BASEURL);
-    ReflectionTestUtils.setField(packageUtils, "PACKAGES_FILE_EXTENSION", PACKAGES_FILE_EXTENSION);
   }
 
   @Test
@@ -127,6 +128,7 @@ class PackageServiceImplTest {
     //then
     assertEquals(listDTOS.size(), 1);
     assertEquals(listDTOS.iterator().next().getAppName(), PACKAGE_V1_INFO.getAppname());
+    assertEquals(listDTOS.iterator().next().getPackageName(), PACKAGE_V1_INFO.getPackagename());
     assertEquals(listDTOS.iterator().next().getVersions().size(), 2);
     assertEquals(listDTOS.iterator().next().getVersions().get(0).getId(), VERSION_1_DTO.getId());
     assertEquals(listDTOS.iterator().next().getVersions().get(0).isValid(), VERSION_1_DTO.isValid());
@@ -164,6 +166,7 @@ class PackageServiceImplTest {
     PackageListDTO packageDTO = packageService.listAllVersions(PACKAGE_APPNAME);
     //then
     assertEquals(packageDTO.getAppName(), PACKAGE_DTO.getAppName());
+    assertEquals(packageDTO.getPackageName(), PACKAGE_DTO.getPackageName());
     assertEquals(packageDTO.getVersions().size(), 2);
     assertEquals(packageDTO.getVersions().get(0).getId(), VERSION_1_DTO.getId());
     assertEquals(packageDTO.getVersions().get(0).isValid(), VERSION_1_DTO.isValid());
@@ -195,6 +198,7 @@ class PackageServiceImplTest {
     //then
     assertEquals(packageDTO.getId(), PACKAGE_DTO.getId());
     assertEquals(packageDTO.getAppName(), PACKAGE_DTO.getAppName());
+    assertEquals(packageDTO.getPackageName(), PACKAGE_DTO.getPackageName());
     assertEquals(packageDTO.isValid(), PACKAGE_DTO.isValid());
     assertEquals(packageDTO.getAppVersion(), PACKAGE_DTO.getAppVersion());
     assertEquals(packageDTO.getFileName(), PACKAGE_DTO.getFileName());
@@ -216,13 +220,14 @@ class PackageServiceImplTest {
     Package anotherPackage = Package.builder()
         .id(PACKAGE_V2_ID)
         .filename("anotherAppName")
-        .path("anotherAppName" + File.separator + PACKAGE_VERSION_2 + File.separator + "anotherAppName" + "." + PACKAGES_FILE_EXTENSION)
+        .path("anotherAppName" + File.separator + PACKAGE_VERSION_2 + File.separator + "anotherAppName.apk")
         .valid(true)
         .version(PACKAGE_VERSION_2)
         .appname("anotherAppName")
+        .packagename("com.package.anotherAppName")
         .build();
     String anotherPackageDTOUrl = (PACKAGES_WEBSERVER_BASEURL + "/" + "anotherAppName" + "/" +
-        PACKAGE_VERSION_2 + "/" + "anotherAppName" + "." + PACKAGES_FILE_EXTENSION);
+        PACKAGE_VERSION_2 + "/" + "anotherAppName.apk");
 
     packageList.add(PACKAGE_V1_INFO);
     packageList.add(PACKAGE_V2_INFO);
@@ -234,6 +239,7 @@ class PackageServiceImplTest {
     //then
     assertEquals(listDTOS.size(), 2);
     assertEquals(listDTOS.get(0).getAppName(), anotherPackage.getAppname());
+    assertEquals(listDTOS.get(0).getPackageName(), anotherPackage.getPackagename());
     assertEquals(listDTOS.get(0).getVersions().size(), 1);
     assertEquals(listDTOS.get(0).getVersions().get(0).getId(), anotherPackage.getId());
     assertEquals(listDTOS.get(0).getVersions().get(0).isValid(), anotherPackage.isValid());
@@ -241,6 +247,7 @@ class PackageServiceImplTest {
     assertEquals(listDTOS.get(0).getVersions().get(0).getFileName(), anotherPackage.getFilename());
     assertEquals(listDTOS.get(0).getVersions().get(0).getUrl(), anotherPackageDTOUrl);
     assertEquals(listDTOS.get(1).getAppName(), PACKAGE_V1_INFO.getAppname());
+    assertEquals(listDTOS.get(1).getPackageName(), PACKAGE_V1_INFO.getPackagename());
     assertEquals(listDTOS.get(1).getVersions().size(), 2);
     assertEquals(listDTOS.get(1).getVersions().get(0).getId(), VERSION_1_DTO.getId());
     assertEquals(listDTOS.get(1).getVersions().get(0).isValid(), VERSION_1_DTO.isValid());
@@ -274,6 +281,7 @@ class PackageServiceImplTest {
     //then
     assertEquals(packageDTO.getId(), PACKAGE_DTO.getId());
     assertEquals(packageDTO.getAppName(), PACKAGE_DTO.getAppName());
+    assertEquals(packageDTO.getPackageName(), PACKAGE_DTO.getPackageName());
     assertEquals(packageDTO.isValid(), PACKAGE_DTO.isValid());
     assertEquals(packageDTO.getAppVersion(), PACKAGE_DTO.getAppVersion());
     assertEquals(packageDTO.getFileName(), PACKAGE_DTO.getFileName());
@@ -293,7 +301,8 @@ class PackageServiceImplTest {
   void invalidatePackage() throws PackageNotFoundException {
     Package packageToInvalidate = Package.builder()
         .filename(PACKAGE_FILENAME)
-        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
+        .packagename(PACKAGE_PACKAGENAME)
+        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
         .valid(true)
         .version(PACKAGE_VERSION_1)
         .appname(PACKAGE_APPNAME)
@@ -339,7 +348,8 @@ class PackageServiceImplTest {
   void getPackageFileInvalid() {
     Package invalidPackage = Package.builder()
         .filename(PACKAGE_FILENAME)
-        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME + "." + PACKAGES_FILE_EXTENSION)
+        .packagename(PACKAGE_PACKAGENAME)
+        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
         .valid(false)
         .version(PACKAGE_VERSION_1)
         .appname(PACKAGE_APPNAME)
@@ -367,10 +377,11 @@ class PackageServiceImplTest {
     ArgumentCaptor<byte[]> fileCaptor = ArgumentCaptor.forClass(byte[].class);
     //given
     //when
-    packageService.installPackageFile(PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY);
+    packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY);
     //then
     verify(repository, times(1)).save(packageCaptor.capture());
     assertEquals(packageCaptor.getValue().getAppname(), PACKAGE_APPNAME);
+    assertEquals(packageCaptor.getValue().getPackagename(), PACKAGE_PACKAGENAME);
     assertEquals(packageCaptor.getValue().getVersion(), PACKAGE_VERSION_1);
     assertEquals(packageCaptor.getValue().getFilename(), PACKAGE_FILENAME);
     assertEquals(packageCaptor.getValue().getPath(), PACKAGE_V1_INFO.getPath());
@@ -386,6 +397,6 @@ class PackageServiceImplTest {
     //when
     doThrow(IOFileException.class).when(fileIOUtils).savePackageFile(anyString(), anyInt(), anyString(), any(byte[].class), any(PackageUtils.class));
     //then
-    assertThrows(IOFileException.class, () -> packageService.installPackageFile(PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
+    assertThrows(IOFileException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
   }
 }
