@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "fd9d1432-7a9a-4784-bbcc-bbd53a9a62ac",
-		"name": "Lottomatica - Package manager",
+		"_postman_id": "562ca69b-ed6e-429d-86f3-c49d902343ef",
+		"name": "Lottomatica - Package manager Prod",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -11,17 +11,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/listPackages/",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/listPackages/",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"listPackages",
@@ -37,17 +37,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/listPackages/Spending",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/listPackages/Spending",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"listPackages",
@@ -63,17 +63,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/listPackages/Spending/1",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/listPackages/Spending/1",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"listPackages",
@@ -90,17 +90,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/getPackage/1",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/getPackage/1",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"getPackage",
@@ -116,17 +116,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/getPackages?idList=1,2,3",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/getPackages?idList=1,2,3",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"getPackages"
@@ -147,17 +147,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/downloadPackage/Spending/1",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/downloadPackage/Spending/1",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"downloadPackage",
@@ -182,27 +182,28 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "/C:/tmp/LisXTe_1.0.10_b1.apk"
+						"src": "/C:/tmp/LISguida_1.8.0.apk"
 					}
 				},
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/uploadPackage/LisXTe/1/LisXTe_1.0.10_b1",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/uploadPackage/com.package.LISguida/LISguida/1/LISguida_1.8.0.apk",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"uploadPackage",
-						"LisXTe",
+						"com.package.LISguida",
+						"LISguida",
 						"1",
-						"LisXTe_1.0.10_b1"
+						"LISguida_1.8.0.apk"
 					]
 				}
 			},
@@ -214,22 +215,22 @@
 				"method": "PATCH",
 				"header": [],
 				"url": {
-					"raw": "http://10.142.0.4:8080/package-manager-0.0.4/api/v1/invalidatePackage/LisXTe/1",
+					"raw": "http://35.190.165.33:8080/package-manager/api/v1/invalidatePackage/LisXTe/10000",
 					"protocol": "http",
 					"host": [
-						"10",
-						"142",
-						"0",
-						"4"
+						"35",
+						"190",
+						"165",
+						"33"
 					],
 					"port": "8080",
 					"path": [
-						"package-manager-0.0.4",
+						"package-manager",
 						"api",
 						"v1",
 						"invalidatePackage",
 						"LisXTe",
-						"1"
+						"10000"
 					]
 				}
 			},
