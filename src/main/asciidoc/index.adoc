@@ -1,24 +1,6 @@
 = Package Manager
 
-== Configurazione
-
-L'applicazione salva i files dei package nel filesystem a partire da una directory base.
-Il path successivo in cui vengono salvati i files è formato come segue
-
-_path_base/nome_applicazione/versione_applicazione/nome_file_
-
-Il file _application.properties_ contiene diverse proprietà che devono essere configurate per il corretto funzionamento dell'applicazione.
-
-* *packages.filesystem.base.path*: path assoluto della cartella di partenza in cui vengono salvati i files dei packages
-* *packages.web.base.url*: url base in cui sono esposti i files per il download
-* *bandwidth.limitation.enabled*: booleano che attiva il servizio di limitazione della banda per l'applicazione
-* *bandwidth.max.kbitPerSecond*: banda massima allocata per l'applicazione (in kbps).
-* *download.max.kbitPerSecond*: velocità massima consentita di download dall'applicazione(in kbps)
-* *upload.max.kbitPerSecond*: velocità massima consentita per l'upload verso l'applicazione(in kbps)
-
-== Servizi REST
-
-=== Elenco completo dei packages
+== Elenco completo dei packages
 
 Questo servizio ritorna la lista di tutte le applicazioni con le loro rispettive versioni presenti sul server.
 Risponde all'indirizzo
@@ -34,7 +16,7 @@ include::{snippets}/listAllPackages/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/listAllPackages/response-fields.adoc[]
 
-==== Errori
+=== Errori
 
 Questo servizio non prevede particolari errori nella propria esecuzione.
 Nel caso in cui non sia presente nessun package sul server, viene semplicemente ritornato un array vuoto.
@@ -45,7 +27,7 @@ include::{snippets}/listAllPackagesEmpty/http-request.adoc[]
 .HTTP response
 include::{snippets}/listAllPackagesEmpty/http-response.adoc[]
 
-=== Elenco dei packages: ricerca per id
+== Elenco dei packages: ricerca per id
 
 Questo servizio ritorna una lista di applicazioni, con le loro rispettive versioni, corrispondenti agli id ricercati e passati come parametri.
 Risponde all'indirizzo
@@ -66,9 +48,9 @@ include::{snippets}/getPackagesByIdListParams/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/getPackagesByIdListParams/response-fields.adoc[]
 
-==== Errori
+=== Errori
 
-===== Id non presenti
+==== Id non presenti
 
 Nel caso in cui gli id ricercati non corrispondano a nessun package, o non vengano inviato alcun id, il servizio ritorna semplicemente un array vuoto
 
@@ -81,7 +63,7 @@ include::{snippets}/getPackagesByIdEmptyParamList/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackagesByIdEmpty/http-response.adoc[]
 
-===== Id non convertibili in valori interi
+==== Id non convertibili in valori interi
 
 Nel caso in cui all'interno della lista dei parametri inviati siano presenti dei valori non convertibili in valori interi, vengono semplicemente ignorati
 
@@ -91,7 +73,7 @@ include::{snippets}/getPackagesByIdMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackagesByIdMalformedURL/http-response.adoc[]
 
-===== Malformed URL
+==== Malformed URL
 
 Nel caso in cui nella HTTP request manchi completamente il nome dell'elenco di parametri, il srevizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -101,7 +83,7 @@ include::{snippets}/getPackagesByIdNoParams/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackagesByIdNoParams/http-response.adoc[]
 
-=== Elenco delle versioni di un'applicazione
+== Elenco delle versioni di un'applicazione
 
 Questo servizio ritorna la lista di tutte le versioni presenti sul server di una specifica applicazione.
 Risponde all'indirizzo
@@ -119,9 +101,9 @@ include::{snippets}/listPackageVersions/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/listPackageVersions/response-fields.adoc[]
 
-==== Errori
+=== Errori
 
-===== Applicazione non presente
+==== Applicazione non presente
 
 Nel caso in cui l'applicazione cercata non sia presente sul server, il servizio ritorna una risposta vuota con HTTP status 404.
 
@@ -131,7 +113,7 @@ include::{snippets}/listNotFoundPackageVersions/http-request.adoc[]
 .HTTP response
 include::{snippets}/listNotFoundPackageVersions/http-response.adoc[]
 
-=== Informazioni di una specifica versione (per applicazione/versione)
+== Informazioni di una specifica versione (per applicazione/versione)
 
 Questo servizio ritorna tutte le informazioni relative a una singola versione di un'applicazione presente sul server.
 Risponde all'indirizzo
@@ -149,9 +131,9 @@ include::{snippets}/listPackageVersionInfo/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/listPackageVersionInfo/response-fields.adoc[]
 
-==== Errori
+=== Errori
 
-===== Applicazione/versione non presente
+==== Applicazione/versione non presente
 
 Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -161,7 +143,7 @@ include::{snippets}/listNotfoundPackageVersionInfo/http-request.adoc[]
 .HTTP response
 include::{snippets}/listNotfoundPackageVersionInfo/http-response.adoc[]
 
-===== Malformed URL
+==== Malformed URL
 
 Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -171,7 +153,7 @@ include::{snippets}/listPackageVersionInfoMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/listPackageVersionInfoMalformedURL/http-response.adoc[]
 
-=== Informazioni di una specifica versione (per id)
+== Informazioni di una specifica versione (per id)
 
 Questo servizio, come il precedente, ritorna tutte le informazioni relative a una singola versione di un'applicazione presente sul server.
 La differenza rispetto al precedente servizio risiede nel parametro di ricerca.
@@ -191,9 +173,9 @@ include::{snippets}/getPackageById/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/getPackageById/response-fields.adoc[]
 
-==== Errori
+=== Errori
 
-===== Id non presente
+==== Id non presente
 
 Nel caso in cui l'id ricercato non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -203,7 +185,7 @@ include::{snippets}/getPackageByIdNotFound/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackageByIdNotFound/http-response.adoc[]
 
-===== Malformed URL
+==== Malformed URL
 
 Nel caso in cui il parametro *_appID_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -213,7 +195,7 @@ include::{snippets}/getPackageByIdMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackageByIdMalformedURL/http-response.adoc[]
 
-=== Invalidazione di un'applicazione
+== Invalidazione di un'applicazione
 
 Questo servizio permette di rendere invalida una versione di un'applicazione presente sul server, settandone a false il flag _valid_.
 Invalidando una versione di un'applicazione, essa non sarà piu disponibile per il download, pur continuando a essere presente sul server.
@@ -228,9 +210,9 @@ include::{snippets}/invalidatePackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/invalidatePackage/http-response.adoc[]
 
-==== Errori
+=== Errori
 
-===== Applicazione/versione non presente
+==== Applicazione/versione non presente
 
 Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -240,7 +222,7 @@ include::{snippets}/invalidateNotFoundPackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/invalidateNotFoundPackage/http-response.adoc[]
 
-===== Malformed URL
+==== Malformed URL
 
 Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -250,9 +232,9 @@ include::{snippets}/invalidatePackageMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/invalidatePackageMalformedURL/http-response.adoc[]
 
-=== Download di un'applicazione
+== Download di un'applicazione
 
-Questo servizio ritorna il file di una specifica versione di un'applicazione presente sul server.
+Questo servizio ritorna il file di una specifica versione di un'applicazione valida presente sul server. Nel caso in cui l'applicazione/versione sia marcata come non valida, questo servizio ritorna un errore (come specificato in seguito), ma il file sarà comunque disponibile attraverso il suo URL pubblico.
 Il file compone il body della HTTP response del servizio, la response ha _Content-Type: application/octet_stream_.
 Risponde all'indirizzo
 
@@ -264,9 +246,9 @@ include::{snippets}/downloadPackageFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadPackageFile/http-response.adoc[]
 
-==== Errori
+=== Errori
 
-===== Applicazione/versione non presente
+==== Applicazione/versione non presente
 
 Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -276,7 +258,7 @@ include::{snippets}/downloadNotFoundPackageFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadNotFoundPackageFile/http-response.adoc[]
 
-===== Malformed URL
+==== Malformed URL
 
 Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -286,7 +268,7 @@ include::{snippets}/downloadPackageFileMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadPackageFileMalformedURL/http-response.adoc[]
 
-===== Package non valido
+==== Package non valido
 
 Nel caso in cui la versione dell'applicazione richiesta sia invalida, ovvero il flag _valid_ sia settato a false, non è possibile scaricare il corrispondente file e il servizio risponde con una HTTP response vuota e HTTP status 403
 
@@ -296,7 +278,7 @@ include::{snippets}/downloadPackageInvalidFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadPackageInvalidFile/http-response.adoc[]
 
-===== File illeggibile
+==== File illeggibile
 
 Nel caso in cui l'applicazione richiesta sia presente sul server ma si verifichi un errore di lettura del suddetto file, il servizio risponde con una HTTP response vuota e HTTP status 500
 
@@ -306,7 +288,7 @@ include::{snippets}/downloadPackageUnreadableFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadPackageUnreadableFile/http-response.adoc[]
 
-=== Upload di un'applicazione
+== Upload di un'applicazione
 
 Questo servizio registra sul server un file di un'applicazione.
 Risponde all'indirizzo
@@ -322,9 +304,9 @@ include::{snippets}/uploadPackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/uploadPackage/http-response.adoc[]
 
-==== Errori
+=== Errori
 
-===== Malformed URL
+==== Malformed URL
 
 Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -334,7 +316,7 @@ include::{snippets}/uploadPackageMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/uploadPackageMalformedURL/http-response.adoc[]
 
-===== Errore di scrittura del file
+==== Errore di scrittura del file
 
 Nel caso in cui si verifichi un errore di scrittura del file che si vuole caricare, il servizio risponde con una HTTP response vuota e HTTP status 500
 
