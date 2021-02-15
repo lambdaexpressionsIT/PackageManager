@@ -35,6 +35,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -165,7 +166,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$[0].versions[1].fileName").value(spendingPackageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$[0].versions[1].valid").value(spendingPackageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$[0].versions[1].url").value(spendingPackageListDTO.getVersions().get(1).getUrl()))
-        .andDo(document("listAllPackages", responseFields(
+        .andDo(document("listAllPackages", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server"),
             fieldWithPath("[].appName").description("Nome dell'applicazione"),
             fieldWithPath("[].packageName").description("Nome del package del'applicazione"),
@@ -188,7 +189,7 @@ class PackageManagerControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
-        .andDo(document("listAllPackagesEmpty", responseFields(
+        .andDo(document("listAllPackagesEmpty", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("[]").description("Nel caso in cui nessun package sia presente sul server, il servizio ritorna un array vuoto")
         )));
   }
@@ -228,7 +229,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.versions[1].fileName").value(packageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$.versions[1].valid").value(packageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$.versions[1].url").value(packageListDTO.getVersions().get(1).getUrl()))
-        .andDo(document("listPackageVersions", responseFields(
+        .andDo(document("listPackageVersions", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
             fieldWithPath("packageName").description("Nome del package dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
             fieldWithPath("versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
@@ -249,7 +250,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("listNotFoundPackageVersions"));
+        .andDo(document("listNotFoundPackageVersions", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   /*
@@ -279,7 +280,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
-        .andDo(document("listPackageVersionInfo", responseFields(
+        .andDo(document("listPackageVersionInfo", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
             fieldWithPath("packageName").description("Nome del package dell'applicazione"),
@@ -299,7 +300,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("listNotfoundPackageVersionInfo"));
+        .andDo(document("listNotfoundPackageVersionInfo", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -310,7 +311,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isBadRequest())
         .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("listPackageVersionInfoMalformedURL"));
+        .andDo(document("listPackageVersionInfoMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   /*
@@ -340,7 +341,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
-        .andDo(document("getPackageById", responseFields(
+        .andDo(document("getPackageById", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
             fieldWithPath("packageName").description("Nome del package dell'applicazione"),
@@ -360,7 +361,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("getPackageByIdNotFound"));
+        .andDo(document("getPackageByIdNotFound", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -371,7 +372,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isBadRequest())
         .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("getPackageByIdMalformedURL"));
+        .andDo(document("getPackageByIdMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   /*
@@ -447,7 +448,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$[0].versions[1].fileName").value(spendingPackageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$[0].versions[1].valid").value(spendingPackageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$[0].versions[1].url").value(spendingPackageListDTO.getVersions().get(1).getUrl()))
-        .andDo(document(docName, responseFields(
+        .andDo(document(docName, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server"),
             fieldWithPath("[].appName").description("Nome dell'applicazione"),
             fieldWithPath("[].packageName").description("Nome del package dell'applicazione"),
@@ -470,7 +471,7 @@ class PackageManagerControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
-        .andDo(document("getPackagesByIdEmpty", responseFields(
+        .andDo(document("getPackagesByIdEmpty", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("[]").description("Nel caso in cui nessun package corrisponda a nessuno degli id richiesti, il servizio ritorna un array vuoto.")
         )));
   }
@@ -485,7 +486,7 @@ class PackageManagerControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
-        .andDo(document("getPackagesByIdEmptyParamList", responseFields(
+        .andDo(document("getPackagesByIdEmptyParamList", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
             fieldWithPath("[]").description("Nel caso in cui nessun package corrisponda a nessuno degli id richiesti, il servizio ritorna un array vuoto.")
         )));
   }
@@ -498,7 +499,7 @@ class PackageManagerControllerTest {
     mockMvc.perform(get(REST_SERVICES_BASE_URL + "/getPackages"))
         //then
         .andExpect(status().isBadRequest())
-        .andDo(document("getPackagesByIdNoParams"));
+        .andDo(document("getPackagesByIdNoParams", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
 
@@ -515,7 +516,7 @@ class PackageManagerControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
         .andExpect(content().bytes(DUMMY_BYTE_ARRAY))
-        .andDo(document("downloadPackageFile"));
+        .andDo(document("downloadPackageFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -527,7 +528,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("downloadNotFoundPackageFile"));
+        .andDo(document("downloadNotFoundPackageFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -538,7 +539,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isBadRequest())
         .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("downloadPackageFileMalformedURL"));
+        .andDo(document("downloadPackageFileMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -550,7 +551,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isForbidden())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof InvalidPackageException))
-        .andDo(document("downloadPackageInvalidFile"));
+        .andDo(document("downloadPackageInvalidFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -562,7 +563,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isInternalServerError())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof IOFileException))
-        .andDo(document("downloadPackageUnreadableFile"));
+        .andDo(document("downloadPackageUnreadableFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   /*
@@ -576,7 +577,7 @@ class PackageManagerControllerTest {
     mockMvc.perform(patch(INVALIDATE_PACKAGE_URL))
         //then
         .andExpect(status().isOk())
-        .andDo(document("invalidatePackage"));
+        .andDo(document("invalidatePackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -588,7 +589,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("invalidateNotFoundPackage"));
+        .andDo(document("invalidateNotFoundPackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -599,7 +600,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isBadRequest())
         .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("invalidatePackageMalformedURL"));
+        .andDo(document("invalidatePackageMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   /*
@@ -613,7 +614,7 @@ class PackageManagerControllerTest {
     mockMvc.perform(post(UPLOAD_PACKAGE_URL).content(DUMMY_BYTE_ARRAY).contentType(MediaType.APPLICATION_OCTET_STREAM))
         //then
         .andExpect(status().isCreated())
-        .andDo(document("uploadPackage",
+        .andDo(document("uploadPackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()),
             requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
             requestBody()));
   }
@@ -628,7 +629,7 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isBadRequest())
         .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("uploadPackageMalformedURL"));
+        .andDo(document("uploadPackageMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
   @Test
@@ -641,6 +642,6 @@ class PackageManagerControllerTest {
         //then
         .andExpect(status().isInternalServerError())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof IOFileException))
-        .andDo(document("uploadNotWritablePackage"));
+        .andDo(document("uploadNotWritablePackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 }
