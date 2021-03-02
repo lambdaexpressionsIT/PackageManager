@@ -120,7 +120,7 @@ Risponde all'indirizzo
 
 *_/api/v1/listPackages/appName/appVersion_*
 
-dove *_appVersion_* è l'intero identificante la specifica versione ricercata.
+dove *_appVersion_* è l'identificativo della specifica versione ricercata.
 
 .HTTP request
 include::{snippets}/listPackageVersionInfo/http-request.adoc[]
