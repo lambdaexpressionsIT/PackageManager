@@ -72,7 +72,7 @@ public class PackageUtils {
         .build();
   }
 
-  public String composeLocalRelativePath(String appName, int version, String fileName) {
+  public String composeLocalRelativePath(String appName, String version, String fileName) {
     return String.format("%s%s%s%s%s", appName, File.separator, version, File.separator, fileName);
   }
 
@@ -88,14 +88,14 @@ public class PackageUtils {
   }
 
   public void checkRepositoryIterableResult(Iterable<Package> packageList, String appName, boolean breakOnEmpty) throws PackageNotFoundException {
-    this.checkRepositoryResult(packageList, appName, -1);
+    this.checkRepositoryResult(packageList, appName, "");
 
     if (!packageList.iterator().hasNext() && breakOnEmpty) {
-      throw new PackageNotFoundException("Package not found", appName, -1);
+      throw new PackageNotFoundException("Package not found", appName, "");
     }
   }
 
-  public <T> void checkRepositoryResult(T packageInfo, String appName, int version) throws PackageNotFoundException {
+  public <T> void checkRepositoryResult(T packageInfo, String appName, String version) throws PackageNotFoundException {
     Optional.ofNullable(packageInfo)
         .orElseThrow(() -> new PackageNotFoundException("Package not found", appName, version));
   }

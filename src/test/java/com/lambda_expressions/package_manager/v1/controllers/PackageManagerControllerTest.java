@@ -55,25 +55,21 @@ class PackageManagerControllerTest {
   private static final String PACKAGE_APPNAME = "Spending";
   private static final long PACKAGE_V1_ID = 100;
   private static final long PACKAGE_V2_ID = 200;
-  private static final int PACKAGE_VERSION_1 = 1;
-  private static final int PACKAGE_VERSION_2 = 2;
+  private static final String PACKAGE_VERSION_1 = "1.9";
+  private static final String PACKAGE_VERSION_2 = "2.5";
   private static final byte[] DUMMY_BYTE_ARRAY = "This is the payload of an uploadPackage request, the byte array of a package file".getBytes();
 
   private static final String REST_SERVICES_BASE_URL = "/api/v1";
 
   private static final String LIST_ALL_PACKAGES_URL = REST_SERVICES_BASE_URL + "/listPackages";
   private static final String LIST_PACKAGE_VERSIONS_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending";
-  private static final String LIST_VERSION_INFO_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending/2";
+  private static final String LIST_VERSION_INFO_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending/2.5";
   private static final String GET_PACKAGE_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackage/100";
-  private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/2";
-  private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage/com.package.Spending/Spending/1/Spending_1.9";
-  private static final String GET_PACKAGE_FILE_URL = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/2";
+  private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/2.5";
+  private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage/com.package.Spending/Spending/1.9/Spending_1.9";
+  private static final String GET_PACKAGE_FILE_URL = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/2.5";
 
-  private static final String LIST_VERSION_INFO_URL_MALFORMED = REST_SERVICES_BASE_URL + "/listPackages/Spending/NaN";
   private static final String GET_PACKAGE_BY_ID_URL_MALFORMED = REST_SERVICES_BASE_URL + "/getPackage/NaN";
-  private static final String INVALIDATE_PACKAGE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/NaN";
-  private static final String UPLOAD_PACKAGE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/uploadPackage/com.package.Spending/Spending/NaN/Spending_1.9";
-  private static final String GET_PACKAGE_FILE_URL_MALFORMED = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/NaN";
 
   private static final VersionDTO version1DTO = VersionDTO.builder()
       .id(PACKAGE_V1_ID)
@@ -130,7 +126,7 @@ class PackageManagerControllerTest {
         .build();
     VersionDTO lisXTeVersion1 = VersionDTO.builder()
         .id(300L)
-        .appVersion(1)
+        .appVersion("1")
         .fileName("LisXTe_1.0.10_b1.apk")
         .url(PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk")
         .valid(true)
@@ -172,7 +168,7 @@ class PackageManagerControllerTest {
             fieldWithPath("[].packageName").description("Nome del package del'applicazione"),
             fieldWithPath("[].versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
             fieldWithPath("[].versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("[].versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
+            fieldWithPath("[].versions[].appVersion").description("Identificativo della versione dell'applicazione"),
             fieldWithPath("[].versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("[].versions[].valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
             fieldWithPath("[].versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -234,7 +230,7 @@ class PackageManagerControllerTest {
             fieldWithPath("packageName").description("Nome del package dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
             fieldWithPath("versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
             fieldWithPath("versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
+            fieldWithPath("versions[].appVersion").description("Identificativo della versione dell'applicazione"),
             fieldWithPath("versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("versions[].valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
             fieldWithPath("versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -268,7 +264,7 @@ class PackageManagerControllerTest {
         .packageName((PACKAGE_PACKAGENAME))
         .build();
     //given
-    given(packageService.getPackageInfo(anyString(), anyInt())).willReturn(packageDTO);
+    given(packageService.getPackageInfo(anyString(), anyString())).willReturn(packageDTO);
     //when
     mockMvc.perform(get(LIST_VERSION_INFO_URL))
         //then
@@ -284,7 +280,7 @@ class PackageManagerControllerTest {
             fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
             fieldWithPath("packageName").description("Nome del package dell'applicazione"),
-            fieldWithPath("appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
+            fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
             fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
             fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -294,7 +290,7 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackageVersionNotFound() throws Exception {
     //given
-    given(packageService.getPackageInfo(anyString(), anyInt())).willThrow(PackageNotFoundException.class);
+    given(packageService.getPackageInfo(anyString(), anyString())).willThrow(PackageNotFoundException.class);
     //when
     mockMvc.perform(get(REST_SERVICES_BASE_URL + "/listPackages/Spending/1010101"))
         //then
@@ -302,18 +298,6 @@ class PackageManagerControllerTest {
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
         .andDo(document("listNotfoundPackageVersionInfo", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
-
-  @Test
-  public void testGetPackageVersionMalformedURL() throws Exception {
-    //given
-    //when
-    mockMvc.perform(get(LIST_VERSION_INFO_URL_MALFORMED))
-        //then
-        .andExpect(status().isBadRequest())
-        .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("listPackageVersionInfoMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
-  }
-
   /*
    * getPackageById
    */
@@ -345,7 +329,7 @@ class PackageManagerControllerTest {
             fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
             fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
             fieldWithPath("packageName").description("Nome del package dell'applicazione"),
-            fieldWithPath("appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
+            fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
             fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
             fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -413,7 +397,7 @@ class PackageManagerControllerTest {
         .build();
     VersionDTO lisXTeVersion1 = VersionDTO.builder()
         .id(300L)
-        .appVersion(1)
+        .appVersion("1")
         .fileName("LisXTe_1.0.10_b1.apk")
         .url(PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk")
         .valid(true)
@@ -454,7 +438,7 @@ class PackageManagerControllerTest {
             fieldWithPath("[].packageName").description("Nome del package dell'applicazione"),
             fieldWithPath("[].versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
             fieldWithPath("[].versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("[].versions[].appVersion").description("Numero progressivo della versione dell'applicazione (intero)"),
+            fieldWithPath("[].versions[].appVersion").description("Identificativo della versione dell'applicazione"),
             fieldWithPath("[].versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
             fieldWithPath("[].versions[].valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
             fieldWithPath("[].versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
@@ -509,7 +493,7 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackageFile() throws Exception {
     //given
-    given(packageService.getPackageFile(anyString(), anyInt())).willReturn(DUMMY_BYTE_ARRAY);
+    given(packageService.getPackageFile(anyString(), anyString())).willReturn(DUMMY_BYTE_ARRAY);
     //when
     mockMvc.perform(get(GET_PACKAGE_FILE_URL))
         //then
@@ -522,7 +506,7 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackageFileNotFound() throws Exception {
     //given
-    given(packageService.getPackageFile(anyString(), anyInt())).willThrow(PackageNotFoundException.class);
+    given(packageService.getPackageFile(anyString(), anyString())).willThrow(PackageNotFoundException.class);
     //when
     mockMvc.perform(get(GET_PACKAGE_FILE_URL))
         //then
@@ -531,21 +515,9 @@ class PackageManagerControllerTest {
         .andDo(document("downloadNotFoundPackageFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
 
-  @Test
-  public void testGetPackageFileMalformedURL() throws Exception {
+  @Test  public void testGetPackageFileInvalidPackage() throws Exception {
     //given
-    //when
-    mockMvc.perform(get(GET_PACKAGE_FILE_URL_MALFORMED))
-        //then
-        .andExpect(status().isBadRequest())
-        .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("downloadPackageFileMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
-  }
-
-  @Test
-  public void testGetPackageFileInvalidPackage() throws Exception {
-    //given
-    given(packageService.getPackageFile(anyString(), anyInt())).willThrow(InvalidPackageException.class);
+    given(packageService.getPackageFile(anyString(), anyString())).willThrow(InvalidPackageException.class);
     //when
     mockMvc.perform(get(GET_PACKAGE_FILE_URL))
         //then
@@ -557,7 +529,7 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackageFileUnableToReadFile() throws Exception {
     //given
-    given(packageService.getPackageFile(anyString(), anyInt())).willThrow(IOFileException.class);
+    given(packageService.getPackageFile(anyString(), anyString())).willThrow(IOFileException.class);
     //when
     mockMvc.perform(get(GET_PACKAGE_FILE_URL))
         //then
@@ -572,7 +544,7 @@ class PackageManagerControllerTest {
   @Test
   public void testInvalidatePackage() throws Exception {
     //given
-    doNothing().when(packageService).invalidatePackage(anyString(), anyInt());
+    doNothing().when(packageService).invalidatePackage(anyString(), anyString());
     //when
     mockMvc.perform(patch(INVALIDATE_PACKAGE_URL))
         //then
@@ -583,7 +555,7 @@ class PackageManagerControllerTest {
   @Test
   public void testInvalidatePackageNotFound() throws Exception {
     //given
-    doThrow(PackageNotFoundException.class).when(packageService).invalidatePackage(anyString(), anyInt());
+    doThrow(PackageNotFoundException.class).when(packageService).invalidatePackage(anyString(), anyString());
     //when
     mockMvc.perform(patch(INVALIDATE_PACKAGE_URL))
         //then
@@ -591,25 +563,13 @@ class PackageManagerControllerTest {
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
         .andDo(document("invalidateNotFoundPackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
   }
-
-  @Test
-  public void testInvalidatePackageMalformedURL() throws Exception {
-    //given
-    //when
-    mockMvc.perform(patch(INVALIDATE_PACKAGE_URL_MALFORMED))
-        //then
-        .andExpect(status().isBadRequest())
-        .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("invalidatePackageMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
-  }
-
   /*
    * uploadPackage
    */
   @Test
   public void testUploadPackageFile() throws Exception {
     //given
-    doNothing().when(packageService).installPackageFile(anyString(), anyString(), anyInt(), anyString(), any(byte[].class));
+    doNothing().when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(), any(byte[].class));
     //when
     mockMvc.perform(post(UPLOAD_PACKAGE_URL).content(DUMMY_BYTE_ARRAY).contentType(MediaType.APPLICATION_OCTET_STREAM))
         //then
@@ -619,23 +579,9 @@ class PackageManagerControllerTest {
             requestBody()));
   }
 
-  @Test
-  public void testUploadPackageFileMalformedURL() throws Exception {
+  @Test  public void testUploadPackageFileUnableToWriteFile() throws Exception {
     //given
-    //when
-    mockMvc.perform(post(UPLOAD_PACKAGE_URL_MALFORMED)
-        .content(DUMMY_BYTE_ARRAY)
-        .contentType(MediaType.APPLICATION_OCTET_STREAM))
-        //then
-        .andExpect(status().isBadRequest())
-        .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("uploadPackageMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
-  }
-
-  @Test
-  public void testUploadPackageFileUnableToWriteFile() throws Exception {
-    //given
-    doThrow(IOFileException.class).when(packageService).installPackageFile(anyString(), anyString(), anyInt(), anyString(),
+    doThrow(IOFileException.class).when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(),
         any(byte[].class));
     //when
     mockMvc.perform(post(UPLOAD_PACKAGE_URL).content(DUMMY_BYTE_ARRAY).contentType(MediaType.APPLICATION_OCTET_STREAM))

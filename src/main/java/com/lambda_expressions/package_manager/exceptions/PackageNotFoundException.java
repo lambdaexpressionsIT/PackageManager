@@ -6,7 +6,7 @@ package com.lambda_expressions.package_manager.exceptions;
  * at 11:21 AM
  */
 public class PackageNotFoundException extends PackageException {
-  public PackageNotFoundException(String message, String appName, int version) {
+  public PackageNotFoundException(String message, String appName, String version) {
     super(message, appName, version);
   }
 }

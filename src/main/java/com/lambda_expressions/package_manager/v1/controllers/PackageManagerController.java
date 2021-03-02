@@ -35,21 +35,19 @@ public class PackageManagerController {
       consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public void uploadPackage(HttpServletRequest httpRequest, @PathVariable String packageName, @PathVariable String appName,
                             @PathVariable String version, @PathVariable String fileName, @RequestBody byte[] file)
-      throws UnauthenticatedRequestException, MalformedURLException, IOFileException {
+      throws UnauthenticatedRequestException, IOFileException {
     this.authService.authenticateRequest(httpRequest);
-    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
-    this.packageService.installPackageFile(packageName, appName, intVersion, fileName, file);
+    this.packageService.installPackageFile(packageName, appName, version, fileName, file);
   }
 
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping(value = {"invalidatePackage/{appName}/{version}", "invalidatePackage/{appName}/{version}/"})
   public void invalidatePackage(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
-      throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
+      throws UnauthenticatedRequestException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
-    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
-    this.packageService.invalidatePackage(appName, intVersion);
+    this.packageService.invalidatePackage(appName, version);
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -57,11 +55,10 @@ public class PackageManagerController {
       produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public @ResponseBody
   byte[] downloadPackage(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
-      throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException, IOFileException, InvalidPackageException {
+      throws UnauthenticatedRequestException, PackageNotFoundException, IOFileException, InvalidPackageException {
     this.authService.authenticateRequest(httpRequest);
-    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
-    return this.packageService.getPackageFile(appName, intVersion);
+    return this.packageService.getPackageFile(appName, version);
   }
 
   @ResponseStatus(HttpStatus.OK)
@@ -85,11 +82,10 @@ public class PackageManagerController {
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"listPackages/{appName}/{version}", "listPackages/{appName}/{version}/"})
   public PackageDTO listPackageInfo(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
-      throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
+      throws UnauthenticatedRequestException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
-    int intVersion = ControllerUtils.checkVersionParameter(appName, version);
 
-    return this.packageService.getPackageInfo(appName, intVersion);
+    return this.packageService.getPackageInfo(appName, version);
   }
 
   @ResponseStatus(HttpStatus.OK)
