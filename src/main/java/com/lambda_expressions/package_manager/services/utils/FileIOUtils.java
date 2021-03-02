@@ -19,7 +19,7 @@ public class FileIOUtils {
   @Value("${packages.filesystem.base.path}")
   private String PACKAGES_FILESYSTEM_BASE_LOCATION;
 
-  public void savePackageFile(String appName, int version, String fileName, byte[] file, PackageUtils packageUtils) throws IOFileException {
+  public void savePackageFile(String appName, String version, String fileName, byte[] file, PackageUtils packageUtils) throws IOFileException {
     try {
       String localRelativePath = packageUtils.composeLocalRelativePath(appName, version, fileName);
       FileUtils.writeByteArrayToFile(new File(composeAbsoluteLocalPath(localRelativePath)), file);

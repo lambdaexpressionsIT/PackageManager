@@ -47,8 +47,8 @@ class PackageServiceImplTest {
   private static final String PACKAGE_APPNAME = "appName";
   private static final long PACKAGE_V1_ID = 100;
   private static final long PACKAGE_V2_ID = 200;
-  private static final int PACKAGE_VERSION_1 = 1;
-  private static final int PACKAGE_VERSION_2 = 2;
+  private static final String PACKAGE_VERSION_1 = "1.1";
+  private static final String PACKAGE_VERSION_2 = "2.4";
   private static final byte[] DUMMY_BYTE_ARRAY = "Some dummy string converted to byte array".getBytes();
 
   private static final Package PACKAGE_V1_INFO = Package.builder()
@@ -192,7 +192,7 @@ class PackageServiceImplTest {
   @Test
   void getPackageInfo() throws PackageNotFoundException {
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(PACKAGE_V2_INFO);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(PACKAGE_V2_INFO);
     //when
     PackageDTO packageDTO = packageService.getPackageInfo(PACKAGE_APPNAME, PACKAGE_VERSION_2);
     //then
@@ -208,7 +208,7 @@ class PackageServiceImplTest {
   @Test
   void getPackageInfoNotFound() {
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(null);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(null);
     //when
     //then
     assertThrows(PackageNotFoundException.class, () -> packageService.getPackageInfo(PACKAGE_APPNAME, PACKAGE_VERSION_2));
@@ -308,7 +308,7 @@ class PackageServiceImplTest {
         .appname(PACKAGE_APPNAME)
         .build();
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(packageToInvalidate);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(packageToInvalidate);
     //when
     packageService.invalidatePackage(PACKAGE_APPNAME, PACKAGE_VERSION_2);
     //then
@@ -319,7 +319,7 @@ class PackageServiceImplTest {
   @Test
   void invalidatePackageNotFound() {
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(null);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(null);
     //when
     //then
     assertThrows(PackageNotFoundException.class, () -> packageService.invalidatePackage(PACKAGE_APPNAME, PACKAGE_VERSION_2));
@@ -328,7 +328,7 @@ class PackageServiceImplTest {
   @Test
   void getPackageFile() throws IOFileException, PackageNotFoundException, InvalidPackageException {
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(PACKAGE_V1_INFO);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(PACKAGE_V1_INFO);
     given(fileIOUtils.loadPackageFile(any(Package.class))).willReturn(DUMMY_BYTE_ARRAY);
     //when
     //then
@@ -338,7 +338,7 @@ class PackageServiceImplTest {
   @Test
   void getPackageFileNotFound() {
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(null);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(null);
     //when
     //then
     assertThrows(PackageNotFoundException.class, () -> packageService.getPackageFile(PACKAGE_APPNAME, PACKAGE_VERSION_2));
@@ -355,7 +355,7 @@ class PackageServiceImplTest {
         .appname(PACKAGE_APPNAME)
         .build();
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(invalidPackage);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(invalidPackage);
     //when
     //then
     assertThrows(InvalidPackageException.class, () -> packageService.getPackageFile(PACKAGE_APPNAME, PACKAGE_VERSION_1));
@@ -364,7 +364,7 @@ class PackageServiceImplTest {
   @Test
   void getPackageFileUnreadable() throws IOFileException {
     //given
-    given(repository.findByAppnameIgnoreCaseAndVersion(anyString(), anyInt())).willReturn(PACKAGE_V1_INFO);
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(PACKAGE_V1_INFO);
     given(fileIOUtils.loadPackageFile(any(Package.class))).willThrow(IOFileException.class);
     //when
     //then
@@ -387,7 +387,7 @@ class PackageServiceImplTest {
     assertEquals(packageCaptor.getValue().getPath(), PACKAGE_V1_INFO.getPath());
     assertTrue(packageCaptor.getValue().isValid());
 
-    verify(fileIOUtils, times(1)).savePackageFile(anyString(), anyInt(), anyString(), fileCaptor.capture(), any(PackageUtils.class));
+    verify(fileIOUtils, times(1)).savePackageFile(anyString(), anyString(), anyString(), fileCaptor.capture(), any(PackageUtils.class));
     assertEquals(fileCaptor.getValue(), DUMMY_BYTE_ARRAY);
   }
 
@@ -395,7 +395,7 @@ class PackageServiceImplTest {
   void installPackageFileIOException() throws IOFileException {
     //given
     //when
-    doThrow(IOFileException.class).when(fileIOUtils).savePackageFile(anyString(), anyInt(), anyString(), any(byte[].class), any(PackageUtils.class));
+    doThrow(IOFileException.class).when(fileIOUtils).savePackageFile(anyString(), anyString(), anyString(), any(byte[].class), any(PackageUtils.class));
     //then
     assertThrows(IOFileException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
   }
