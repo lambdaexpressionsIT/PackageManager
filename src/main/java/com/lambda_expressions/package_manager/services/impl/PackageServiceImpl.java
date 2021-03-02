@@ -54,8 +54,8 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public PackageDTO getPackageInfo(String appName, int version) throws PackageNotFoundException {
-    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
+  public PackageDTO getPackageInfo(String appName, String version) throws PackageNotFoundException {
+    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
 
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
 
@@ -66,7 +66,7 @@ public class PackageServiceImpl implements PackageService {
   public PackageDTO getPackageInfoById(long id) throws PackageNotFoundException {
     return this.packageRepo.findById(id)
         .map(packageUtils::composePackageDTOFromPackage)
-        .orElseThrow(() -> new PackageNotFoundException("ID not found", Long.toString(id), -1));
+        .orElseThrow(() -> new PackageNotFoundException("ID not found", Long.toString(id), ""));
   }
 
   @Override
@@ -79,8 +79,8 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public byte[] getPackageFile(String appName, int version) throws PackageNotFoundException, IOFileException, InvalidPackageException {
-    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
+  public byte[] getPackageFile(String appName, String version) throws PackageNotFoundException, IOFileException, InvalidPackageException {
+    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
 
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     this.packageUtils.checkPackageValidity(packageInfo);
@@ -89,16 +89,16 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public void installPackageFile(String packageName, String appName, int version, String fileName, byte[] file) throws IOFileException {
-    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
+  public void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException {
+    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
 
     this.fileIOUtils.savePackageFile(appName, version, fileName, file, this.packageUtils);
     this.persistNewPackageInfo(packageInfo, packageName, appName, version, fileName);
   }
 
   @Override
-  public void invalidatePackage(String appName, int version) throws PackageNotFoundException {
-    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersion(appName, version);
+  public void invalidatePackage(String appName, String version) throws PackageNotFoundException {
+    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
 
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     this.persistPackageInvalidation(packageInfo);
@@ -109,7 +109,7 @@ public class PackageServiceImpl implements PackageService {
     this.packageRepo.save(packageInfo);
   }
 
-  private void persistNewPackageInfo(Package packageInfo, String packageName, String appName, int version, String fileName) {
+  private void persistNewPackageInfo(Package packageInfo, String packageName, String appName, String version, String fileName) {
     try {
       this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     } catch (PackageNotFoundException e) {

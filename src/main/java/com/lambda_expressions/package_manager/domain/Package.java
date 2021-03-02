@@ -25,7 +25,7 @@ public class Package {
   private Long id;
   private String appname;
   private String filename;
-  private int version;
+  private String version;
   private String path;
   private boolean valid;
   private String packagename;

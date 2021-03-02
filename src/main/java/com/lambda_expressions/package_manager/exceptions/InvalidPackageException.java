@@ -6,7 +6,7 @@ package com.lambda_expressions.package_manager.exceptions;
  * at 8:35 PM
  */
 public class InvalidPackageException extends PackageException {
-  public InvalidPackageException(String message, String appName, int version) {
+  public InvalidPackageException(String message, String appName, String version) {
     super(message, appName, version);
   }
 }
