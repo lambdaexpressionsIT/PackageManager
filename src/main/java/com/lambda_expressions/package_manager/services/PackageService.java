@@ -20,16 +20,16 @@ public interface PackageService {
 
   PackageListDTO listAllVersions(String appName) throws PackageNotFoundException;
 
-  PackageDTO getPackageInfo(String appName, int version) throws PackageNotFoundException;
+  PackageDTO getPackageInfo(String appName, String version) throws PackageNotFoundException;
 
   PackageDTO getPackageInfoById(long id) throws PackageNotFoundException;
 
   Collection<PackageListDTO> getPackagesById(List<Long> idList) throws PackageNotFoundException;
 
-  byte[] getPackageFile(String appName, int version) throws PackageNotFoundException, IOFileException, InvalidPackageException;
+  byte[] getPackageFile(String appName, String version) throws PackageNotFoundException, IOFileException, InvalidPackageException;
 
-  void installPackageFile(String packageName, String appName, int version, String fileName, byte[] file) throws IOFileException;
+  void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException;
 
-  void invalidatePackage(String appName, int version) throws PackageNotFoundException;
+  void invalidatePackage(String appName, String version) throws PackageNotFoundException;
 
 }

@@ -12,10 +12,6 @@ public class PackageException extends Exception {
   String appName;
   String version;
 
-  public PackageException(String message, String appName, int version) {
-    this(message, appName, version >= 0 ? String.valueOf(version) : "");
-  }
-
   public PackageException(String message, String appName, String version) {
     super(message);
     this.appName = appName;

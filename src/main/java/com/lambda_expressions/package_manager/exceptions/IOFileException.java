@@ -6,7 +6,7 @@ package com.lambda_expressions.package_manager.exceptions;
  * at 12:32 PM
  */
 public class IOFileException extends PackageException {
-  public IOFileException(String message, String appName, int version) {
+  public IOFileException(String message, String appName, String version) {
     super(message, appName, version);
   }
 }

@@ -120,7 +120,7 @@ Risponde all'indirizzo
 
 *_/api/v1/listPackages/appName/appVersion_*
 
-dove *_appVersion_* è l'intero identificante la specifica versione ricercata.
+dove *_appVersion_* è l'identificativo della specifica versione ricercata.
 
 .HTTP request
 include::{snippets}/listPackageVersionInfo/http-request.adoc[]
@@ -142,16 +142,6 @@ include::{snippets}/listNotfoundPackageVersionInfo/http-request.adoc[]
 
 .HTTP response
 include::{snippets}/listNotfoundPackageVersionInfo/http-response.adoc[]
-
-==== Malformed URL
-
-Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
-
-.HTTP request
-include::{snippets}/listPackageVersionInfoMalformedURL/http-request.adoc[]
-
-.HTTP response
-include::{snippets}/listPackageVersionInfoMalformedURL/http-response.adoc[]
 
 == Informazioni di una specifica versione (per id)
 
@@ -222,16 +212,6 @@ include::{snippets}/invalidateNotFoundPackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/invalidateNotFoundPackage/http-response.adoc[]
 
-==== Malformed URL
-
-Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
-
-.HTTP request
-include::{snippets}/invalidatePackageMalformedURL/http-request.adoc[]
-
-.HTTP response
-include::{snippets}/invalidatePackageMalformedURL/http-response.adoc[]
-
 == Download di un'applicazione
 
 Questo servizio ritorna il file di una specifica versione di un'applicazione valida presente sul server. Nel caso in cui l'applicazione/versione sia marcata come non valida, questo servizio ritorna un errore (come specificato in seguito), ma il file sarà comunque disponibile attraverso il suo URL pubblico.
@@ -257,16 +237,6 @@ include::{snippets}/downloadNotFoundPackageFile/http-request.adoc[]
 
 .HTTP response
 include::{snippets}/downloadNotFoundPackageFile/http-response.adoc[]
-
-==== Malformed URL
-
-Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
-
-.HTTP request
-include::{snippets}/downloadPackageFileMalformedURL/http-request.adoc[]
-
-.HTTP response
-include::{snippets}/downloadPackageFileMalformedURL/http-response.adoc[]
 
 ==== Package non valido
 
@@ -305,16 +275,6 @@ include::{snippets}/uploadPackage/http-request.adoc[]
 include::{snippets}/uploadPackage/http-response.adoc[]
 
 === Errori
-
-==== Malformed URL
-
-Nel caso in cui il parametro *_appVersion_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
-
-.HTTP request
-include::{snippets}/uploadPackageMalformedURL/http-request.adoc[]
-
-.HTTP response
-include::{snippets}/uploadPackageMalformedURL/http-response.adoc[]
 
 ==== Errore di scrittura del file
 

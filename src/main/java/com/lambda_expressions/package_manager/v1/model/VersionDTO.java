@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class VersionDTO {
   private final long id;
-  private final int appVersion;
+  private final String appVersion;
   private final String fileName;
   private final String url;
   private final boolean valid;
