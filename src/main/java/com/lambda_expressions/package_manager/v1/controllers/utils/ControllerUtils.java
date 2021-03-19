@@ -1,6 +1,9 @@
 package com.lambda_expressions.package_manager.v1.controllers.utils;
 
+import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
 import com.lambda_expressions.package_manager.exceptions.MalformedURLException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +31,17 @@ public class ControllerUtils {
     return stringIds.stream().filter(ControllerUtils::isParsableToLong)
         .map(parsable->Long.parseLong(parsable))
         .collect(Collectors.toList());
+  }
+
+  public static String getFileName(MultipartFile file) throws AutoDetectionException {
+
+    String fileName = file.getOriginalFilename();
+
+    if(StringUtils.isEmpty(fileName)){
+      throw new AutoDetectionException("No filename for received package", "", "");
+    }
+
+    return fileName;
   }
 
   private static boolean isParsableToLong(String stringVal){

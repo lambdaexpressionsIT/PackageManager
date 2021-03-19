@@ -6,10 +6,12 @@ import com.lambda_expressions.package_manager.exceptions.PackageNotFoundExceptio
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import com.lambda_expressions.package_manager.v1.model.VersionDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
  * at 3:10 PM
  */
 @Component
+@Slf4j
 public class PackageUtils {
   @Value("${packages.web.base.url}")
   private String PACKAGES_WEBSERVER_BASEURL;
@@ -78,7 +81,15 @@ public class PackageUtils {
 
   public String composeURLFromLocalPath(String localPath) {
     String localPathToUrl = localPath.replace(File.separator, "/");
-    return String.format("%s/%s", PACKAGES_WEBSERVER_BASEURL, localPathToUrl);
+    String resourceUrl = String.format("%s/%s", PACKAGES_WEBSERVER_BASEURL, localPathToUrl);
+
+    try {
+      resourceUrl = new URI(null, resourceUrl, null).toString();
+    } catch (Exception e) {
+      log.info("Unparsable resource URL: " + resourceUrl);
+    }
+
+    return resourceUrl;
   }
 
   public void checkPackageValidity(Package packageInfo) throws InvalidPackageException {

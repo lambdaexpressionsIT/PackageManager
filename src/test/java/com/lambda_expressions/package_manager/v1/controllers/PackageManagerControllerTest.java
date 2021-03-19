@@ -1,9 +1,6 @@
 package com.lambda_expressions.package_manager.v1.controllers;
 
-import com.lambda_expressions.package_manager.exceptions.IOFileException;
-import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
-import com.lambda_expressions.package_manager.exceptions.MalformedURLException;
-import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
+import com.lambda_expressions.package_manager.exceptions.*;
 import com.lambda_expressions.package_manager.services.AuthenticationService;
 import com.lambda_expressions.package_manager.services.PackageService;
 import com.lambda_expressions.package_manager.v1.RESTExceptionHandler;
@@ -16,15 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
@@ -35,10 +34,13 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 /**
  * Created by steccothal
@@ -46,11 +48,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * at 10:42 AM
  */
 @ExtendWith({MockitoExtension.class, RestDocumentationExtension.class})
-@AutoConfigureRestDocs(outputDir = "target/snippets")
 class PackageManagerControllerTest {
   private static final String PACKAGES_FILE_EXTENSION = ".apk";
-  private static final String PACKAGES_WEBSERVER_BASEURL = "http://localhost:8080";
-  private static final String PACKAGE_FILENAME = "Spending_1.9";
+  private static final String PACKAGES_WEBSERVER_BASEURL = "https://www.package-manager.com/repository";
+  private static final String PACKAGE_FILENAME = "Spending_1.9.apk";
   private static final String PACKAGE_PACKAGENAME = "com.package.spending";
   private static final String PACKAGE_APPNAME = "Spending";
   private static final long PACKAGE_V1_ID = 100;
@@ -60,16 +61,17 @@ class PackageManagerControllerTest {
   private static final byte[] DUMMY_BYTE_ARRAY = "This is the payload of an uploadPackage request, the byte array of a package file".getBytes();
 
   private static final String REST_SERVICES_BASE_URL = "/api/v1";
-
   private static final String LIST_ALL_PACKAGES_URL = REST_SERVICES_BASE_URL + "/listPackages";
-  private static final String LIST_PACKAGE_VERSIONS_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending";
-  private static final String LIST_VERSION_INFO_URL = REST_SERVICES_BASE_URL + "/listPackages/Spending/2.5";
-  private static final String GET_PACKAGE_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackage/100";
-  private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/Spending/2.5";
-  private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage/com.package.Spending/Spending/1.9/Spending_1.9";
-  private static final String GET_PACKAGE_FILE_URL = REST_SERVICES_BASE_URL + "/downloadPackage/Spending/2.5";
+  private static final String LIST_PACKAGE_VERSIONS_URL = REST_SERVICES_BASE_URL + "/listPackages/{appName}";
+  private static final String LIST_VERSION_INFO_URL = REST_SERVICES_BASE_URL + "/listPackages/{appName}/{appVersion}";
+  private static final String GET_PACKAGE_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackage/{appId}";
+  private static final String GET_PACKAGES_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackages/";
+  private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/{appName}/{appVersion}";
+  private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage";
+  private static final String UPLOAD_PACKAGE_WITH_PARAMS_URL = REST_SERVICES_BASE_URL + "/uploadPackage/{packageName}/{appName}/{appVersion}/{fileName}";
+  private static final String GET_PACKAGE_FILE_URL = REST_SERVICES_BASE_URL + "/downloadPackage/{appName}/{appVersion}";
 
-  private static final String GET_PACKAGE_BY_ID_URL_MALFORMED = REST_SERVICES_BASE_URL + "/getPackage/NaN";
+  private static final String GET_PACKAGES_PARAM_NAME = "idList";
 
   private static final VersionDTO version1DTO = VersionDTO.builder()
       .id(PACKAGE_V1_ID)
@@ -78,31 +80,50 @@ class PackageManagerControllerTest {
       .valid(true)
       .appVersion(PACKAGE_VERSION_1)
       .build();
-
   private static final VersionDTO version2DTO = VersionDTO.builder()
       .id(PACKAGE_V2_ID)
-      .fileName("Spending_2.5")
+      .fileName("Spending_2.5.apk")
       .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + "Spending_2.5" + PACKAGES_FILE_EXTENSION))
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
       .build();
 
+  private final FieldDescriptor[] globalArrayField = new FieldDescriptor[]{
+      fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server")
+  };
+  private final FieldDescriptor[] packageFields = new FieldDescriptor[]{
+      fieldWithPath("appName").description("Nome dell'applicazione"),
+      fieldWithPath("packageName").description("Nome del package del'applicazione"),
+  };
+  private final FieldDescriptor[] versionsField = new FieldDescriptor[]{
+      fieldWithPath("versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server")
+  };
+  private final FieldDescriptor[] versionFields = new FieldDescriptor[]{
+      fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
+      fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
+      fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
+      fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
+      fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
+
+  };
   @Mock
   PackageService packageService;
-
   @Mock
   AuthenticationService authService;
-
   @InjectMocks
   PackageManagerController controller;
-
   MockMvc mockMvc;
 
   @BeforeEach
   public void setUp(RestDocumentationContextProvider documentationContextProvider) {
     mockMvc = MockMvcBuilders.standaloneSetup(controller)
         .setControllerAdvice(new RESTExceptionHandler())
-        .apply(documentationConfiguration(documentationContextProvider))
+        .apply(documentationConfiguration(documentationContextProvider)
+            .uris()
+            .withHost("www.package-manager.com")
+            .withPort(8080)
+            .withScheme("https")
+        )
         .build();
   }
 
@@ -162,32 +183,32 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$[0].versions[1].fileName").value(spendingPackageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$[0].versions[1].valid").value(spendingPackageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$[0].versions[1].url").value(spendingPackageListDTO.getVersions().get(1).getUrl()))
-        .andDo(document("listAllPackages", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server"),
-            fieldWithPath("[].appName").description("Nome dell'applicazione"),
-            fieldWithPath("[].packageName").description("Nome del package del'applicazione"),
-            fieldWithPath("[].versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
-            fieldWithPath("[].versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("[].versions[].appVersion").description("Identificativo della versione dell'applicazione"),
-            fieldWithPath("[].versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
-            fieldWithPath("[].versions[].valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
-            fieldWithPath("[].versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
-        )));
+        .andDo(document("listAllPackages",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            responseFields(globalArrayField)
+                .andWithPrefix("[].", packageFields)
+                .andWithPrefix("[].", versionsField)
+                .andWithPrefix("[].versions[].", versionFields)
+        ));
   }
 
   @Test
   public void testGetAllPackagesEmptyList() throws Exception {
-    ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
     //given
     //when
     mockMvc.perform(get(LIST_ALL_PACKAGES_URL))
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
-        .andDo(document("listAllPackagesEmpty", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("[]").description("Nel caso in cui nessun package sia presente sul server, il servizio ritorna un array vuoto")
-        )));
+        .andExpect(jsonPath("$.length()").value(0))
+        .andDo(document("listAllPackagesEmpty",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            responseFields(
+                fieldWithPath("[]").description("Nel caso in cui nessun package sia presente sul server, il servizio ritorna un array vuoto")
+            )
+        ));
   }
 
   /*
@@ -208,7 +229,7 @@ class PackageManagerControllerTest {
     //given
     given(packageService.listAllVersions(anyString())).willReturn(packageListDTO);
     //when
-    mockMvc.perform(get(LIST_PACKAGE_VERSIONS_URL))
+    mockMvc.perform(get(LIST_PACKAGE_VERSIONS_URL, PACKAGE_APPNAME))
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.appName").value(packageListDTO.getAppName()))
@@ -225,16 +246,14 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.versions[1].fileName").value(packageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$.versions[1].valid").value(packageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$.versions[1].url").value(packageListDTO.getVersions().get(1).getUrl()))
-        .andDo(document("listPackageVersions", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
-            fieldWithPath("packageName").description("Nome del package dell'applicazione. In questo servizio questo campo e unico, in quanto ritorna le informazioni di una singola applicazione"),
-            fieldWithPath("versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
-            fieldWithPath("versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("versions[].appVersion").description("Identificativo della versione dell'applicazione"),
-            fieldWithPath("versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
-            fieldWithPath("versions[].valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
-            fieldWithPath("versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
-        )));
+        .andDo(document("listPackageVersions",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("appName").description("Nome dell'applicazione ricercata, corrispondente al campo ritornato da questo servizio")),
+            responseFields(packageFields)
+                .and(versionsField)
+                .andWithPrefix("versions[].", versionFields)
+        ));
   }
 
   @Test
@@ -242,11 +261,15 @@ class PackageManagerControllerTest {
     //given
     given(packageService.listAllVersions(anyString())).willThrow(PackageNotFoundException.class);
     //when
-    mockMvc.perform(get(REST_SERVICES_BASE_URL + "/listPackages/notPresentAppName"))
+    mockMvc.perform(get(LIST_PACKAGE_VERSIONS_URL, "appNotPresent"))
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("listNotFoundPackageVersions", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("listNotFoundPackageVersions",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("appName").description("Nome dell'applicazione ricercata"))
+        ));
   }
 
   /*
@@ -266,7 +289,7 @@ class PackageManagerControllerTest {
     //given
     given(packageService.getPackageInfo(anyString(), anyString())).willReturn(packageDTO);
     //when
-    mockMvc.perform(get(LIST_VERSION_INFO_URL))
+    mockMvc.perform(get(LIST_VERSION_INFO_URL, PACKAGE_APPNAME, PACKAGE_VERSION_1))
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(packageDTO.getId()))
@@ -276,15 +299,16 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
-        .andDo(document("listPackageVersionInfo", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
-            fieldWithPath("packageName").description("Nome del package dell'applicazione"),
-            fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
-            fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
-            fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
-            fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
-        )));
+        .andDo(document("listPackageVersionInfo",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione ricercata")
+            ),
+            responseFields(packageFields)
+                .and(versionFields)
+        ));
   }
 
   @Test
@@ -292,12 +316,20 @@ class PackageManagerControllerTest {
     //given
     given(packageService.getPackageInfo(anyString(), anyString())).willThrow(PackageNotFoundException.class);
     //when
-    mockMvc.perform(get(REST_SERVICES_BASE_URL + "/listPackages/Spending/1010101"))
+    mockMvc.perform(get(LIST_VERSION_INFO_URL, PACKAGE_APPNAME, "100.200.300"))
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("listNotfoundPackageVersionInfo", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("listNotfoundPackageVersionInfo",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione ricercata")
+            )
+        ));
   }
+
   /*
    * getPackageById
    */
@@ -315,7 +347,7 @@ class PackageManagerControllerTest {
     //given
     given(packageService.getPackageInfoById(anyLong())).willReturn(packageDTO);
     //when
-    mockMvc.perform(get(GET_PACKAGE_BY_ID_URL))
+    mockMvc.perform(get(GET_PACKAGE_BY_ID_URL, PACKAGE_V1_ID))
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(packageDTO.getId()))
@@ -325,15 +357,13 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
-        .andDo(document("getPackageById", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("appName").description("Nome dell'applicazione. In questo servizio non viene ritornato un array di versioni, in quanto ritorna le informazioni di una singola versione dell'applicazione"),
-            fieldWithPath("packageName").description("Nome del package dell'applicazione"),
-            fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
-            fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
-            fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
-            fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
-        )));
+        .andDo(document("getPackageById",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("appId").description("Identificativo univoco della specifica combinazione applicazione/versione ricercata")),
+            responseFields(packageFields)
+                .and(versionFields)
+        ));
   }
 
   @Test
@@ -341,22 +371,30 @@ class PackageManagerControllerTest {
     //given
     given(packageService.getPackageInfoById(anyLong())).willThrow(PackageNotFoundException.class);
     //when
-    mockMvc.perform(get(REST_SERVICES_BASE_URL + "/getPackage/1010101"))
+    mockMvc.perform(get(GET_PACKAGE_BY_ID_URL, "1010101"))
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("getPackageByIdNotFound", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("getPackageByIdNotFound",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("appId").description("Id dell'applicazione ricercata"))
+        ));
   }
 
   @Test
   public void testGetPackageByIdMalformedURL() throws Exception {
     //given
     //when
-    mockMvc.perform(get(GET_PACKAGE_BY_ID_URL_MALFORMED))
+    mockMvc.perform(get(GET_PACKAGE_BY_ID_URL, "NaN"))
         //then
         .andExpect(status().isBadRequest())
         .andExpect(result -> assertTrue(result.getResolvedException() instanceof MalformedURLException))
-        .andDo(document("getPackageByIdMalformedURL", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("getPackageByIdMalformedURL",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("appId").description("Id dell'applicazione ricercata"))
+        ));
   }
 
   /*
@@ -364,24 +402,29 @@ class PackageManagerControllerTest {
    */
   @Test
   public void testGetPackagesByIdListParam() throws Exception {
-    this.performGetPackagesById(REST_SERVICES_BASE_URL+"/getPackages?idList=100,200,300",
-        anyList(), "getPackagesByIdListParams");
+    this.performGetPackagesById(
+        get(GET_PACKAGES_BY_ID_URL + "?idList=100,200,300"),
+        "getPackagesByIdListParams");
   }
 
   @Test
   public void testGetPackagesByIdRepeatedParamNames() throws Exception {
-    this.performGetPackagesById(REST_SERVICES_BASE_URL+"/getPackages?idList=100&idList=200&idList=300",
-        anyList(), "getPackagesByIdRepeatedParamNames");
+    this.performGetPackagesById(
+        get(GET_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, "100", "200", "300"),
+        "getPackagesByIdRepeatedParamNames");
   }
 
   @Test
   public void testGetPackagesByIdMalformedURL() throws Exception {
-    this.performGetPackagesById(REST_SERVICES_BASE_URL+"/getPackages?idList=100,Nan,200,NaN,300",
-        anyList(), "getPackagesByIdMalformedURL");
+    this.performGetPackagesById(
+        get(GET_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, "100", "NaN", "200", "NaN", "300"),
+        "getPackagesByIdMalformedURL");
   }
 
 
-  private void performGetPackagesById(String url, List<Long> idList, String docName) throws Exception {
+  private void performGetPackagesById(MockHttpServletRequestBuilder get, String docName) throws Exception {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
     ArrayList<VersionDTO> lisXTeVersionDTOArrayList = new ArrayList<>();
     ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
@@ -411,9 +454,9 @@ class PackageManagerControllerTest {
 
     lisXTeVersionDTOArrayList.add(lisXTeVersion1);
     //given
-    given(packageService.getPackagesById(idList)).willReturn(packageListDTOS);
+    given(packageService.getPackagesById(anyList())).willReturn(packageListDTOS);
     //when
-    mockMvc.perform(get(url))
+    mockMvc.perform(get)
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
@@ -432,60 +475,77 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$[0].versions[1].fileName").value(spendingPackageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$[0].versions[1].valid").value(spendingPackageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$[0].versions[1].url").value(spendingPackageListDTO.getVersions().get(1).getUrl()))
-        .andDo(document(docName, preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server"),
-            fieldWithPath("[].appName").description("Nome dell'applicazione"),
-            fieldWithPath("[].packageName").description("Nome del package dell'applicazione"),
-            fieldWithPath("[].versions").description("Array popolato dagli oggetti contenenti le informazioni delle versioni dell'applicazione presenti sul server"),
-            fieldWithPath("[].versions[].id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-            fieldWithPath("[].versions[].appVersion").description("Identificativo della versione dell'applicazione"),
-            fieldWithPath("[].versions[].fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
-            fieldWithPath("[].versions[].valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
-            fieldWithPath("[].versions[].url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
-        )));
+        .andDo(document(docName,
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParameters(
+                parameterWithName(GET_PACKAGES_PARAM_NAME).description("Lista degli id delle applicazioni ricercate")
+            ),
+            responseFields(globalArrayField)
+                .andWithPrefix("[].", packageFields)
+                .andWithPrefix("[].", versionsField)
+                .andWithPrefix("[].versions[].", versionFields)
+        ));
   }
 
   @Test
   public void testGetPackagesByIdNotFound() throws Exception {
-    ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
     //given
     //when
-    mockMvc.perform(get(REST_SERVICES_BASE_URL+"/getPackages?idList=1010101,2020202"))
+    mockMvc.perform(
+        get(GET_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, "10101", "20202", "30303"))
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
-        .andDo(document("getPackagesByIdEmpty", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("[]").description("Nel caso in cui nessun package corrisponda a nessuno degli id richiesti, il servizio ritorna un array vuoto.")
-        )));
+        .andExpect(jsonPath("$.length()").value(0))
+        .andDo(document("getPackagesByIdEmpty",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParameters(
+                parameterWithName(GET_PACKAGES_PARAM_NAME).description("Elenco degli id delle applicazioni ricercate")
+            ),
+            responseFields(
+                fieldWithPath("[]").description("Nel caso in cui nessun package corrisponda a nessuno degli id richiesti, il servizio ritorna un array vuoto.")
+            )
+        ));
   }
 
   @Test
   public void testGetPackagesByIdEmptyParamList() throws Exception {
-    ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
     //given
     //when
-    mockMvc.perform(get(REST_SERVICES_BASE_URL+"/getPackages?idList="))
+    mockMvc.perform(
+        get(GET_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, ""))
         //then
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$.length()").value(packageListDTOS.size()))
-        .andDo(document("getPackagesByIdEmptyParamList", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()), responseFields(
-            fieldWithPath("[]").description("Nel caso in cui nessun package corrisponda a nessuno degli id richiesti, il servizio ritorna un array vuoto.")
-        )));
+        .andExpect(jsonPath("$.length()").value(0))
+        .andDo(document("getPackagesByIdEmptyParamList",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParameters(
+                parameterWithName(GET_PACKAGES_PARAM_NAME).description("Lista degli id delle applicazioni ricercate")
+            ),
+            responseFields(
+                fieldWithPath("[]").description("Nel caso in cui nessun package corrisponda a nessuno degli id richiesti, il servizio ritorna un array vuoto.")
+            )
+        ));
   }
 
   @Test
   public void testGetPackagesByIdWithoutParams() throws Exception {
-    ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
     //given
     //when
-    mockMvc.perform(get(REST_SERVICES_BASE_URL + "/getPackages"))
+    mockMvc.perform(get(GET_PACKAGES_BY_ID_URL))
         //then
         .andExpect(status().isBadRequest())
-        .andDo(document("getPackagesByIdNoParams", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("getPackagesByIdNoParams",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint())
+        ));
   }
-
 
   /*
    * downloadPackage
@@ -495,12 +555,19 @@ class PackageManagerControllerTest {
     //given
     given(packageService.getPackageFile(anyString(), anyString())).willReturn(DUMMY_BYTE_ARRAY);
     //when
-    mockMvc.perform(get(GET_PACKAGE_FILE_URL))
+    mockMvc.perform(get(GET_PACKAGE_FILE_URL, PACKAGE_APPNAME, PACKAGE_VERSION_1))
         //then
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
         .andExpect(content().bytes(DUMMY_BYTE_ARRAY))
-        .andDo(document("downloadPackageFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("downloadPackageFile",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione ricercata")
+            )
+        ));
   }
 
   @Test
@@ -508,22 +575,37 @@ class PackageManagerControllerTest {
     //given
     given(packageService.getPackageFile(anyString(), anyString())).willThrow(PackageNotFoundException.class);
     //when
-    mockMvc.perform(get(GET_PACKAGE_FILE_URL))
+    mockMvc.perform(get(GET_PACKAGE_FILE_URL, "appNotPresent", PACKAGE_VERSION_1))
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("downloadNotFoundPackageFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("downloadNotFoundPackageFile",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione ricercata")
+            )
+        ));
   }
 
-  @Test  public void testGetPackageFileInvalidPackage() throws Exception {
+  @Test
+  public void testGetPackageFileInvalidPackage() throws Exception {
     //given
     given(packageService.getPackageFile(anyString(), anyString())).willThrow(InvalidPackageException.class);
     //when
-    mockMvc.perform(get(GET_PACKAGE_FILE_URL))
+    mockMvc.perform(get(GET_PACKAGE_FILE_URL, "invalidApp", PACKAGE_VERSION_1))
         //then
         .andExpect(status().isForbidden())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof InvalidPackageException))
-        .andDo(document("downloadPackageInvalidFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("downloadPackageInvalidFile",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione ricercata")
+            )
+        ));
   }
 
   @Test
@@ -531,11 +613,18 @@ class PackageManagerControllerTest {
     //given
     given(packageService.getPackageFile(anyString(), anyString())).willThrow(IOFileException.class);
     //when
-    mockMvc.perform(get(GET_PACKAGE_FILE_URL))
+    mockMvc.perform(get(GET_PACKAGE_FILE_URL, PACKAGE_APPNAME, PACKAGE_VERSION_1))
         //then
         .andExpect(status().isInternalServerError())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof IOFileException))
-        .andDo(document("downloadPackageUnreadableFile", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("downloadPackageUnreadableFile",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione ricercata")
+            )
+        ));
   }
 
   /*
@@ -546,10 +635,17 @@ class PackageManagerControllerTest {
     //given
     doNothing().when(packageService).invalidatePackage(anyString(), anyString());
     //when
-    mockMvc.perform(patch(INVALIDATE_PACKAGE_URL))
+    mockMvc.perform(patch(INVALIDATE_PACKAGE_URL, PACKAGE_APPNAME, PACKAGE_VERSION_1))
         //then
         .andExpect(status().isOk())
-        .andDo(document("invalidatePackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("invalidatePackage",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione da invalidare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da invalidare")
+            )
+        ));
   }
 
   @Test
@@ -557,12 +653,20 @@ class PackageManagerControllerTest {
     //given
     doThrow(PackageNotFoundException.class).when(packageService).invalidatePackage(anyString(), anyString());
     //when
-    mockMvc.perform(patch(INVALIDATE_PACKAGE_URL))
+    mockMvc.perform(patch(INVALIDATE_PACKAGE_URL, PACKAGE_APPNAME, PACKAGE_VERSION_1))
         //then
         .andExpect(status().isNotFound())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
-        .andDo(document("invalidateNotFoundPackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("invalidateNotFoundPackage",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione da invalidare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da invalidare")
+            )
+        ));
   }
+
   /*
    * uploadPackage
    */
@@ -571,23 +675,177 @@ class PackageManagerControllerTest {
     //given
     doNothing().when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(), any(byte[].class));
     //when
-    mockMvc.perform(post(UPLOAD_PACKAGE_URL).content(DUMMY_BYTE_ARRAY).contentType(MediaType.APPLICATION_OCTET_STREAM))
+    mockMvc.perform(
+        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME)
+            .accept(MediaType.APPLICATION_OCTET_STREAM)
+            .content(DUMMY_BYTE_ARRAY)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM))
         //then
         .andExpect(status().isCreated())
-        .andDo(document("uploadPackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint()),
+        .andDo(document("uploadPackage",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("packageName").description("Nome del package dell'applicazione da caricare"),
+                parameterWithName("appName").description("Nome dell'applicazione da caricare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare"),
+                parameterWithName("fileName").description("Nome del file dell'applicazione da caricare")
+            ),
             requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
-            requestBody()));
+            requestBody()
+        ));
   }
 
-  @Test  public void testUploadPackageFileUnableToWriteFile() throws Exception {
+  @Test
+  public void testUploadPackageFileUnableToWriteFile() throws Exception {
     //given
     doThrow(IOFileException.class).when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(),
         any(byte[].class));
     //when
-    mockMvc.perform(post(UPLOAD_PACKAGE_URL).content(DUMMY_BYTE_ARRAY).contentType(MediaType.APPLICATION_OCTET_STREAM))
+    mockMvc.perform(
+        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME)
+            .accept(MediaType.APPLICATION_OCTET_STREAM)
+            .content(DUMMY_BYTE_ARRAY)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM))
         //then
         .andExpect(status().isInternalServerError())
         .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof IOFileException))
-        .andDo(document("uploadNotWritablePackage", preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())));
+        .andDo(document("uploadNotWritablePackage",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("packageName").description("Nome del package dell'applicazione da caricare"),
+                parameterWithName("appName").description("Nome dell'applicazione da caricare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare"),
+                parameterWithName("fileName").description("Nome del file dell'applicazione da caricare, verrà assegnato al file registrato sul server")
+            ),
+            requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
+            requestBody()
+        ));
+  }
+
+  @Test
+  public void testUploadPackageAutodetect() throws Exception {
+    PackageDTO packageDTO = PackageDTO.builder()
+        .id(PACKAGE_V1_ID)
+        .fileName(PACKAGE_FILENAME)
+        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
+        .valid(true)
+        .appVersion(PACKAGE_VERSION_1)
+        .appName(PACKAGE_APPNAME)
+        .packageName((PACKAGE_PACKAGENAME))
+        .build();
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    given(packageService.installPackageFile(anyString(), any(MultipartFile.class))).willReturn(packageDTO);
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .accept(MediaType.APPLICATION_JSON))
+        //then
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(packageDTO.getId()))
+        .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
+        .andExpect(jsonPath("$.packageName").value(packageDTO.getPackageName()))
+        .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
+        .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
+        .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
+        .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
+        .andDo(document("uploadPackageAutodetect",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParts(partWithName("file").description("Campo della richiesta contenente il file da installare")),
+            requestPartBody("file"),
+            responseFields(packageFields)
+                .and(versionFields)
+        ));
+  }
+
+  @Test
+  public void testUploadPackageAutodetectWrongKey() throws Exception {
+    MockMultipartFile file = new MockMultipartFile("not-file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        //then
+        .andExpect(status().isBadRequest())
+        .andDo(document("uploadPackageAutodetectWrongKey",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParts(partWithName("not-file").description("Campo della richiesta contenente il file da installare (valore errato)"))
+        ));
+  }
+
+  @Test
+  public void testUploadPackageAutodetectEmptyFile() throws Exception {
+    byte[] emptyArray = {};
+    MockMultipartFile file = new MockMultipartFile("file", "", MediaType.MULTIPART_FORM_DATA_VALUE, emptyArray);
+    //given
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        //then
+        .andExpect(status().isNotAcceptable())
+        .andDo(document("uploadPackageAutodetectEmptyFile",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParts(partWithName("file").description("Campo della richiesta contenente il file da installare"))
+        ));
+  }
+
+  @Test
+  public void testUploadPackageAutodetectEmptyFileName() throws Exception {
+    MockMultipartFile file = new MockMultipartFile("file", "", MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        //then
+        .andExpect(status().isNotAcceptable())
+        .andDo(document("uploadPackageAutodetectEmptyFileName",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParts(partWithName("file").description("Campo della richiesta contenente il file da installare"))
+        ));
+  }
+
+  @Test
+  public void testUploadPackageAutodetectionFailure() throws Exception {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    given(packageService.installPackageFile(anyString(), any(MultipartFile.class))).willThrow(AutoDetectionException.class);
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        //then
+        .andExpect(status().isNotAcceptable())
+        .andDo(document("uploadPackageAutodetectionFailure",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParts(partWithName("file").description("Campo della richiesta contenente il file da installare"))
+        ));
+  }
+
+  @Test
+  public void testUploadPackageAutodetectUnableToWriteFile() throws Exception {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    given(packageService.installPackageFile(anyString(), any(MultipartFile.class))).willThrow(IOFileException.class);
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        //then
+        .andExpect(status().isInternalServerError())
+        .andDo(document("uploadPackageAutodetecUnableToWriteFile",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint())
+        ));
   }
 }
