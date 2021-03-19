@@ -1,17 +1,20 @@
 package com.lambda_expressions.package_manager.services.impl;
 
 import com.lambda_expressions.package_manager.domain.Package;
+import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
 import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
 import com.lambda_expressions.package_manager.repositories.PackageRepository;
 import com.lambda_expressions.package_manager.services.PackageService;
+import com.lambda_expressions.package_manager.services.utils.APKUtils;
 import com.lambda_expressions.package_manager.services.utils.FileIOUtils;
 import com.lambda_expressions.package_manager.services.utils.PackageUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,11 +31,13 @@ public class PackageServiceImpl implements PackageService {
   PackageRepository packageRepo;
   PackageUtils packageUtils;
   FileIOUtils fileIOUtils;
+  APKUtils apkUtils;
 
-  public PackageServiceImpl(PackageRepository packageRepo, PackageUtils packageUtils, FileIOUtils fileIOUtils) {
+  public PackageServiceImpl(PackageRepository packageRepo, PackageUtils packageUtils, FileIOUtils fileIOUtils, APKUtils apkUtils) {
     this.packageRepo = packageRepo;
     this.packageUtils = packageUtils;
     this.fileIOUtils = fileIOUtils;
+    this.apkUtils = apkUtils;
   }
 
   @Override
@@ -97,6 +102,18 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
+  public PackageDTO installPackageFile(String fileName, MultipartFile multipartFile) throws IOFileException, AutoDetectionException {
+    byte[] file = this.fileIOUtils.getMultipartFileBytes(multipartFile);
+    PackageDTO partialDTO = this.apkUtils.autodetectPackageInfo(file);
+    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(partialDTO.getAppName(), partialDTO.getAppVersion());
+
+    this.fileIOUtils.savePackageFile(partialDTO.getPackageName(), partialDTO.getAppVersion(), fileName, file, this.packageUtils);
+    packageInfo = this.persistNewPackageInfo(packageInfo, partialDTO.getPackageName(), partialDTO.getAppName(), partialDTO.getAppVersion(), fileName);
+
+    return this.packageUtils.composePackageDTOFromPackage(packageInfo);
+  }
+
+  @Override
   public void invalidatePackage(String appName, String version) throws PackageNotFoundException {
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
 
@@ -109,7 +126,7 @@ public class PackageServiceImpl implements PackageService {
     this.packageRepo.save(packageInfo);
   }
 
-  private void persistNewPackageInfo(Package packageInfo, String packageName, String appName, String version, String fileName) {
+  private Package persistNewPackageInfo(Package packageInfo, String packageName, String appName, String version, String fileName) {
     try {
       this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     } catch (PackageNotFoundException e) {
@@ -125,8 +142,10 @@ public class PackageServiceImpl implements PackageService {
 
     if (!packageInfo.isValid()) {
       packageInfo.setValid(true);
-      this.packageRepo.save(packageInfo);
+      packageInfo = this.packageRepo.save(packageInfo);
     }
+
+    return packageInfo;
   }
 
 }

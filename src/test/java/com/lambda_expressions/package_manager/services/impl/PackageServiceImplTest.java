@@ -1,10 +1,12 @@
 package com.lambda_expressions.package_manager.services.impl;
 
 import com.lambda_expressions.package_manager.domain.Package;
+import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
 import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
 import com.lambda_expressions.package_manager.repositories.PackageRepository;
+import com.lambda_expressions.package_manager.services.utils.APKUtils;
 import com.lambda_expressions.package_manager.services.utils.FileIOUtils;
 import com.lambda_expressions.package_manager.services.utils.PackageUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
@@ -19,7 +21,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -102,6 +107,9 @@ class PackageServiceImplTest {
 
   @Mock
   FileIOUtils fileIOUtils;
+
+  @Mock
+  APKUtils apkUtils;
 
   @Spy
   PackageUtils packageUtils;
@@ -398,5 +406,67 @@ class PackageServiceImplTest {
     doThrow(IOFileException.class).when(fileIOUtils).savePackageFile(anyString(), anyString(), anyString(), any(byte[].class), any(PackageUtils.class));
     //then
     assertThrows(IOFileException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
+  }
+
+  @Test
+  void installPackageFileAutodetect() throws AutoDetectionException, IOFileException {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    PackageDTO partialDto = PackageDTO.builder()
+        .packageName(PACKAGE_DTO.getPackageName())
+        .appName(PACKAGE_DTO.getAppName())
+        .appVersion(PACKAGE_DTO.getAppVersion())
+        .build();
+    Package savedPackage = Package.builder()
+        .id(PACKAGE_DTO.getId())
+        .filename(PACKAGE_DTO.getFileName())
+        .packagename(partialDto.getPackageName())
+        .appname(partialDto.getAppName())
+        .version(partialDto.getAppVersion())
+        .valid(true)
+        .path(String.format("%s%s%s%s%s", partialDto.getAppName(), File.separator, partialDto.getAppVersion(), File.separator, PACKAGE_DTO.getFileName()))
+        .build();
+    //given
+    given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
+    given(apkUtils.autodetectPackageInfo(any(byte[].class))).willReturn(partialDto);
+    given(repository.save(any(Package.class))).willReturn(savedPackage);
+    //when
+    PackageDTO packageDTO = packageService.installPackageFile(PACKAGE_DTO.getFileName(), file);
+    //then
+    assertEquals(packageDTO.getId(), PACKAGE_DTO.getId());
+    assertEquals(packageDTO.getAppName(), partialDto.getAppName());
+    assertEquals(packageDTO.getPackageName(), partialDto.getPackageName());
+    assertEquals(packageDTO.isValid(), true);
+    assertEquals(packageDTO.getAppVersion(), partialDto.getAppVersion());
+    assertEquals(packageDTO.getFileName(), PACKAGE_DTO.getFileName());
+    assertEquals(packageDTO.getUrl(), PACKAGE_DTO.getUrl());
+    verify(fileIOUtils, times(1)).savePackageFile(anyString(), anyString(), anyString(), any(byte[].class), any(PackageUtils.class));
+  }
+
+  @Test
+  void installPackageFileAutodetectIOException() throws IOFileException, AutoDetectionException {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    PackageDTO partialDto = PackageDTO.builder()
+        .packageName(PACKAGE_DTO.getPackageName())
+        .appName(PACKAGE_DTO.getAppName())
+        .appVersion(PACKAGE_DTO.getAppVersion())
+        .build();
+    //given
+    given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
+    given(apkUtils.autodetectPackageInfo(any(byte[].class))).willReturn(partialDto);
+    //when
+    doThrow(IOFileException.class).when(fileIOUtils).savePackageFile(anyString(), anyString(), anyString(), any(byte[].class), any(PackageUtils.class));
+    //then
+    assertThrows(IOFileException.class, () -> packageService.installPackageFile(PACKAGE_FILENAME, file));
+  }
+
+  @Test
+  void installPackageFileAutodetectionException() throws AutoDetectionException {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
+    //when
+    doThrow(AutoDetectionException.class).when(apkUtils).autodetectPackageInfo(any(byte[].class));
+    //then
+    assertThrows(AutoDetectionException.class, () -> packageService.installPackageFile(PACKAGE_FILENAME, file));
   }
 }
