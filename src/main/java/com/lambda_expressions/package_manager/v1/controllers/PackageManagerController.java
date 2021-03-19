@@ -9,6 +9,7 @@ import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -39,6 +40,17 @@ public class PackageManagerController {
     this.authService.authenticateRequest(httpRequest);
 
     this.packageService.installPackageFile(packageName, appName, version, fileName, file);
+  }
+
+  @ResponseStatus(HttpStatus.CREATED)
+  @PostMapping(value = {"uploadPackage", "uploadPackage/"},
+      consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public PackageDTO uploadPackageAutodetect(HttpServletRequest httpRequest, @RequestPart("file") MultipartFile file)
+      throws UnauthenticatedRequestException, IOFileException, AutoDetectionException {
+    this.authService.authenticateRequest(httpRequest);
+    String fileName = ControllerUtils.getFileName(file);
+
+    return this.packageService.installPackageFile(fileName, file);
   }
 
   @ResponseStatus(HttpStatus.OK)
