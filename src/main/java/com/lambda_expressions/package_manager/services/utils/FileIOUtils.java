@@ -1,12 +1,15 @@
 package com.lambda_expressions.package_manager.services.utils;
 
 import com.lambda_expressions.package_manager.domain.Package;
+import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
 import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by steccothal
@@ -25,6 +28,14 @@ public class FileIOUtils {
       FileUtils.writeByteArrayToFile(new File(composeAbsoluteLocalPath(localRelativePath)), file);
     } catch (Exception e) {
       throw new IOFileException("can't write file", appName, version);
+    }
+  }
+
+  public byte[] getMultipartFileBytes(MultipartFile file) throws AutoDetectionException {
+    try {
+      return file.getBytes();
+    } catch (IOException e) {
+      throw new AutoDetectionException("Invalid file", "", "");
     }
   }
 
