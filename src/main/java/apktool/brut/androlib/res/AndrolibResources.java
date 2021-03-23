@@ -854,18 +854,21 @@ final public class AndrolibResources {
         }
     }
 
-    public void listFrameworkDirectory() throws AndrolibException {
+    public List<String> listFrameworkDirectory() throws AndrolibException {
         File dir = getFrameworkDir();
+        List<String> frameworkNames = new ArrayList<>();
         if (dir == null) {
             LOGGER.severe("No framework directory found. Nothing to list.");
-            return;
+            return Collections.EMPTY_LIST;
         }
 
         for (File file : Objects.requireNonNull(dir.listFiles())) {
             if (file.isFile() && file.getName().endsWith(".apk")) {
-                LOGGER.info(file.getName());
+                frameworkNames.add(file.getName());
             }
         }
+
+        return frameworkNames;
     }
 
     public void installFramework(File frameFile) throws AndrolibException {
@@ -1034,7 +1037,7 @@ final public class AndrolibResources {
     }
 
     public InputStream getAndroidFrameworkResourcesAsStream() {
-        return Jar.class.getResourceAsStream("/apktool/brut/androlib/apktool.android-framework.jar");
+        return Jar.class.getResourceAsStream("/brut/androlib/android-framework.jar");
     }
 
     public void close() throws IOException {

@@ -1,9 +1,6 @@
 package com.lambda_expressions.package_manager.services;
 
-import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
-import com.lambda_expressions.package_manager.exceptions.IOFileException;
-import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
-import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
+import com.lambda_expressions.package_manager.exceptions.*;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +29,7 @@ public interface PackageService {
 
   void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException;
 
-  PackageDTO installPackageFile(String filename, MultipartFile file) throws IOFileException, AutoDetectionException;
+  PackageDTO installPackageFile(String filename, MultipartFile file) throws IOFileException, AutoDetectionException, MissingFrameworkException;
 
   void invalidatePackage(String appName, String version) throws PackageNotFoundException;
 

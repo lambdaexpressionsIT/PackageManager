@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RESTExceptionHandler extends ResponseEntityExceptionHandler {
 
+  public static String MISSING_FRAMEWORK_MESSAGE = "Cannot decode apk file, missing resource framework with packageId: %d";
+
   @ExceptionHandler(UnauthenticatedRequestException.class)
   public ResponseEntity handleUnauthenticatedRequestException() {
     return new ResponseEntity(HttpStatus.UNAUTHORIZED);
@@ -43,5 +45,15 @@ public class RESTExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(AutoDetectionException.class)
   public ResponseEntity handleAutoDetectionException() {
     return new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
+  }
+
+  @ExceptionHandler(FrameworkInstallationException.class)
+  public ResponseEntity handleFrameworkInstallationException() {
+    return new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
+  }
+
+  @ExceptionHandler(MissingFrameworkException.class)
+  public ResponseEntity<String> handleMissingFrameworkException(MissingFrameworkException e) {
+    return new ResponseEntity<>(String.format(RESTExceptionHandler.MISSING_FRAMEWORK_MESSAGE, e.getId()), HttpStatus.UNPROCESSABLE_ENTITY);
   }
 }
