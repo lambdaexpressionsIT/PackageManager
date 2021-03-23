@@ -57,9 +57,7 @@ public class APKUtils {
     try {
       ResTable resourcesTable = getResourceTable(fileBytes, tmpWorkDir.getAbsolutePath());
       partialDTO = getPackageInfo(resourcesTable);
-    } catch(MissingFrameworkException e) {
-      throw e;
-    } catch (AutoDetectionException e) {
+    } catch(MissingFrameworkException | AutoDetectionException e) {
       throw e;
     } catch (Exception e) {
       throw new AutoDetectionException("Cannot autodetect package information", "", "");
@@ -147,7 +145,7 @@ public class APKUtils {
 
   private File setUpWorkDirectory() {
     UUID tmpUUID = UUID.randomUUID();
-    String tmpWorkDirPath = String.format("%s%s", FileUtils.getTempDirectoryPath(), tmpUUID);
+    String tmpWorkDirPath = String.format("%s%s%s", FileUtils.getTempDirectoryPath(), File.separator, tmpUUID);
     File workDir = new File(tmpWorkDirPath);
 
     log.info("Created work directory for apk decompiling:" + tmpWorkDirPath);
