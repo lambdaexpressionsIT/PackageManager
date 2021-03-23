@@ -28,15 +28,6 @@ public class ApkDecoder {
     mAndrolib = androlib;
   }
 
-  public ApkDecoder(File apkFile) {
-    this(apkFile, new Androlib());
-  }
-
-  public ApkDecoder(File apkFile, Androlib androlib) {
-    mAndrolib = androlib;
-    setApkFile(apkFile);
-  }
-
   public void setApkFile(File apkFile) {
     if (mApkFile != null) {
       try {

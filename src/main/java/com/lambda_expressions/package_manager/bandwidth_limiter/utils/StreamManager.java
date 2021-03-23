@@ -189,7 +189,7 @@ public class StreamManager implements BandwidthLimiter {
    * @param in The InputStream that will throttled
    * @return a new throttled InputStream (wrapping the one given as parameter)
    */
-  public InputStream registerStream(ServletInputStream in) {
+  public ServletInputStream registerStream(ServletInputStream in) {
     return new ManagedInputStream(in, this);
   }
 
@@ -201,7 +201,7 @@ public class StreamManager implements BandwidthLimiter {
    *
    * @return a new throttled OutputStream (wrapping the one given as parameter)
    */
-  public OutputStream registerStream(ServletOutputStream out) {
+  public ServletOutputStream registerStream(ServletOutputStream out) {
     return new ManagedOutputStream(out, this);
   }
 

@@ -9,13 +9,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class PackageException extends Exception {
-  String appName;
-  String version;
 
   public PackageException(String message, String appName, String version) {
     super(message);
-    this.appName = appName;
-    this.version = version;
     log.error(String.format("%s: %s %s", message, appName, version));
   }
 }
