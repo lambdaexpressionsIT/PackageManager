@@ -11,12 +11,11 @@ import java.io.IOException;
  * at 3:33 PM
  */
 public class LimitedServletResponse extends HttpServletResponseWrapper {
-
   private ServletOutputStream limitedOutputStream;
 
-  public LimitedServletResponse(HttpServletResponse response) throws IOException {
+  public LimitedServletResponse(HttpServletResponse response, ServletOutputStream limitedStream) throws IOException {
     super(response);
-    this.limitedOutputStream = response.getOutputStream();
+    this.limitedOutputStream = limitedStream;
   }
 
   @Override

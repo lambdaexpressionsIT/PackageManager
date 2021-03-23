@@ -20,7 +20,7 @@ import java.io.IOException;
 @Slf4j
 public class ThrottlingFilter implements Filter {
 
-  private final StreamManager streamManager;
+  private StreamManager streamManager;
 
   public ThrottlingFilter(StreamManager streamManager) {
     this.streamManager = streamManager;
@@ -37,11 +37,11 @@ public class ThrottlingFilter implements Filter {
     ServletResponse response = servletResponse;
 
     if (this.streamManager.isActive()) {
-      request = new LimitedServletRequest((HttpServletRequest) servletRequest);
-      response = new LimitedServletResponse((HttpServletResponse) servletResponse);
+      ServletInputStream limitedInputStream = this.streamManager.registerStream(request.getInputStream());
+      ServletOutputStream limitedOutputStream = this.streamManager.registerStream(response.getOutputStream());
 
-      this.streamManager.registerStream(request.getInputStream());
-      this.streamManager.registerStream(response.getOutputStream());
+      request = new LimitedServletRequest((HttpServletRequest) servletRequest, limitedInputStream);
+      response = new LimitedServletResponse((HttpServletResponse) servletResponse, limitedOutputStream);
     }
 
     filterChain.doFilter(request, response);

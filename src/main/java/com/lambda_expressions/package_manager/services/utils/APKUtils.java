@@ -1,19 +1,22 @@
 package com.lambda_expressions.package_manager.services.utils;
 
+import apktool.brut.androlib.Androlib;
 import apktool.brut.androlib.AndrolibException;
 import apktool.brut.androlib.ApkDecoder;
+import apktool.brut.androlib.ApkOptions;
+import apktool.brut.androlib.err.CantFindFrameworkResException;
 import apktool.brut.androlib.res.data.ResResSpec;
 import apktool.brut.androlib.res.data.ResTable;
 import apktool.brut.androlib.res.data.value.ResStringValue;
-import apktool.brut.directory.DirectoryException;
-import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
+import com.lambda_expressions.package_manager.exceptions.*;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -22,58 +25,109 @@ import java.util.UUID;
  * on Wednesday 17 March 2021
  * at 10:22 AM
  */
-@Component
+@Slf4j
 public class APKUtils {
   private static final String TMP_FILE_NAME = "tmp";
   private static final String TMP_FILE_EXTENSION = ".apk";
 
-  public PackageDTO autodetectPackageInfo(byte[] fileBytes) throws AutoDetectionException {
-    File tmpWorkDir = setUpWorkingDirectory();
+  public List<String> listInstalledFrameworks() throws IOFileException {
+    try {
+      return new Androlib().listFrameworks();
+    } catch (AndrolibException e) {
+      throw new IOFileException("Can't retrieve installed framework", "", "");
+    }
+  }
+
+  public void installFramework(byte[] fileBytes, String frameworkTag) throws FrameworkInstallationException {
+    File tmpWorkDir = setUpWorkDirectory();
+
+    try {
+      installApkToolFramework(fileBytes, tmpWorkDir.getAbsolutePath(), frameworkTag);
+    } catch (Exception e) {
+      throw new FrameworkInstallationException("Cannot install framework", frameworkTag);
+    } finally {
+      deleteWorkDirectory(tmpWorkDir);
+    }
+  }
+
+  public PackageDTO autodetectPackageInfo(byte[] fileBytes) throws AutoDetectionException, MissingFrameworkException {
+    File tmpWorkDir = setUpWorkDirectory();
     PackageDTO partialDTO;
 
     try {
-      ResTable restab = getResourceTable(fileBytes, tmpWorkDir.getAbsolutePath());
-      partialDTO = getPackageInfo(restab);
+      ResTable resourcesTable = getResourceTable(fileBytes, tmpWorkDir.getAbsolutePath());
+      partialDTO = getPackageInfo(resourcesTable);
+    } catch(MissingFrameworkException e) {
+      throw e;
     } catch (AutoDetectionException e) {
       throw e;
     } catch (Exception e) {
       throw new AutoDetectionException("Cannot autodetect package information", "", "");
     } finally {
-      FileUtils.deleteQuietly(tmpWorkDir);
+      deleteWorkDirectory(tmpWorkDir);
     }
 
     return partialDTO;
   }
 
-  private File setUpWorkingDirectory() {
-    UUID tmpUUID = UUID.randomUUID();
-    String tmpWorkDirPath = String.format("%s%s", FileUtils.getTempDirectoryPath(), tmpUUID);
-
-    return new File(tmpWorkDirPath);
-  }
-
-  private ResTable getResourceTable(byte[] fileBytes, String workingDirPath) throws IOException, AndrolibException, DirectoryException {
+  private void installApkToolFramework(byte[] fileBytes, String workingDirPath, String frameworkTag) throws IOException, AndrolibException {
     String tmpFileName = String.format("%s%s%s%s", workingDirPath, File.separator, TMP_FILE_NAME, TMP_FILE_EXTENSION);
     File tmpAPKFile = new File(tmpFileName);
-    ApkDecoder apkDecoder = new ApkDecoder();
+    ApkOptions apkOptions = new ApkOptions();
+    Androlib androlib = new Androlib(apkOptions);
+
+    if(!StringUtils.isBlank(frameworkTag)){
+      apkOptions.frameworkTag = frameworkTag;
+    }
 
     FileUtils.writeByteArrayToFile(tmpAPKFile, fileBytes);
 
-    apkDecoder.setApkFile(tmpAPKFile);
-    apkDecoder.setOutDir(new File(String.format("%s%s%s", workingDirPath, File.separator, TMP_FILE_NAME)));
-    apkDecoder.decode();
-
-    return apkDecoder.getResTable();
+    androlib.installFramework(tmpAPKFile);
   }
 
-  private PackageDTO getPackageInfo(ResTable resTable) throws AutoDetectionException, AndrolibException {
-    String packageName = resTable.getPackageRenamed();
-    String versionName = resTable.getVersionInfo().versionName;
-    String appName = resTable.getAppName();
+  private ResTable getResourceTable(byte[] fileBytes, String workingDirPath) throws AutoDetectionException, IOException, MissingFrameworkException {
+    String tmpFileName = String.format("%s%s%s%s", workingDirPath, File.separator, TMP_FILE_NAME, TMP_FILE_EXTENSION);
+    File tmpAPKFile = new File(tmpFileName);
+    File apkToolsWorkingDir = new File(String.format("%s%s%s", workingDirPath, File.separator, TMP_FILE_NAME));
+    ApkDecoder apkDecoder = new ApkDecoder();
+    ResTable resourceTable;
+
+    FileUtils.writeByteArrayToFile(tmpAPKFile, fileBytes);
+
+    try {
+      apkDecoder.setOutDir(apkToolsWorkingDir);
+      apkDecoder.setApkFile(tmpAPKFile);
+      apkDecoder.decode();
+
+      resourceTable = apkDecoder.getResTable();
+    } catch (CantFindFrameworkResException e) {
+      throw new MissingFrameworkException(e.getMessage(), e.getPkgId());
+    } catch (Exception e) {
+      throw new AutoDetectionException("Cannot autodetect package information", "", "");
+    } finally {
+      try {
+        apkDecoder.close();
+      } catch (IOException e) {
+        log.error("Can't close apkDecoder");
+      }
+    }
+
+    return resourceTable;
+  }
+
+  private PackageDTO getPackageInfo(ResTable resourcesTable) throws AutoDetectionException, AndrolibException {
+
+    if (resourcesTable == null) {
+      throw new AutoDetectionException("Cannot autodetect package information, resource table is null", "", "");
+    }
+
+    String packageName = resourcesTable.getPackageRenamed();
+    String versionName = resourcesTable.getVersionInfo().versionName;
+    String appName = resourcesTable.getAppName();
 
     if (StringUtils.isEmpty(appName)) {
-      ResResSpec resResSpec = resTable.getCurrentResPackage().listResSpecs().stream()
-          .filter(spec -> spec.getFullName(true, false).equalsIgnoreCase(resTable.getAppNameResource()))
+      ResResSpec resResSpec = resourcesTable.getCurrentResPackage().listResSpecs().stream()
+          .filter(spec -> spec.getFullName(true, false).equalsIgnoreCase(resourcesTable.getAppNameResource()))
           .findFirst()
           .orElseThrow(() -> new AutoDetectionException("Cannot get app name", packageName, versionName));
 
@@ -89,5 +143,24 @@ public class APKUtils {
         .appName(appName)
         .appVersion(versionName)
         .build();
+  }
+
+  private File setUpWorkDirectory() {
+    UUID tmpUUID = UUID.randomUUID();
+    String tmpWorkDirPath = String.format("%s%s", FileUtils.getTempDirectoryPath(), tmpUUID);
+    File workDir = new File(tmpWorkDirPath);
+
+    log.info("Created work directory for apk decompiling:" + tmpWorkDirPath);
+
+    return workDir;
+  }
+
+  private void deleteWorkDirectory(File workDir) {
+    try {
+      FileUtils.deleteDirectory(workDir);
+      log.info("Deleted work directory for apk decompiling:" + workDir.getAbsolutePath());
+    } catch (IOException e) {
+      log.error("Unable to delete work directory for apk:" + workDir.getAbsolutePath());
+    }
   }
 }

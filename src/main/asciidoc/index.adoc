@@ -1,7 +1,9 @@
 = Package Manager
-:table-caption!:
 
-== Elenco completo dei packages
+:table-caption!:
+== Servizi applicativi
+
+=== Elenco completo dei packages
 
 Questo servizio ritorna la lista di tutte le applicazioni con le loro rispettive versioni presenti sul server.
 Risponde all'indirizzo
@@ -17,7 +19,7 @@ include::{snippets}/listAllPackages/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/listAllPackages/response-fields.adoc[]
 
-=== Errori
+==== Errori
 
 Questo servizio non prevede particolari errori nella propria esecuzione.
 Nel caso in cui non sia presente nessun package sul server, viene semplicemente ritornato un array vuoto.
@@ -28,7 +30,9 @@ include::{snippets}/listAllPackagesEmpty/http-request.adoc[]
 .HTTP response
 include::{snippets}/listAllPackagesEmpty/http-response.adoc[]
 
-== Elenco dei packages: ricerca per id
+<<<
+
+=== Elenco dei packages: ricerca per id
 
 Questo servizio ritorna una lista di applicazioni, con le loro rispettive versioni, corrispondenti agli id ricercati e passati come parametri.
 Risponde all'indirizzo
@@ -50,9 +54,9 @@ include::{snippets}/getPackagesByIdListParams/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/getPackagesByIdListParams/response-fields.adoc[]
 
-=== Errori
+==== Errori
 
-==== Id non presenti
+===== Id non presenti
 
 Nel caso in cui gli id ricercati non corrispondano a nessun package, o non venga inviato alcun id, il servizio ritorna semplicemente un array vuoto
 
@@ -65,7 +69,7 @@ include::{snippets}/getPackagesByIdEmptyParamList/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackagesByIdEmpty/http-response.adoc[]
 
-==== Id non convertibili in valori interi
+===== Id non convertibili in valori interi
 
 Nel caso in cui all'interno della lista dei parametri inviati siano presenti dei valori non convertibili in valori interi, vengono semplicemente ignorati
 
@@ -75,7 +79,7 @@ include::{snippets}/getPackagesByIdMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackagesByIdMalformedURL/http-response.adoc[]
 
-==== Malformed URL
+===== Malformed URL
 
 Nel caso in cui nella HTTP request manchi completamente il nome dell'elenco di parametri, il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -85,7 +89,9 @@ include::{snippets}/getPackagesByIdNoParams/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackagesByIdNoParams/http-response.adoc[]
 
-== Elenco delle versioni di un'applicazione
+<<<
+
+=== Elenco delle versioni di un'applicazione
 
 Questo servizio ritorna la lista di tutte le versioni presenti sul server di una specifica applicazione.
 Risponde all'indirizzo
@@ -101,9 +107,9 @@ include::{snippets}/listPackageVersions/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/listPackageVersions/response-fields.adoc[]
 
-=== Errori
+==== Errori
 
-==== Applicazione non presente
+===== Applicazione non presente
 
 Nel caso in cui l'applicazione cercata non sia presente sul server, il servizio ritorna una risposta vuota con HTTP status 404.
 
@@ -113,7 +119,9 @@ include::{snippets}/listNotFoundPackageVersions/http-request.adoc[]
 .HTTP response
 include::{snippets}/listNotFoundPackageVersions/http-response.adoc[]
 
-== Informazioni di una specifica versione (per applicazione/versione)
+<<<
+
+=== Informazioni di una specifica versione (per applicazione/versione)
 
 Questo servizio ritorna tutte le informazioni relative a una singola versione di un'applicazione presente sul server.
 Risponde all'indirizzo
@@ -129,9 +137,9 @@ include::{snippets}/listPackageVersionInfo/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/listPackageVersionInfo/response-fields.adoc[]
 
-=== Errori
+==== Errori
 
-==== Applicazione/versione non presente
+===== Applicazione/versione non presente
 
 Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -141,7 +149,9 @@ include::{snippets}/listNotfoundPackageVersionInfo/http-request.adoc[]
 .HTTP response
 include::{snippets}/listNotfoundPackageVersionInfo/http-response.adoc[]
 
-== Informazioni di una specifica versione (per id)
+<<<
+
+=== Informazioni di una specifica versione (per id)
 
 Questo servizio, come il precedente, ritorna tutte le informazioni relative a una singola versione di un'applicazione presente sul server.
 La differenza rispetto al precedente servizio risiede nel parametro di ricerca.
@@ -159,9 +169,9 @@ include::{snippets}/getPackageById/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/getPackageById/response-fields.adoc[]
 
-=== Errori
+==== Errori
 
-==== Id non presente
+===== Id non presente
 
 Nel caso in cui l'id ricercato non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -171,7 +181,7 @@ include::{snippets}/getPackageByIdNotFound/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackageByIdNotFound/http-response.adoc[]
 
-==== Malformed URL
+===== Malformed URL
 
 Nel caso in cui il parametro *_appID_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -181,7 +191,9 @@ include::{snippets}/getPackageByIdMalformedURL/http-request.adoc[]
 .HTTP response
 include::{snippets}/getPackageByIdMalformedURL/http-response.adoc[]
 
-== Invalidazione di un'applicazione
+<<<
+
+=== Invalidazione di un'applicazione
 
 Questo servizio permette di rendere invalida una versione di un'applicazione presente sul server, settandone a false il flag _valid_.
 Invalidando una versione di un'applicazione, essa non sarà piu disponibile per il download, pur continuando a essere presente sul server.
@@ -196,9 +208,9 @@ include::{snippets}/invalidatePackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/invalidatePackage/http-response.adoc[]
 
-=== Errori
+==== Errori
 
-==== Applicazione/versione non presente
+===== Applicazione/versione non presente
 
 Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -208,7 +220,9 @@ include::{snippets}/invalidateNotFoundPackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/invalidateNotFoundPackage/http-response.adoc[]
 
-== Download di un'applicazione
+<<<
+
+=== Download di un'applicazione
 
 Questo servizio ritorna il file di una specifica versione di un'applicazione valida presente sul server. Nel caso in cui l'applicazione/versione sia marcata come non valida, questo servizio ritorna un errore (come specificato in seguito), ma il file sarà comunque disponibile attraverso il suo URL pubblico.
 Il file compone il body della HTTP response del servizio, la response ha _Content-Type: application/octet_stream_.
@@ -222,9 +236,9 @@ include::{snippets}/downloadPackageFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadPackageFile/http-response.adoc[]
 
-=== Errori
+==== Errori
 
-==== Applicazione/versione non presente
+===== Applicazione/versione non presente
 
 Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
 
@@ -234,7 +248,7 @@ include::{snippets}/downloadNotFoundPackageFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadNotFoundPackageFile/http-response.adoc[]
 
-==== Package non valido
+===== Package non valido
 
 Nel caso in cui la versione dell'applicazione richiesta sia invalida, ovvero il flag _valid_ sia settato a false, non è possibile scaricare il corrispondente file e il servizio risponde con una HTTP response vuota e HTTP status 403
 
@@ -244,7 +258,7 @@ include::{snippets}/downloadPackageInvalidFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadPackageInvalidFile/http-response.adoc[]
 
-==== File illeggibile
+===== File illeggibile
 
 Nel caso in cui l'applicazione richiesta sia presente sul server ma si verifichi un errore di lettura del suddetto file, il servizio risponde con una HTTP response vuota e HTTP status 500
 
@@ -254,7 +268,9 @@ include::{snippets}/downloadPackageUnreadableFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/downloadPackageUnreadableFile/http-response.adoc[]
 
-== Upload di un'applicazione (con specifica dei rispettivi dati)
+<<<
+
+=== Upload di un'applicazione (con specifica dei rispettivi dati)
 
 Questo servizio registra sul server un file di un'applicazione.
 Risponde all'indirizzo
@@ -269,9 +285,9 @@ include::{snippets}/uploadPackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/uploadPackage/http-response.adoc[]
 
-=== Errori
+==== Errori
 
-==== Errore di scrittura del file
+===== Errore di scrittura del file
 
 Nel caso in cui si verifichi un errore di scrittura del file che si vuole caricare, il servizio risponde con una HTTP response vuota e HTTP status 500
 
@@ -281,7 +297,9 @@ include::{snippets}/uploadNotWritablePackage/http-request.adoc[]
 .HTTP response
 include::{snippets}/uploadNotWritablePackage/http-response.adoc[]
 
-== Upload di un'applicazione (con rilevazione automatica dei dati)
+<<<
+
+=== Upload di un'applicazione (con rilevazione automatica dei dati)
 
 Questo servizio registra sul server un file di un'applicazione. In questo caso il servizio accetta in input semplicemente il file dell'applicazione e provvede a estrarne automaticamente le informazioni identificative quali package, nome e versione. Il nome del file salvato sul server sarà quello originale del file inviato nella richiesta. Per poterlo ottenere automaticamente, questo servizio accetta richieste _multipart_ e quindi il formato _multipart/form-data_. Il file deve essere inviato nella richiesta HTTP in una _part_ denominata *_file_*. Se non si verificano errori durante l'elaborazione della richiesta, il servizio risponde con un oggetto JSON contenente tutte le informazioni dell'applicazione appena installata.
 Risponde all'indirizzo
@@ -300,9 +318,9 @@ include::{snippets}/uploadPackageAutodetect/http-response.adoc[]
 .Elementi della HTTP response
 include::{snippets}/uploadPackageAutodetect/response-fields.adoc[]
 
-=== Errori
+==== Errori
 
-==== Nome della parte della richiesta errato
+===== Nome della parte della richiesta errato
 
 Nel caso in cui la richiesta non contenga una parte denominata _file_, il servizio risponde con una HTTP response vuota e HTTP status 400
 
@@ -315,7 +333,7 @@ include::{snippets}/uploadPackageAutodetectWrongKey/request-parts.adoc[]
 .HTTP response
 include::{snippets}/uploadPackageAutodetectWrongKey/http-response.adoc[]
 
-==== File non presente nella richiesta
+===== File non presente nella richiesta
 
 Nel caso in cui la richiesta non contenga i bytes del file da installare, il servizio risponde con una HTTP response vuota e HTTP status 406
 
@@ -328,7 +346,7 @@ include::{snippets}/uploadPackageAutodetectEmptyFile/request-parts.adoc[]
 .HTTP response
 include::{snippets}/uploadPackageAutodetectEmptyFile/http-response.adoc[]
 
-==== Nome del file non presente nella richiesta
+===== Nome del file non presente nella richiesta
 
 Nel caso in cui la richiesta non contenga il nome file da installare, il servizio risponde con una HTTP response vuota e HTTP status 406.
 
@@ -341,7 +359,7 @@ include::{snippets}/uploadPackageAutodetectEmptyFileName/request-parts.adoc[]
 .HTTP response
 include::{snippets}/uploadPackageAutodetectEmptyFileName/http-response.adoc[]
 
-==== Errore nell'estrazione delle informazioni dell'applicazione
+===== Errore nell'estrazione delle informazioni dell'applicazione
 
 Nel caso in cui non sia possibile estrarre dal file inviato le informazioni necessarie all'installazione dell'applicazione (nome, versione e package), il servizio risponde con una HTTP response vuota e HTTP status 406
 
@@ -354,7 +372,20 @@ include::{snippets}/uploadPackageAutodetectionFailure/request-parts.adoc[]
 .HTTP response
 include::{snippets}/uploadPackageAutodetectEmptyFile/http-response.adoc[]
 
-==== Errore di scrittura del file
+===== Framework per la decodifica delle risorse mancante
+
+Nel caso in cui il file inviato non possa essere decodificato a causa di una specifica configurazione delle risorse che necessita di un framework dedicato, il servizio ritorna una stringa con l' indicazione del package id del framework necessario e HTTP status 422.
+
+.HTTP request
+include::{snippets}/uploadPackageMissingFramework/http-request.adoc[]
+
+.Parti della HTTP request
+include::{snippets}/uploadPackageMissingFramework/request-parts.adoc[]
+
+.HTTP response
+include::{snippets}/uploadPackageMissingFramework/http-response.adoc[]
+
+===== Errore di scrittura del file
 
 Nel caso in cui si verifichi un errore di scrittura del file che si vuole caricare, il servizio risponde con una HTTP response vuota e HTTP status 500
 
@@ -364,3 +395,86 @@ include::{snippets}/uploadPackageAutodetecUnableToWriteFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/uploadPackageAutodetecUnableToWriteFile/http-response.adoc[]
 
+<<<
+
+== Servizi di configurazione
+
+=== Installazione framework di risorse per la decodifica dei files apk
+Questo servizio permette di installare dei frameworks per decodificare files apk con risorse specifiche. Per maggior informazioni sui frameworks si veda la documentazione originale del tool di decodifica usato in questa applicazione
+
+:hide-uri-scheme:
+https://ibotpeaches.github.io/Apktool/documentation/#frameworks
+
+Il body della HTTP request conterrà il file che si vuole registrare sul server, e come _Content-Type: application/octet-stream_.
+Il sevizio permette di associare un tag al framework da installare attraverso il parametro opzionale _frameworkTag_ nell'URL da chiamare.
+Risponde all'indirizzo
+
+include::{snippets}/uploadFrameworkWithTag/path-parameters.adoc[]
+
+.HTTP request - con tag
+include::{snippets}/uploadFrameworkWithTag/http-request.adoc[]
+
+.HTTP request
+include::{snippets}/uploadFramework/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/uploadFramework/http-response.adoc[]
+
+==== Errori
+
+===== Framework invalido
+Nel caso in cui il framework inviato non sia valido e non sia possibile installarlo, il serivzio risponde con una HTTP response vuota e HTTP status 406.
+
+.HTTP request
+include::{snippets}/uploadFrameworkError/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/uploadFrameworkError/http-response.adoc[]
+
+<<<
+
+=== Lista framework installati
+Questo sevizio ritorna la lista dei nomi dei frameworks installati.
+Risponde all'indirizzo
+*_api/v1/configuration/installedFrameworks_*
+
+.HTTP request
+include::{snippets}/listInstalledFrameworks/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/listInstalledFrameworks/http-response.adoc[]
+
+.Elementi della HTTP response
+include::{snippets}/listInstalledFrameworks/response-fields.adoc[]
+
+<<<
+
+=== Modifica della configurazione del limitatore di banda
+Questo servizio permette di attivare, disattivare e modificare la configurazione del limitatore di banda a runtime per la corrente esecuzione di Package Manager. Si noti che la configurazione inviata tramite il servizio *non è permanente*, al riavvio di Package Manager verranno ricaricati i valori di default definiti nel file _application.properties_  (si veda la documentazione di installazione e configurazione nel file README.md).
+Il servizio risponde al metodo *HTTP PATCH* all'indirizzo
+*_api/v1/configuration/bandwidthLimiter_*
+
+.HTTP request
+include::{snippets}/configureBandwidthLimiter/http-request.adoc[]
+
+.Elementi della HTTP request
+include::{snippets}/configureBandwidthLimiter/request-fields.adoc[]
+
+.HTTP response
+include::{snippets}/configureBandwidthLimiter/http-response.adoc[]
+
+<<<
+
+=== Configurazione attuale del limitatore di banda
+Questo servizio ritorna la configurazione attuale del limitatore di banda.
+Risponde al metodo *HTTP GET* dell'indirizzzo
+*_api/v1/configuration/bandwidthLimiter_*
+
+.HTTP request
+include::{snippets}/getBandwidthLimiterConfiguration/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/getBandwidthLimiterConfiguration/http-response.adoc[]
+
+.Elementi della HTTP response
+include::{snippets}/getBandwidthLimiterConfiguration/response-fields.adoc[]
