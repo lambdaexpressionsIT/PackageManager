@@ -1,9 +1,12 @@
 package com.lambda_expressions.package_manager.configuration;
 
 import com.lambda_expressions.package_manager.bandwidth_limiter.utils.StreamManager;
+import com.lambda_expressions.package_manager.services.utils.APKUtils;
+import com.lambda_expressions.package_manager.services.utils.BandwidthLimiterUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 /**
  * Created by steccothal
@@ -22,15 +25,35 @@ public class PackageManagerConfiguration {
   @Value("${download.max.kbitPerSecond}")
   long downloadLimitKbps;
 
+  APKUtils apkUtils;
+  StreamManager streamManager;
+
   @Bean
   public StreamManager getStreamManager() {
-    StreamManager streamManager = new StreamManager(bandwidthLimitKbps * 1000);
+    if (streamManager == null) {
+      streamManager = new StreamManager(bandwidthLimitKbps * 1000);
 
-    streamManager.setDownstreamKbps(downloadLimitKbps);
-    streamManager.setUpstreamKbps(uploadLimitKbps);
-    streamManager.setActive(enableBandwidthLimitation);
+      streamManager.setDownstreamKbps(downloadLimitKbps);
+      streamManager.setUpstreamKbps(uploadLimitKbps);
+      streamManager.setActive(enableBandwidthLimitation);
+    }
 
     return streamManager;
+  }
+
+  @Bean
+  @DependsOn({"getStreamManager"})
+  public BandwidthLimiterUtils getBandwidthLimiterUtils(){
+    return new BandwidthLimiterUtils(getStreamManager());
+  }
+
+  @Bean
+  public APKUtils getApkUtils() {
+    if (apkUtils == null) {
+      apkUtils = new APKUtils();
+    }
+
+    return apkUtils;
   }
 
 }

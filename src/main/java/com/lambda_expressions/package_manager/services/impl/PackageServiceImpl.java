@@ -1,10 +1,7 @@
 package com.lambda_expressions.package_manager.services.impl;
 
 import com.lambda_expressions.package_manager.domain.Package;
-import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
-import com.lambda_expressions.package_manager.exceptions.IOFileException;
-import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
-import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
+import com.lambda_expressions.package_manager.exceptions.*;
 import com.lambda_expressions.package_manager.repositories.PackageRepository;
 import com.lambda_expressions.package_manager.services.PackageService;
 import com.lambda_expressions.package_manager.services.utils.APKUtils;
@@ -102,7 +99,7 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public PackageDTO installPackageFile(String fileName, MultipartFile multipartFile) throws IOFileException, AutoDetectionException {
+  public PackageDTO installPackageFile(String fileName, MultipartFile multipartFile) throws IOFileException, AutoDetectionException, MissingFrameworkException {
     byte[] file = this.fileIOUtils.getMultipartFileBytes(multipartFile);
     PackageDTO partialDTO = this.apkUtils.autodetectPackageInfo(file);
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(partialDTO.getAppName(), partialDTO.getAppVersion());

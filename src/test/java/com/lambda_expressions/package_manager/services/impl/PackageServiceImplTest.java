@@ -1,10 +1,7 @@
 package com.lambda_expressions.package_manager.services.impl;
 
 import com.lambda_expressions.package_manager.domain.Package;
-import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
-import com.lambda_expressions.package_manager.exceptions.IOFileException;
-import com.lambda_expressions.package_manager.exceptions.InvalidPackageException;
-import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
+import com.lambda_expressions.package_manager.exceptions.*;
 import com.lambda_expressions.package_manager.repositories.PackageRepository;
 import com.lambda_expressions.package_manager.services.utils.APKUtils;
 import com.lambda_expressions.package_manager.services.utils.FileIOUtils;
@@ -409,7 +406,7 @@ class PackageServiceImplTest {
   }
 
   @Test
-  void installPackageFileAutodetect() throws AutoDetectionException, IOFileException {
+  void installPackageFileAutodetect() throws AutoDetectionException, IOFileException, MissingFrameworkException {
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
     PackageDTO partialDto = PackageDTO.builder()
         .packageName(PACKAGE_DTO.getPackageName())
@@ -443,7 +440,7 @@ class PackageServiceImplTest {
   }
 
   @Test
-  void installPackageFileAutodetectIOException() throws IOFileException, AutoDetectionException {
+  void installPackageFileAutodetectIOException() throws IOFileException, AutoDetectionException, MissingFrameworkException {
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
     PackageDTO partialDto = PackageDTO.builder()
         .packageName(PACKAGE_DTO.getPackageName())
@@ -460,7 +457,18 @@ class PackageServiceImplTest {
   }
 
   @Test
-  void installPackageFileAutodetectionException() throws AutoDetectionException {
+  void installPackageFileMissingFrameworkException() throws MissingFrameworkException, AutoDetectionException {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
+    //when
+    doThrow(MissingFrameworkException.class).when(apkUtils).autodetectPackageInfo(any(byte[].class));
+    //then
+    assertThrows(MissingFrameworkException.class, () -> packageService.installPackageFile(PACKAGE_FILENAME, file));
+  }
+
+  @Test
+  void installPackageFileAutodetectionException() throws AutoDetectionException, MissingFrameworkException {
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
     //given
     given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);

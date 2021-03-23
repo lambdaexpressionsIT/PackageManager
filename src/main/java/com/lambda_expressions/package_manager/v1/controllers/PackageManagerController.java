@@ -46,7 +46,7 @@ public class PackageManagerController {
   @PostMapping(value = {"uploadPackage", "uploadPackage/"},
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public PackageDTO uploadPackageAutodetect(HttpServletRequest httpRequest, @RequestPart("file") MultipartFile file)
-      throws UnauthenticatedRequestException, IOFileException, AutoDetectionException {
+      throws UnauthenticatedRequestException, IOFileException, AutoDetectionException, MissingFrameworkException {
     this.authService.authenticateRequest(httpRequest);
     String fileName = ControllerUtils.getFileName(file);
 

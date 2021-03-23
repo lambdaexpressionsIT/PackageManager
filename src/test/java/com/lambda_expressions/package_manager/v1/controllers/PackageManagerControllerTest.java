@@ -101,7 +101,7 @@ class PackageManagerControllerTest {
   private final FieldDescriptor[] versionFields = new FieldDescriptor[]{
       fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
       fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
-      fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server. L'estensione dei file delle applicazioni viene definita nel file 'application.properties' alla voce 'packages.file.extension'"),
+      fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server."),
       fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
       fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
 
@@ -846,6 +846,26 @@ class PackageManagerControllerTest {
         .andDo(document("uploadPackageAutodetecUnableToWriteFile",
             preprocessRequest(prettyPrint()),
             preprocessResponse(prettyPrint())
+        ));
+  }
+
+  @Test
+  public void testUploadPackageMissingFramework() throws Exception {
+    int frameworkId = 1;
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    given(packageService.installPackageFile(anyString(), any(MultipartFile.class))).willThrow(new MissingFrameworkException("dummy message", frameworkId));
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        //then
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(content().string(String.format(RESTExceptionHandler.MISSING_FRAMEWORK_MESSAGE, frameworkId)))
+        .andDo(document("uploadPackageMissingFramework",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParts(partWithName("file").description("Campo della richiesta contenente il file da installare"))
         ));
   }
 }
