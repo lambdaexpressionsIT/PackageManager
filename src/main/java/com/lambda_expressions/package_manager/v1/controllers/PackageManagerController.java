@@ -25,10 +25,12 @@ import java.util.List;
 public class PackageManagerController {
   PackageService packageService;
   AuthenticationService authService;
+  ControllerUtils controllerUtils;
 
-  public PackageManagerController(PackageService packageService, AuthenticationService authService) {
+  public PackageManagerController(PackageService packageService, AuthenticationService authService, ControllerUtils controllerUtils) {
     this.packageService = packageService;
     this.authService = authService;
+    this.controllerUtils = controllerUtils;
   }
 
   @ResponseStatus(HttpStatus.CREATED)
@@ -48,7 +50,7 @@ public class PackageManagerController {
   public PackageDTO uploadPackageAutodetect(HttpServletRequest httpRequest, @RequestPart("file") MultipartFile file)
       throws UnauthenticatedRequestException, IOFileException, AutoDetectionException, MissingFrameworkException {
     this.authService.authenticateRequest(httpRequest);
-    String fileName = ControllerUtils.getFileName(file);
+    String fileName = controllerUtils.getFileName(file);
 
     return this.packageService.installPackageFile(fileName, file);
   }
@@ -105,7 +107,7 @@ public class PackageManagerController {
   public PackageDTO getPackageInfoById(HttpServletRequest httpRequest, @PathVariable String appId)
       throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
-    long longId = ControllerUtils.checkIdParameter(appId);
+    long longId = controllerUtils.checkIdParameter(appId);
 
     return this.packageService.getPackageInfoById(longId);
   }
@@ -115,7 +117,7 @@ public class PackageManagerController {
   public Collection<PackageListDTO> getPackagesById(HttpServletRequest httpRequest, @RequestParam List<String> idList)
       throws UnauthenticatedRequestException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
-    List<Long> idLongList = ControllerUtils.convertIdList(idList);
+    List<Long> idLongList = controllerUtils.convertIdList(idList);
 
     return this.packageService.getPackagesById(idLongList);
   }
