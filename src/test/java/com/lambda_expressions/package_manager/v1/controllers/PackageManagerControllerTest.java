@@ -4,6 +4,7 @@ import com.lambda_expressions.package_manager.exceptions.*;
 import com.lambda_expressions.package_manager.services.AuthenticationService;
 import com.lambda_expressions.package_manager.services.PackageService;
 import com.lambda_expressions.package_manager.v1.RESTExceptionHandler;
+import com.lambda_expressions.package_manager.v1.controllers.utils.ControllerUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import com.lambda_expressions.package_manager.v1.model.VersionDTO;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -106,6 +108,8 @@ class PackageManagerControllerTest {
       fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
 
   };
+  @Spy
+  ControllerUtils controllerUtils;
   @Mock
   PackageService packageService;
   @Mock
