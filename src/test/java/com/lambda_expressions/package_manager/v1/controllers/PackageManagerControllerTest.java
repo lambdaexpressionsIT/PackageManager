@@ -729,6 +729,34 @@ class PackageManagerControllerTest {
   }
 
   @Test
+  public void testUploadPackageFileWrongAppName() throws Exception {
+    //given
+    doThrow(WrongAppNameException.class).when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(),
+        any(byte[].class));
+    //when
+    mockMvc.perform(
+        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME)
+            .accept(MediaType.APPLICATION_OCTET_STREAM)
+            .content(DUMMY_BYTE_ARRAY)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM))
+        //then
+        .andExpect(status().isConflict())
+        .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof WrongAppNameException))
+        .andDo(document("uploadWrongAppNamePackage",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("packageName").description("Nome del package dell'applicazione da caricare"),
+                parameterWithName("appName").description("Nome dell'applicazione da caricare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare"),
+                parameterWithName("fileName").description("Nome del file dell'applicazione da caricare, verrà assegnato al file registrato sul server")
+            ),
+            requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
+            requestBody()
+        ));
+  }
+
+  @Test
   public void testUploadPackageAutodetect() throws Exception {
     PackageDTO packageDTO = PackageDTO.builder()
         .id(PACKAGE_V1_ID)
@@ -763,6 +791,24 @@ class PackageManagerControllerTest {
             requestPartBody("file"),
             responseFields(packageFields)
                 .and(versionFields)
+        ));
+  }
+
+  @Test
+  public void testUploadPackageAutodetectWrongAppName() throws Exception {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    //given
+    doThrow(WrongAppNameException.class).when(packageService).installPackageFile(anyString(), any(MultipartFile.class));
+    //when
+    mockMvc.perform(
+        multipart(UPLOAD_PACKAGE_URL).file(file)
+            .contentType(MediaType.MULTIPART_FORM_DATA))
+        //then
+        .andExpect(status().isConflict())
+        .andDo(document("uploadPackageAutodetectWrongAppName",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParts(partWithName("file").description("Campo della richiesta contenente il file da installare"))
         ));
   }
 

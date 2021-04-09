@@ -52,6 +52,11 @@ public class RESTExceptionHandler extends ResponseEntityExceptionHandler {
     return new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
   }
 
+  @ExceptionHandler(WrongAppNameException.class)
+  public ResponseEntity handleWrongAppNameException() {
+    return new ResponseEntity(HttpStatus.CONFLICT);
+  }
+
   @ExceptionHandler(MissingFrameworkException.class)
   public ResponseEntity<String> handleMissingFrameworkException(MissingFrameworkException e) {
     return new ResponseEntity<>(String.format(RESTExceptionHandler.MISSING_FRAMEWORK_MESSAGE, e.getId()), HttpStatus.UNPROCESSABLE_ENTITY);

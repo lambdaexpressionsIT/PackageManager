@@ -38,7 +38,7 @@ public class PackageManagerController {
       consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public void uploadPackage(HttpServletRequest httpRequest, @PathVariable String packageName, @PathVariable String appName,
                             @PathVariable String version, @PathVariable String fileName, @RequestBody byte[] file)
-      throws UnauthenticatedRequestException, IOFileException {
+      throws UnauthenticatedRequestException, IOFileException, WrongAppNameException {
     this.authService.authenticateRequest(httpRequest);
 
     this.packageService.installPackageFile(packageName, appName, version, fileName, file);
@@ -48,7 +48,7 @@ public class PackageManagerController {
   @PostMapping(value = {"uploadPackage", "uploadPackage/"},
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public PackageDTO uploadPackageAutodetect(HttpServletRequest httpRequest, @RequestPart("file") MultipartFile file)
-      throws UnauthenticatedRequestException, IOFileException, AutoDetectionException, MissingFrameworkException {
+      throws UnauthenticatedRequestException, IOFileException, AutoDetectionException, MissingFrameworkException, WrongAppNameException {
     this.authService.authenticateRequest(httpRequest);
     String fileName = controllerUtils.getFileName(file);
 
