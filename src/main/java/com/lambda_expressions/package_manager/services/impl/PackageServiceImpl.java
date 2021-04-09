@@ -104,7 +104,7 @@ public class PackageServiceImpl implements PackageService {
     PackageDTO partialDTO = this.apkUtils.autodetectPackageInfo(file);
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(partialDTO.getAppName(), partialDTO.getAppVersion());
 
-    this.fileIOUtils.savePackageFile(partialDTO.getPackageName(), partialDTO.getAppVersion(), fileName, file, this.packageUtils);
+    this.fileIOUtils.savePackageFile(partialDTO.getAppName(), partialDTO.getAppVersion(), fileName, file, this.packageUtils);
     packageInfo = this.persistNewPackageInfo(packageInfo, partialDTO.getPackageName(), partialDTO.getAppName(), partialDTO.getAppVersion(), fileName);
 
     return this.packageUtils.composePackageDTOFromPackage(packageInfo);
