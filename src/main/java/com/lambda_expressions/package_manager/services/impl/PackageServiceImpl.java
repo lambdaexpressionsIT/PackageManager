@@ -10,6 +10,7 @@ import com.lambda_expressions.package_manager.services.utils.PackageUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -91,7 +92,8 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException {
+  public void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException, WrongAppNameException {
+    this.checkPackageAppName(packageName, appName, null);
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
 
     this.fileIOUtils.savePackageFile(appName, version, fileName, file, this.packageUtils);
@@ -99,12 +101,15 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public PackageDTO installPackageFile(String fileName, MultipartFile multipartFile) throws IOFileException, AutoDetectionException, MissingFrameworkException {
+  public PackageDTO installPackageFile(String fileName, MultipartFile multipartFile) throws IOFileException, AutoDetectionException, MissingFrameworkException, WrongAppNameException {
     byte[] file = this.fileIOUtils.getMultipartFileBytes(multipartFile);
     PackageDTO partialDTO = this.apkUtils.autodetectPackageInfo(file);
+
+    this.checkPackageAppName(partialDTO.getPackageName(), partialDTO.getAppName(), null);
+
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(partialDTO.getAppName(), partialDTO.getAppVersion());
 
-    this.fileIOUtils.savePackageFile(partialDTO.getPackageName(), partialDTO.getAppVersion(), fileName, file, this.packageUtils);
+    this.fileIOUtils.savePackageFile(partialDTO.getAppName(), partialDTO.getAppVersion(), fileName, file, this.packageUtils);
     packageInfo = this.persistNewPackageInfo(packageInfo, partialDTO.getPackageName(), partialDTO.getAppName(), partialDTO.getAppVersion(), fileName);
 
     return this.packageUtils.composePackageDTOFromPackage(packageInfo);
@@ -116,6 +121,23 @@ public class PackageServiceImpl implements PackageService {
 
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     this.persistPackageInvalidation(packageInfo);
+  }
+
+  private void checkPackageAppName(String packageName, String appName, @Nullable String version) throws WrongAppNameException {
+    List<Package> packageList = null;
+
+    if (version != null) {
+      packageList = this.packageRepo.findByPackagenameIgnoreCaseAndVersionIgnoreCaseAndAppnameIgnoreCaseNot(packageName, version, appName);
+    } else {
+      packageList = this.packageRepo.findByPackagenameIgnoreCaseAndAppnameIgnoreCaseNot(packageName, appName);
+    }
+
+    if (packageList != null && packageList.size() > 0) {
+      throw new WrongAppNameException(
+          String.format("%s %s", "This package already exists, with appName", packageList.get(0).getAppname()),
+          appName,
+          version);
+    }
   }
 
   private void persistPackageInvalidation(Package packageInfo) {

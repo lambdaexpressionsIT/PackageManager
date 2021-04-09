@@ -377,7 +377,7 @@ class PackageServiceImplTest {
   }
 
   @Test
-  void installPackageFile() throws IOFileException {
+  void installPackageFile() throws IOFileException, WrongAppNameException {
     ArgumentCaptor<Package> packageCaptor = ArgumentCaptor.forClass(Package.class);
     ArgumentCaptor<byte[]> fileCaptor = ArgumentCaptor.forClass(byte[].class);
     //given
@@ -406,7 +406,18 @@ class PackageServiceImplTest {
   }
 
   @Test
-  void installPackageFileAutodetect() throws AutoDetectionException, IOFileException, MissingFrameworkException {
+  void installPackageWrongAppNameException() throws IOFileException {
+    List<Package> packageList = new ArrayList<>();
+    packageList.add(PACKAGE_V1_INFO);
+    //given
+    given(repository.findByPackagenameIgnoreCaseAndAppnameIgnoreCaseNot(anyString(), anyString())).willReturn(packageList);
+    //when
+    //then
+    assertThrows(WrongAppNameException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
+  }
+
+  @Test
+  void installPackageFileAutodetect() throws AutoDetectionException, IOFileException, MissingFrameworkException, WrongAppNameException {
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
     PackageDTO partialDto = PackageDTO.builder()
         .packageName(PACKAGE_DTO.getPackageName())
@@ -437,6 +448,25 @@ class PackageServiceImplTest {
     assertEquals(packageDTO.getFileName(), PACKAGE_DTO.getFileName());
     assertEquals(packageDTO.getUrl(), PACKAGE_DTO.getUrl());
     verify(fileIOUtils, times(1)).savePackageFile(anyString(), anyString(), anyString(), any(byte[].class), any(PackageUtils.class));
+  }
+
+  @Test
+  void installPackageFileAutodetectWrongAppNameException() throws IOFileException, AutoDetectionException, MissingFrameworkException {
+    MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
+    PackageDTO partialDto = PackageDTO.builder()
+        .packageName(PACKAGE_DTO.getPackageName())
+        .appName(PACKAGE_DTO.getAppName())
+        .appVersion(PACKAGE_DTO.getAppVersion())
+        .build();
+    List<Package> packageList = new ArrayList<>();
+    packageList.add(PACKAGE_V1_INFO);
+    //given
+    given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
+    given(apkUtils.autodetectPackageInfo(any(byte[].class))).willReturn(partialDto);
+    given(repository.findByPackagenameIgnoreCaseAndAppnameIgnoreCaseNot(anyString(), anyString())).willReturn(packageList);
+    //when
+    //then
+    assertThrows(WrongAppNameException.class, () -> packageService.installPackageFile(PACKAGE_FILENAME, file));
   }
 
   @Test

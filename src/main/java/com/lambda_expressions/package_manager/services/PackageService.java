@@ -27,9 +27,9 @@ public interface PackageService {
 
   byte[] getPackageFile(String appName, String version) throws PackageNotFoundException, IOFileException, InvalidPackageException;
 
-  void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException;
+  void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException, WrongAppNameException;
 
-  PackageDTO installPackageFile(String filename, MultipartFile file) throws IOFileException, AutoDetectionException, MissingFrameworkException;
+  PackageDTO installPackageFile(String filename, MultipartFile file) throws IOFileException, AutoDetectionException, MissingFrameworkException, WrongAppNameException;
 
   void invalidatePackage(String appName, String version) throws PackageNotFoundException;
 

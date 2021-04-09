@@ -287,6 +287,16 @@ include::{snippets}/uploadPackage/http-response.adoc[]
 
 ==== Errori
 
+===== Package già presente con diverso appName
+
+Nel caso in cui nel database siano già presenti packages aventi il medesimo package name ma un diverso application name, il servizio non accetta il file inviato e risponde con una HTTP response vuota e HTTP status 409
+
+.HTTP request
+include::{snippets}/uploadWrongAppNamePackage/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/uploadWrongAppNamePackage/http-response.adoc[]
+
 ===== Errore di scrittura del file
 
 Nel caso in cui si verifichi un errore di scrittura del file che si vuole caricare, il servizio risponde con una HTTP response vuota e HTTP status 500
@@ -319,6 +329,19 @@ include::{snippets}/uploadPackageAutodetect/http-response.adoc[]
 include::{snippets}/uploadPackageAutodetect/response-fields.adoc[]
 
 ==== Errori
+
+===== Package già presente con diverso appName
+
+Nel caso in cui nel database siano già presenti packages aventi il medesimo package name ma un diverso application name, il servizio non accetta il file inviato e risponde con una HTTP response vuota e HTTP status 409
+
+.HTTP request
+include::{snippets}/uploadPackageAutodetectWrongAppName/http-request.adoc[]
+
+.Parti della HTTP request
+include::{snippets}/uploadPackageAutodetectWrongAppName/request-parts.adoc[]
+
+.HTTP response
+include::{snippets}/uploadPackageAutodetectWrongAppName/http-response.adoc[]
 
 ===== Nome della parte della richiesta errato
 
