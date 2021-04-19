@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
@@ -66,6 +67,9 @@ class PackageManagerControllerTest {
   private static final String LIST_ALL_PACKAGES_URL = REST_SERVICES_BASE_URL + "/listPackages";
   private static final String LIST_PACKAGE_VERSIONS_URL = REST_SERVICES_BASE_URL + "/listPackages/{appName}";
   private static final String LIST_VERSION_INFO_URL = REST_SERVICES_BASE_URL + "/listPackages/{appName}/{appVersion}";
+  private static final String DELETE_PACKAGES_BY_ID_URL = REST_SERVICES_BASE_URL + "/deletePackage";
+  private static final String DELETE_PACKAGE_VERSIONS_URL = REST_SERVICES_BASE_URL + "/deletePackage/{appName}";
+  private static final String DELETE_SINGLE_VERSION_URL = REST_SERVICES_BASE_URL + "/deletePackage/{appName}/{appVersion}";
   private static final String GET_PACKAGE_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackage/{appId}";
   private static final String GET_PACKAGES_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackages/";
   private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/{appName}/{appVersion}";
@@ -495,6 +499,7 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackagesByIdNotFound() throws Exception {
     //given
+    given(packageService.getPackagesById(anyList())).willReturn(Collections.EMPTY_LIST);
     //when
     mockMvc.perform(
         get(GET_PACKAGES_BY_ID_URL)
@@ -916,6 +921,163 @@ class PackageManagerControllerTest {
             preprocessRequest(prettyPrint()),
             preprocessResponse(prettyPrint()),
             requestParts(partWithName("file").description("Campo della richiesta contenente il file da installare"))
+        ));
+  }
+
+  @Test
+  public void testDeleteSinglePackage() throws Exception {
+    //given
+    doNothing().when(packageService).deleteVersionPackage(anyString(), anyString());
+    //when
+    mockMvc.perform(delete(DELETE_SINGLE_VERSION_URL, PACKAGE_APPNAME, PACKAGE_VERSION_1))
+        //then
+        .andExpect(status().isOk())
+        .andDo(document("deleteSinglePackage",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da cancellare")
+            )
+        ));
+  }
+
+  @Test
+  public void testDeleteSinglePackageNotFound() throws Exception {
+    //given
+    doThrow(PackageNotFoundException.class).when(packageService).deleteVersionPackage(anyString(), anyString());
+    //when
+    mockMvc.perform(delete(DELETE_SINGLE_VERSION_URL, PACKAGE_APPNAME, "100.200.300"))
+        //then
+        .andExpect(status().isNotFound())
+        .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
+        .andDo(document("deleteSinglePackageNotFound",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("appName").description("Nome dell'applicazione ricercata"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da cancellare")
+            )
+        ));
+  }
+
+  @Test
+  public void testDeletePackageVersions() throws Exception {
+    //given
+    doNothing().when(packageService).deleteAllVersions(anyString());
+    //when
+    mockMvc.perform(delete(DELETE_PACKAGE_VERSIONS_URL, PACKAGE_APPNAME))
+        //then
+        .andExpect(status().isOk())
+        .andDo(document("deletePackageVersions",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("appName").description("Nome dell'applicazione di cui eliminare tutte le versioni"))
+        ));
+  }
+
+  @Test
+  public void testDeletePackageVersionsNotFound() throws Exception {
+    //given
+    doThrow(PackageNotFoundException.class).when(packageService).deleteAllVersions(anyString());
+    //when
+    mockMvc.perform(delete(DELETE_PACKAGE_VERSIONS_URL, "appNotPresent"))
+        //then
+        .andExpect(status().isNotFound())
+        .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof PackageNotFoundException))
+        .andDo(document("deletePackageVersionsNotFound",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(parameterWithName("appName").description("Nome dell'applicazione di cui eliminare tutte le versioni"))
+        ));
+  }
+
+  @Test
+  public void testDeletePackagesByIdListParam() throws Exception {
+    this.performDeletePackagesById(
+        delete(DELETE_PACKAGES_BY_ID_URL + "?idList=100,200,300"),
+        "deletePackagesByIdListParams");
+  }
+
+  @Test
+  public void testDeletePackagesByIdRepeatedParamNames() throws Exception {
+    this.performDeletePackagesById(
+        delete(DELETE_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, "100", "200", "300"),
+        "deletePackagesByIdRepeatedParamNames");
+  }
+
+  @Test
+  public void testDeletePackagesByIdMalformedURL() throws Exception {
+    this.performDeletePackagesById(
+        delete(DELETE_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, "100", "NaN", "200", "NaN", "300"),
+        "deletePackagesByIdMalformedURL");
+  }
+
+
+  private void performDeletePackagesById(MockHttpServletRequestBuilder delete, String docName) throws Exception {
+    //given
+    doNothing().when(packageService).deletePackagesList(anyList());
+    //when
+    mockMvc.perform(delete)
+        //then
+        .andExpect(status().isOk())
+        .andDo(document(docName,
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParameters(
+                parameterWithName(GET_PACKAGES_PARAM_NAME).description("Elenco degli id dei packages da cancellare")
+            )
+        ));
+  }
+
+  @Test
+  public void testDeletePackagesByIdNotFound() throws Exception {
+    //given
+    //when
+    mockMvc.perform(
+        delete(DELETE_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, "10101", "20202", "30303"))
+        //then
+        .andExpect(status().isOk())
+        .andDo(document("deletePackagesByIdEmpty",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParameters(
+                parameterWithName(GET_PACKAGES_PARAM_NAME).description("Elenco degli id dei packages da cancellare")
+            )
+        ));
+  }
+
+  @Test
+  public void testDeletePackagesByIdEmptyParamList() throws Exception {
+    //given
+    //when
+    mockMvc.perform(
+        delete(DELETE_PACKAGES_BY_ID_URL)
+            .queryParam(GET_PACKAGES_PARAM_NAME, ""))
+        //then
+        .andExpect(status().isOk())
+        .andDo(document("deletePackagesByIdEmptyParamList",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            requestParameters(
+                parameterWithName(GET_PACKAGES_PARAM_NAME).description("Elenco degli id dei packages da cancellare")
+            )
+        ));
+  }
+
+  @Test
+  public void testDeletePackagesByIdWithoutParams() throws Exception {
+    //given
+    //when
+    mockMvc.perform(delete(DELETE_PACKAGES_BY_ID_URL))
+        //then
+        .andExpect(status().isBadRequest())
+        .andDo(document("deletePackagesByIdNoParams",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint())
         ));
   }
 }

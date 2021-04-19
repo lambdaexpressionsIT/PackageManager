@@ -1,23 +1,158 @@
 {
 	"info": {
 		"_postman_id": "562ca69b-ed6e-429d-86f3-c49d902343ef",
-		"name": "Lottomatica - Package manager Prod",
+		"name": "Lottomatica - Package manager",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "configuration",
+			"item": [
+				{
+					"name": "installFramework",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/octet-stream",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "/C:/Users/stefa/Downloads/framework-res.apk"
+							}
+						},
+						"url": {
+							"raw": "https://104.196.36.251:8080/package-manager/api/v1/configuration/uploadFramework",
+							"protocol": "https",
+							"host": [
+								"104",
+								"196",
+								"36",
+								"251"
+							],
+							"port": "8080",
+							"path": [
+								"package-manager",
+								"api",
+								"v1",
+								"configuration",
+								"uploadFramework"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setUpBandwidthLimiter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/octet-stream",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "file",
+							"file": {
+								"src": "/C:/Users/stefa/Downloads/framework-res.apk"
+							}
+						},
+						"url": {
+							"raw": "https://104.196.36.251:8080/package-manager/api/v1/configuration/uploadFramework",
+							"protocol": "https",
+							"host": [
+								"104",
+								"196",
+								"36",
+								"251"
+							],
+							"port": "8080",
+							"path": [
+								"package-manager",
+								"api",
+								"v1",
+								"configuration",
+								"uploadFramework"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "listInstalledFrameworks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://104.196.36.251:8080/package-manager/api/v1/configuration/installedFrameworks/",
+							"protocol": "https",
+							"host": [
+								"104",
+								"196",
+								"36",
+								"251"
+							],
+							"port": "8080",
+							"path": [
+								"package-manager",
+								"api",
+								"v1",
+								"configuration",
+								"installedFrameworks",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "bandwidthLimiterConfiguration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://104.196.36.251:8080/package-manager/api/v1/configuration/installedFrameworks/",
+							"protocol": "https",
+							"host": [
+								"104",
+								"196",
+								"36",
+								"251"
+							],
+							"port": "8080",
+							"path": [
+								"package-manager",
+								"api",
+								"v1",
+								"configuration",
+								"installedFrameworks",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "listAllPackages",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/listPackages/",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/listPackages/",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -37,13 +172,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/listPackages/Spending",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/listPackages/Spending",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -63,13 +198,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/listPackages/Spending/1",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/listPackages/Spending/1",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -90,13 +225,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/getPackage/1",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/getPackage/37",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -104,7 +239,7 @@
 						"api",
 						"v1",
 						"getPackage",
-						"1"
+						"37"
 					]
 				}
 			},
@@ -116,13 +251,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/getPackages?idList=1,2,3",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/getPackages?idList=1,2,3",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -147,13 +282,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/downloadPackage/Spending/1",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/downloadPackage/Spending/1",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -170,6 +305,11 @@
 		},
 		{
 			"name": "installOnePackage",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
 			"request": {
 				"method": "POST",
 				"header": [
@@ -182,17 +322,17 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "/C:/tmp/LISguida_1.8.0.apk"
+						"src": "/C:/tmp/apps to deploy/apps/myCashUp.apk"
 					}
 				},
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/uploadPackage/com.package.LISguida/LISguida/1/LISguida_1.8.0.apk",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/uploadPackage/com.package.myCashUp/myCashUp/1/myCashUp.apk",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -200,10 +340,52 @@
 						"api",
 						"v1",
 						"uploadPackage",
-						"com.package.LISguida",
-						"LISguida",
+						"com.package.myCashUp",
+						"myCashUp",
 						"1",
-						"LISguida_1.8.0.apk"
+						"myCashUp.apk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "installOnePackage-Autodetect",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"warning": "This is a duplicate header and will be overridden by the Content-Type header generated by Postman.",
+						"key": "Content-Type",
+						"value": "multipart/form-data",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/uploadPackage",
+					"protocol": "https",
+					"host": [
+						"104",
+						"196",
+						"36",
+						"251"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager",
+						"api",
+						"v1",
+						"uploadPackage"
 					]
 				}
 			},
@@ -215,13 +397,13 @@
 				"method": "PATCH",
 				"header": [],
 				"url": {
-					"raw": "http://35.190.165.33:8080/package-manager/api/v1/invalidatePackage/LisXTe/10000",
-					"protocol": "http",
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/invalidatePackage/LisXTe/10000",
+					"protocol": "https",
 					"host": [
-						"35",
-						"190",
-						"165",
-						"33"
+						"104",
+						"196",
+						"36",
+						"251"
 					],
 					"port": "8080",
 					"path": [
@@ -231,6 +413,90 @@
 						"invalidatePackage",
 						"LisXTe",
 						"10000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteOneVersion",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/deletePackage/Spending/1",
+					"protocol": "https",
+					"host": [
+						"104",
+						"196",
+						"36",
+						"251"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager",
+						"api",
+						"v1",
+						"deletePackage",
+						"Spending",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteOneApplication",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/deletePackage/Spending",
+					"protocol": "https",
+					"host": [
+						"104",
+						"196",
+						"36",
+						"251"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager",
+						"api",
+						"v1",
+						"deletePackage",
+						"Spending"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletePackagesById",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://104.196.36.251:8080/package-manager/api/v1/deletePackage?idList=1,2,3",
+					"protocol": "https",
+					"host": [
+						"104",
+						"196",
+						"36",
+						"251"
+					],
+					"port": "8080",
+					"path": [
+						"package-manager",
+						"api",
+						"v1",
+						"deletePackage"
+					],
+					"query": [
+						{
+							"key": "idList",
+							"value": "1,2,3"
+						}
 					]
 				}
 			},
