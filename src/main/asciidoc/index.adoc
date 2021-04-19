@@ -224,7 +224,8 @@ include::{snippets}/invalidateNotFoundPackage/http-response.adoc[]
 
 === Download di un'applicazione
 
-Questo servizio ritorna il file di una specifica versione di un'applicazione valida presente sul server. Nel caso in cui l'applicazione/versione sia marcata come non valida, questo servizio ritorna un errore (come specificato in seguito), ma il file sarà comunque disponibile attraverso il suo URL pubblico.
+Questo servizio ritorna il file di una specifica versione di un'applicazione valida presente sul server.
+Nel caso in cui l'applicazione/versione sia marcata come non valida, questo servizio ritorna un errore (come specificato in seguito), ma il file sarà comunque disponibile attraverso il suo URL pubblico.
 Il file compone il body della HTTP response del servizio, la response ha _Content-Type: application/octet_stream_.
 Risponde all'indirizzo
 
@@ -311,7 +312,12 @@ include::{snippets}/uploadNotWritablePackage/http-response.adoc[]
 
 === Upload di un'applicazione (con rilevazione automatica dei dati)
 
-Questo servizio registra sul server un file di un'applicazione. In questo caso il servizio accetta in input semplicemente il file dell'applicazione e provvede a estrarne automaticamente le informazioni identificative quali package, nome e versione. Il nome del file salvato sul server sarà quello originale del file inviato nella richiesta. Per poterlo ottenere automaticamente, questo servizio accetta richieste _multipart_ e quindi il formato _multipart/form-data_. Il file deve essere inviato nella richiesta HTTP in una _part_ denominata *_file_*. Se non si verificano errori durante l'elaborazione della richiesta, il servizio risponde con un oggetto JSON contenente tutte le informazioni dell'applicazione appena installata.
+Questo servizio registra sul server un file di un'applicazione.
+In questo caso il servizio accetta in input semplicemente il file dell'applicazione e provvede a estrarne automaticamente le informazioni identificative quali package, nome e versione.
+Il nome del file salvato sul server sarà quello originale del file inviato nella richiesta.
+Per poterlo ottenere automaticamente, questo servizio accetta richieste _multipart_ e quindi il formato _multipart/form-data_.
+Il file deve essere inviato nella richiesta HTTP in una _part_ denominata *_file_*.
+Se non si verificano errori durante l'elaborazione della richiesta, il servizio risponde con un oggetto JSON contenente tutte le informazioni dell'applicazione appena installata.
 Risponde all'indirizzo
 
 *_api/v1/uploadPackage_*
@@ -420,10 +426,122 @@ include::{snippets}/uploadPackageAutodetecUnableToWriteFile/http-response.adoc[]
 
 <<<
 
+=== Eliminazione di una specifica versione (per applicazione/versione)
+
+Questo servizio cancella una singola versione di un'applicazione presente sul server.
+Risponde al metodo *HTTP DELETE* all'indirizzo
+
+include::{snippets}/deleteSinglePackage/path-parameters.adoc[]
+
+.HTTP request
+include::{snippets}/deleteSinglePackage/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deleteSinglePackage/http-response.adoc[]
+
+==== Errori
+
+===== Applicazione/versione non presente
+
+Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
+
+.HTTP request
+include::{snippets}/deleteSinglePackageNotFound/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deleteSinglePackageNotFound/http-response.adoc[]
+
+<<<
+
+=== Eliminazione delle versioni di un'applicazione
+
+Questo servizio elimina tutte le versioni presenti sul server di una specifica applicazione.
+Risponde al metodo *HTTP DELETE* all'indirizzo
+
+include::{snippets}/deletePackageVersions/path-parameters.adoc[]
+
+.HTTP request
+include::{snippets}/deletePackageVersions/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deletePackageVersions/http-response.adoc[]
+
+==== Errori
+
+===== Applicazione non presente
+
+Nel caso in cui l'applicazione cercata non sia presente sul server, il servizio ritorna una risposta vuota con HTTP status 404.
+
+.HTTP request
+include::{snippets}/deletePackageVersionsNotFound/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deletePackageVersionsNotFound/http-response.adoc[]
+
+<<<
+
+=== Eliminazione dei packages: cancellazione per id
+
+Questo servizio permette di eliminare una lista di versioni, corrispondenti agli id ricercati e passati come parametri.
+Risponde al metodo *HTTP DELETE* all'indirizzo
+
+*_/api/v1/deletePackage?idList={appIdList}_*
+include::{snippets}/deletePackagesByIdListParams/request-parameters.adoc[]
+
+Gli id ricercati devono essere inviati come parametri della HTTP request e possono essere codificati in due diversi modi come documentato sotto.
+
+.HTTP request - parametri separati con virgola
+include::{snippets}/deletePackagesByIdListParams/http-request.adoc[]
+
+.HTTP request - elenco di parametri
+include::{snippets}/deletePackagesByIdRepeatedParamNames/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deletePackagesByIdListParams/http-response.adoc[]
+
+==== Errori
+
+===== Id non presenti
+
+Nel caso in cui alcuni id ricercati non corrispondano a nessun package, o non venga inviato alcun id, il servizio semplicemente non esegue nessuna operazione di eliminazione su questi
+
+.HTTP request - id non trovato
+include::{snippets}/deletePackagesByIdEmpty/http-request.adoc[]
+
+.HTTP request - id non inviato
+include::{snippets}/deletePackagesByIdEmptyParamList/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deletePackagesByIdEmpty/http-response.adoc[]
+
+===== Id non convertibili in valori interi
+
+Nel caso in cui all'interno della lista dei parametri inviati siano presenti dei valori non convertibili in valori interi, questi vengono semplicemente ignorati
+
+.HTTP request
+include::{snippets}/deletePackagesByIdMalformedURL/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deletePackagesByIdMalformedURL/http-response.adoc[]
+
+===== Malformed URL
+
+Nel caso in cui nella HTTP request manchi completamente il nome dell'elenco di parametri, il servizio risponde con una HTTP response vuota e HTTP status 400
+
+.HTTP request
+include::{snippets}/deletePackagesByIdNoParams/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/deletePackagesByIdNoParams/http-response.adoc[]
+
+<<<
+
 == Servizi di configurazione
 
 === Installazione framework di risorse per la decodifica dei files apk
-Questo servizio permette di installare dei frameworks per decodificare files apk con risorse specifiche. Per maggior informazioni sui frameworks si veda la documentazione originale del tool di decodifica usato in questa applicazione
+
+Questo servizio permette di installare dei frameworks per decodificare files apk con risorse specifiche.
+Per maggior informazioni sui frameworks si veda la documentazione originale del tool di decodifica usato in questa applicazione
 
 :hide-uri-scheme:
 https://ibotpeaches.github.io/Apktool/documentation/#frameworks
@@ -446,6 +564,7 @@ include::{snippets}/uploadFramework/http-response.adoc[]
 ==== Errori
 
 ===== Framework invalido
+
 Nel caso in cui il framework inviato non sia valido e non sia possibile installarlo, il serivzio risponde con una HTTP response vuota e HTTP status 406.
 
 .HTTP request
@@ -457,9 +576,9 @@ include::{snippets}/uploadFrameworkError/http-response.adoc[]
 <<<
 
 === Lista framework installati
+
 Questo sevizio ritorna la lista dei nomi dei frameworks installati.
-Risponde all'indirizzo
-*_api/v1/configuration/installedFrameworks_*
+Risponde all'indirizzo *_api/v1/configuration/installedFrameworks_*
 
 .HTTP request
 include::{snippets}/listInstalledFrameworks/http-request.adoc[]
@@ -473,9 +592,10 @@ include::{snippets}/listInstalledFrameworks/response-fields.adoc[]
 <<<
 
 === Modifica della configurazione del limitatore di banda
-Questo servizio permette di attivare, disattivare e modificare la configurazione del limitatore di banda a runtime per la corrente esecuzione di Package Manager. Si noti che la configurazione inviata tramite il servizio *non è permanente*, al riavvio di Package Manager verranno ricaricati i valori di default definiti nel file _application.properties_  (si veda la documentazione di installazione e configurazione nel file README.md).
-Il servizio risponde al metodo *HTTP PATCH* all'indirizzo
-*_api/v1/configuration/bandwidthLimiter_*
+
+Questo servizio permette di attivare, disattivare e modificare la configurazione del limitatore di banda a runtime per la corrente esecuzione di Package Manager.
+Si noti che la configurazione inviata tramite il servizio *non è permanente*, al riavvio di Package Manager verranno ricaricati i valori di default definiti nel file _application.properties_ (si veda la documentazione di installazione e configurazione nel file README.md).
+Il servizio risponde al metodo *HTTP PATCH* all'indirizzo *_api/v1/configuration/bandwidthLimiter_*
 
 .HTTP request
 include::{snippets}/configureBandwidthLimiter/http-request.adoc[]
@@ -489,9 +609,9 @@ include::{snippets}/configureBandwidthLimiter/http-response.adoc[]
 <<<
 
 === Configurazione attuale del limitatore di banda
+
 Questo servizio ritorna la configurazione attuale del limitatore di banda.
-Risponde al metodo *HTTP GET* dell'indirizzzo
-*_api/v1/configuration/bandwidthLimiter_*
+Risponde al metodo *HTTP GET* dell'indirizzzo *_api/v1/configuration/bandwidthLimiter_*
 
 .HTTP request
 include::{snippets}/getBandwidthLimiterConfiguration/http-request.adoc[]

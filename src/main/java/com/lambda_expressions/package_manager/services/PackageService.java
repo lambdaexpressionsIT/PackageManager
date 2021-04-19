@@ -33,4 +33,9 @@ public interface PackageService {
 
   void invalidatePackage(String appName, String version) throws PackageNotFoundException;
 
+  void deleteVersionPackage(String appName, String version) throws PackageNotFoundException;
+
+  void deleteAllVersions(String appName) throws PackageNotFoundException;
+
+  void deletePackagesList(List<Long> idList) throws PackageNotFoundException;
 }
