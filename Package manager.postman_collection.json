@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "562ca69b-ed6e-429d-86f3-c49d902343ef",
-		"name": "Lottomatica - Package manager",
+		"name": "Lottomatica - Package manager Prod",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -22,7 +22,7 @@
 						"body": {
 							"mode": "file",
 							"file": {
-								"src": "/C:/Users/stefa/Downloads/framework-res.apk"
+								"src": ""
 							}
 						},
 						"url": {
@@ -117,7 +117,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://104.196.36.251:8080/package-manager/api/v1/configuration/installedFrameworks/",
+							"raw": "https://104.196.36.251:8080/package-manager/api/v1/configuration/bandwidthLimiter/",
 							"protocol": "https",
 							"host": [
 								"104",
@@ -131,7 +131,7 @@
 								"api",
 								"v1",
 								"configuration",
-								"installedFrameworks",
+								"bandwidthLimiter",
 								""
 							]
 						}

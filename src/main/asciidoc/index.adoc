@@ -565,7 +565,7 @@ include::{snippets}/uploadFramework/http-response.adoc[]
 
 ===== Framework invalido
 
-Nel caso in cui il framework inviato non sia valido e non sia possibile installarlo, il serivzio risponde con una HTTP response vuota e HTTP status 406.
+Nel caso in cui il framework inviato non sia valido e non sia possibile installarlo, il servizio risponde con una HTTP response vuota e HTTP status 406.
 
 .HTTP request
 include::{snippets}/uploadFrameworkError/http-request.adoc[]
