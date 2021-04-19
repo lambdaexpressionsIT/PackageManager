@@ -22,6 +22,17 @@ public class FileIOUtils {
   @Value("${packages.filesystem.base.path}")
   private String PACKAGES_FILESYSTEM_BASE_LOCATION;
 
+  public void deleteSingleFile(Package packageInfo) {
+    String absolutePath = composeAbsoluteLocalPath(packageInfo.getPath());
+    FileUtils.deleteQuietly(new File(absolutePath));
+  }
+
+  public void deletePackageList(Iterable<Package> packages) {
+    packages.forEach(packageInfo -> {
+      deleteSingleFile(packageInfo);
+    });
+  }
+
   public void savePackageFile(String appName, String version, String fileName, byte[] file, PackageUtils packageUtils) throws IOFileException {
     try {
       String localRelativePath = packageUtils.composeLocalRelativePath(appName, version, fileName);

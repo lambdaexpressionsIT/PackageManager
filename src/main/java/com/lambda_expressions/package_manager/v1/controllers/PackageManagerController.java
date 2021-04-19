@@ -122,4 +122,32 @@ public class PackageManagerController {
     return this.packageService.getPackagesById(idLongList);
   }
 
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping(value = {"deletePackage/{appName}", "deletePackage/{appName}/"})
+  public void deleteAllVersions(HttpServletRequest httpRequest, @PathVariable String appName)
+      throws UnauthenticatedRequestException, PackageNotFoundException {
+    this.authService.authenticateRequest(httpRequest);
+
+    this.packageService.deleteAllVersions(appName);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping(value = {"deletePackage/{appName}/{version}", "deletePackage/{appName}/{version}/"})
+  public void deleteSingleVersion(HttpServletRequest httpRequest, @PathVariable String appName, @PathVariable String version)
+      throws UnauthenticatedRequestException, PackageNotFoundException {
+    this.authService.authenticateRequest(httpRequest);
+
+    this.packageService.deleteVersionPackage(appName, version);
+  }
+
+  @ResponseStatus(HttpStatus.OK)
+  @DeleteMapping(value = {"deletePackage", "deletePackage/"})
+  public void deleteById(HttpServletRequest httpRequest, @RequestParam List<String> idList)
+      throws UnauthenticatedRequestException, PackageNotFoundException {
+    this.authService.authenticateRequest(httpRequest);
+    List<Long> idLongList = controllerUtils.convertIdList(idList);
+
+    this.packageService.deletePackagesList(idLongList);
+  }
+
 }
