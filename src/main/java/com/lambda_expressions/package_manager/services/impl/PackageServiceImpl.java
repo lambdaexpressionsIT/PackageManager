@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by steccothal
@@ -121,6 +122,38 @@ public class PackageServiceImpl implements PackageService {
 
     this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     this.persistPackageInvalidation(packageInfo);
+  }
+
+  @Override
+  public void deleteVersionPackage(String appName, String version) throws PackageNotFoundException {
+    Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
+
+    this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
+    this.packageRepo.deleteById(packageInfo.getId());
+    this.fileIOUtils.deleteSingleFile(packageInfo);
+  }
+
+  @Override
+  public void deleteAllVersions(String appName) throws PackageNotFoundException {
+    List<Package> packages = this.packageRepo.findByAppnameIgnoreCase(appName);
+
+    this.manageDeletion(packages, appName, true);
+  }
+
+  @Override
+  public void deletePackagesList(List<Long> idList) throws PackageNotFoundException {
+    Iterable<Package> packages = this.packageRepo.findAllById(idList);
+
+    this.manageDeletion(packages, "", false);
+  }
+
+  private void manageDeletion(Iterable<Package> packages, String appName, boolean breakOnEmpty) throws PackageNotFoundException {
+    this.packageUtils.checkRepositoryIterableResult(packages, appName, breakOnEmpty);
+
+    if (StreamSupport.stream(packages.spliterator(), false).count() > 0) {
+      this.packageRepo.deleteAll(packages);
+      this.fileIOUtils.deletePackageList(packages);
+    }
   }
 
   private void checkPackageAppName(String packageName, String appName, @Nullable String version) throws WrongAppNameException {

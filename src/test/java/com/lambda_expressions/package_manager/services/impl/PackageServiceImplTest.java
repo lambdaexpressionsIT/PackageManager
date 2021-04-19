@@ -24,10 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -149,9 +146,8 @@ class PackageServiceImplTest {
 
   @Test
   void listAllPackagesEmpty() throws PackageNotFoundException {
-    List<Package> emptyList = new ArrayList<>();
     //given
-    given(repository.findAll()).willReturn(emptyList);
+    given(repository.findAll()).willReturn(Collections.EMPTY_LIST);
     //when
     Collection<PackageListDTO> listDTOS = packageService.listAllPackages();
     //then
@@ -188,7 +184,7 @@ class PackageServiceImplTest {
   @Test
   void listAllVersionsEmpty() {
     //given
-    given(repository.findByAppnameIgnoreCase(anyString())).willReturn(null);
+    given(repository.findByAppnameIgnoreCase(anyString())).willReturn(Collections.EMPTY_LIST);
     //when
     //then
     assertThrows(PackageNotFoundException.class, () -> packageService.listAllVersions(PACKAGE_APPNAME));
@@ -268,9 +264,8 @@ class PackageServiceImplTest {
 
   @Test
   void getPackagesByIDNotFound() throws PackageNotFoundException {
-    List<Package> emptyList = new ArrayList<>();
     //given
-    given(repository.findAllById(anyList())).willReturn(emptyList);
+    given(repository.findAllById(anyList())).willReturn(Collections.EMPTY_LIST);
     //when
     Collection<PackageListDTO> listDTOS = packageService.getPackagesById(anyList());
     //then
@@ -506,5 +501,157 @@ class PackageServiceImplTest {
     doThrow(AutoDetectionException.class).when(apkUtils).autodetectPackageInfo(any(byte[].class));
     //then
     assertThrows(AutoDetectionException.class, () -> packageService.installPackageFile(PACKAGE_FILENAME, file));
+  }
+
+  @Test
+  void testDeleteVersionPackage() throws PackageNotFoundException {
+    ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
+    ArgumentCaptor<Package> packageCaptor = ArgumentCaptor.forClass(Package.class);
+    //given
+    doNothing().when(fileIOUtils).deleteSingleFile(any(Package.class));
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(PACKAGE_V1_INFO);
+    //when
+    packageService.deleteVersionPackage(PACKAGE_APPNAME, PACKAGE_VERSION_1);
+    //then
+    verify(repository, times(1)).deleteById(idCaptor.capture());
+    verify(fileIOUtils, times(1)).deleteSingleFile(packageCaptor.capture());
+    assertEquals(idCaptor.getValue(), PACKAGE_V1_ID);
+    assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().getId());
+    assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().getAppname());
+    assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().getVersion());
+    assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().getPackagename());
+    assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().getPath());
+    assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().getFilename());
+    assertEquals(PACKAGE_V1_INFO.isValid(), packageCaptor.getValue().isValid());
+  }
+
+  @Test
+  void testDeleteVersionPackageNotFound() {
+    //given
+    given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(null);
+    //when
+    assertThrows(PackageNotFoundException.class, () -> packageService.deleteVersionPackage(anyString(), anyString()));
+    //then
+    verify(repository, times(0)).deleteById(any());
+    verify(fileIOUtils, times(0)).deleteSingleFile(any());
+  }
+
+  @Test
+  void testDeleteAllVersions() throws PackageNotFoundException {
+    ArgumentCaptor<List<Package>> packageCaptor = ArgumentCaptor.forClass(List.class);
+    List<Package> packages = new ArrayList<>();
+
+    packages.add(PACKAGE_V1_INFO);
+    packages.add(PACKAGE_V2_INFO);
+    //given
+    doNothing().when(fileIOUtils).deletePackageList(anyIterable());
+    given(repository.findByAppnameIgnoreCase(anyString())).willReturn(packages);
+    //when
+    packageService.deleteAllVersions(PACKAGE_APPNAME);
+    //then
+    verify(repository, times(1)).deleteAll(packageCaptor.capture());
+    assertEquals(2, packageCaptor.getValue().size());
+    assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
+    assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
+    assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
+    assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
+    assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
+    assertEquals(PACKAGE_V1_INFO.isValid(), packageCaptor.getValue().get(0).isValid());
+    assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
+    assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
+    assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
+    assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
+    assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());
+    assertEquals(PACKAGE_V2_INFO.isValid(), packageCaptor.getValue().get(1).isValid());
+    verify(fileIOUtils, times(1)).deletePackageList(packageCaptor.capture());
+    assertEquals(2, packageCaptor.getValue().size());
+    assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
+    assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
+    assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
+    assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
+    assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
+    assertEquals(PACKAGE_V1_INFO.isValid(), packageCaptor.getValue().get(0).isValid());
+    assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
+    assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
+    assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
+    assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
+    assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());
+    assertEquals(PACKAGE_V2_INFO.isValid(), packageCaptor.getValue().get(1).isValid());
+  }
+
+  @Test
+  void testDeleteAllVersionsNotfound() {
+    //given
+    given(repository.findByAppnameIgnoreCase(anyString())).willReturn(null);
+    //when
+    assertThrows(PackageNotFoundException.class, () -> packageService.deleteAllVersions(anyString()));
+    //then
+    verify(repository, times(0)).deleteAll(any());
+    verify(fileIOUtils, times(0)).deletePackageList(any());
+  }
+
+  @Test
+  void testDeletePackageList() throws PackageNotFoundException {
+    ArgumentCaptor<List<Package>> packageCaptor = ArgumentCaptor.forClass(List.class);
+    List<Package> packages = new ArrayList<>();
+    List<Long> idList = new ArrayList<>();
+
+    packages.add(PACKAGE_V1_INFO);
+    packages.add(PACKAGE_V2_INFO);
+    idList.add(PACKAGE_V1_ID);
+    idList.add(PACKAGE_V2_ID);
+    //given
+    doNothing().when(fileIOUtils).deletePackageList(anyIterable());
+    given(repository.findAllById(any())).willReturn(packages);
+    //when
+    packageService.deletePackagesList(idList);
+    //then
+    verify(repository, times(1)).deleteAll(packageCaptor.capture());
+    assertEquals(2, packageCaptor.getValue().size());
+    assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
+    assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
+    assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
+    assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
+    assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
+    assertEquals(PACKAGE_V1_INFO.isValid(), packageCaptor.getValue().get(0).isValid());
+    assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
+    assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
+    assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
+    assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
+    assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());
+    assertEquals(PACKAGE_V2_INFO.isValid(), packageCaptor.getValue().get(1).isValid());
+    verify(fileIOUtils, times(1)).deletePackageList(packageCaptor.capture());
+    assertEquals(2, packageCaptor.getValue().size());
+    assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
+    assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
+    assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
+    assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
+    assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
+    assertEquals(PACKAGE_V1_INFO.isValid(), packageCaptor.getValue().get(0).isValid());
+    assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
+    assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
+    assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
+    assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
+    assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());
+    assertEquals(PACKAGE_V2_INFO.isValid(), packageCaptor.getValue().get(1).isValid());
+  }
+
+  @Test
+  void testDeletePackageListNotfound() {
+    //given
+    given(repository.findAllById(any())).willReturn(Collections.EMPTY_LIST);
+    //when
+    assertDoesNotThrow(() -> packageService.deletePackagesList(anyList()));
+    //then
+    verify(repository, times(0)).deleteAll(any());
+    verify(fileIOUtils, times(0)).deletePackageList(any());
   }
 }
