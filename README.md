@@ -129,11 +129,12 @@ l'utilizzo di questo comando in quanto permette la generazione automatica della 
 
 ### Creazione di un jar eseguibile
 Per ottenere un file jar eseguibile è necessario compilare questi sorgenti con il comando  
-__mvn package spring-boot:repackage__
+__mvn package spring-boot:repackage__  
 Questo comando, in aggiunta a quanto riportato sopra, genera anche il file  
-__target/package-manager-microservice.jar__
-direttamente eseguibile da shell tramite il comando
-__java -jar package-manager-microservice.jar__
+__target/package-manager-microservice.jar__  
+direttamente eseguibile da shell tramite il comando  
+__java -jar package-manager-microservice.jar__  
+
 
 
 ## Servizi REST
@@ -148,7 +149,7 @@ tests automatici e salvati nella cartella
 __target/generated_snippets__  
 Il risultato della combinazione del file statico e di questi snippets è il file  
 __target/generated_docs/index.html__  
-Questi sarà automaticamente disponibile dopo il deployment dell'applicazione all'indirizzo
+Questi sarà automaticamente disponibile dopo il deployment dell'applicazione all'indirizzo  
 __http://{deployment.url}/docs/index.html__
 
 ### Esempi di richieste
