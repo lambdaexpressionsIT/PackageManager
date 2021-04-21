@@ -11,7 +11,6 @@
     <groupId>com.lambda_expressions</groupId>
     <artifactId>package-manager</artifactId>
     <version>1.5.0</version>
-    <packaging>war</packaging>
     <name>Package manager</name>
     <description>Package manager for android devices</description>
 
@@ -137,6 +136,20 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <layout>JAR</layout>
+                            <classifier>microservice</classifier>
+                            <mainClass>
+                                com.lambda_expressions.package_manager.PackageManagerApplication
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
