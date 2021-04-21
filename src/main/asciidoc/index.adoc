@@ -428,7 +428,7 @@ include::{snippets}/uploadPackageAutodetecUnableToWriteFile/http-response.adoc[]
 
 === Eliminazione di una specifica versione (per applicazione/versione)
 
-Questo servizio cancella una singola versione di un'applicazione presente sul server.
+Questo servizio cancella una singola versione di un'applicazione presente sul server. L'operazione di eliminazione cancella la entry dell'applicazione da cancellare dal database e in seguito, se possibile, ne cancella il file apk dal server. Nel caso in cui la cancellazione fisica del file apk dal filesystem fallisca, non viene creato nessun errore, in quanto la entry del database viene cancellata in ogni caso, rendendo di fatto l'applicazione inaccessibile tramite i servizi di Package Manager.
 Risponde al metodo *HTTP DELETE* all'indirizzo
 
 include::{snippets}/deleteSinglePackage/path-parameters.adoc[]
@@ -455,7 +455,7 @@ include::{snippets}/deleteSinglePackageNotFound/http-response.adoc[]
 
 === Eliminazione delle versioni di un'applicazione
 
-Questo servizio elimina tutte le versioni presenti sul server di una specifica applicazione.
+Questo servizio elimina tutte le versioni presenti sul server di una specifica applicazione. L'operazione di eliminazione cancella le entry di tutte le versioni dell'applicazione da cancellare dal database e in seguito, se possibile, ne cancella i files apk dal server. Nel caso in cui la cancellazione fisica dei files apk dal filesystem fallisca, non viene creato nessun errore, in quanto le entry del database vengono cancellate in ogni caso, rendendo di fatto tutte le versioni dell'applicazione inaccessibili tramite i servizi di Package Manager.
 Risponde al metodo *HTTP DELETE* all'indirizzo
 
 include::{snippets}/deletePackageVersions/path-parameters.adoc[]
@@ -482,7 +482,7 @@ include::{snippets}/deletePackageVersionsNotFound/http-response.adoc[]
 
 === Eliminazione dei packages: cancellazione per id
 
-Questo servizio permette di eliminare una lista di versioni, corrispondenti agli id ricercati e passati come parametri.
+Questo servizio permette di eliminare una lista di versioni, corrispondenti agli id ricercati e passati come parametri. L'operazione di eliminazione cancella le entry delle versioni delle applicazioni da cancellare dal database e in seguito, se possibile, ne cancella i files apk dal server. Nel caso in cui la cancellazione fisica dei files apk dal filesystem fallisca, non viene creato nessun errore, in quanto le entry del database vengono cancellate in ogni caso, rendendo di fatto le versioni delle applicazioni inaccessibili tramite i servizi di Package Manager.
 Risponde al metodo *HTTP DELETE* all'indirizzo
 
 *_/api/v1/deletePackage?idList={appIdList}_*

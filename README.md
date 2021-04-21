@@ -123,9 +123,18 @@ Per installare l'applicazione in qualsiasi webserver è prima necessario compila
 __mvn package__  
 Questo comando compila i sorgenti, esegue i tests automatici, genera gli snippets della documentazione dei servizi REST
 e infine genera il file  
-__target/package-manager.war__  
+__target/package-manager.jar__  
 Questo file prodotto è quindi pronto per essere caricato ed eseguito nell'ambiente di un webserver. Si raccomanda
 l'utilizzo di questo comando in quanto permette la generazione automatica della documentazione dei servizi REST.
+
+### Creazione di un jar eseguibile
+Per ottenere un file jar eseguibile è necessario compilare questi sorgenti con il comando  
+__mvn package spring-boot:repackage__
+Questo comando, in aggiunta a quanto riportato sopra, genera anche il file  
+__target/package-manager-microservice.jar__
+direttamente eseguibile da shell tramite il comando
+__java -jar package-manager-microservice.jar__
+
 
 ## Servizi REST
 
