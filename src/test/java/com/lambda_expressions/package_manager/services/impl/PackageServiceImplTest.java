@@ -19,8 +19,10 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -40,7 +42,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PackageServiceImplTest {
 
-  private static final String PACKAGES_WEBSERVER_BASEURL = "http://bob.bub";
+  private static final String PACKAGES_WAREHOUSE_BASEURL = "http://localhost/warehouse";
   private static final String PACKAGE_FILENAME = "fileName.apk";
   private static final String PACKAGE_PACKAGENAME = "com.appName";
   private static final String PACKAGE_APPNAME = "appName";
@@ -74,7 +76,7 @@ class PackageServiceImplTest {
       .id(PACKAGE_V2_ID)
       .fileName(PACKAGE_FILENAME)
       .packageName(PACKAGE_PACKAGENAME)
-      .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME)
+      .url(PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME)
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
       .appName(PACKAGE_APPNAME)
@@ -83,7 +85,7 @@ class PackageServiceImplTest {
   private static final VersionDTO VERSION_1_DTO = VersionDTO.builder()
       .id(PACKAGE_V1_ID)
       .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME))
+      .url((PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME))
       .valid(true)
       .appVersion(PACKAGE_VERSION_1)
       .build();
@@ -91,7 +93,7 @@ class PackageServiceImplTest {
   private static final VersionDTO VERSION_2_DTO = VersionDTO.builder()
       .id(PACKAGE_V2_ID)
       .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME))
+      .url((PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME))
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
       .build();
@@ -113,7 +115,8 @@ class PackageServiceImplTest {
 
   @BeforeEach
   public void setUp() {
-    ReflectionTestUtils.setField(packageUtils, "PACKAGES_WEBSERVER_BASEURL", PACKAGES_WEBSERVER_BASEURL);
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
   }
 
   @Test
@@ -227,7 +230,7 @@ class PackageServiceImplTest {
         .appname("anotherAppName")
         .packagename("com.package.anotherAppName")
         .build();
-    String anotherPackageDTOUrl = (PACKAGES_WEBSERVER_BASEURL + "/" + "anotherAppName" + "/" +
+    String anotherPackageDTOUrl = (PACKAGES_WAREHOUSE_BASEURL + "/" + "anotherAppName" + "/" +
         PACKAGE_VERSION_2 + "/" + "anotherAppName.apk");
 
     packageList.add(PACKAGE_V1_INFO);
