@@ -53,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith({MockitoExtension.class, RestDocumentationExtension.class})
 class PackageManagerControllerTest {
   private static final String PACKAGES_FILE_EXTENSION = ".apk";
-  private static final String PACKAGES_WEBSERVER_BASEURL = "https://www.package-manager.com/repository";
+  private static final String PACKAGES_WEBSERVER_BASEURL = "https://www.package-manager.com/warehouse";
   private static final String PACKAGE_FILENAME = "Spending_1.9.apk";
   private static final String PACKAGE_PACKAGENAME = "com.package.spending";
   private static final String PACKAGE_APPNAME = "Spending";
@@ -109,7 +109,7 @@ class PackageManagerControllerTest {
       fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
       fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server."),
       fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
-      fieldWithPath("url").description("URL pubblico al quale puo essere scaricato il file dell'applicazione. Questo URL e composto da un indirizzo base definito alla voce 'packages.web.base.url' nel file 'application.properties' e dal path relativo in cui e salvato il file dell'applicazione")
+      fieldWithPath("url").description("URL del servizio warehouse dal quale puo essere scaricato il file dell'applicazione.")
 
   };
   @Spy
