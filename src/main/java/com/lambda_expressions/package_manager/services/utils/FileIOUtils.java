@@ -5,6 +5,7 @@ import com.lambda_expressions.package_manager.exceptions.AutoDetectionException;
 import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,6 +62,22 @@ public class FileIOUtils {
     }
 
     return file;
+  }
+
+  public FileSystemResource loadPackageFileResource(Package packageInfo) throws IOFileException {
+    File file;
+
+    try {
+      String absolutePath = composeAbsoluteLocalPath(packageInfo.getPath());
+      file = new File(absolutePath);
+      if(!file.exists() || !file.isFile()){
+        throw new Exception();
+      }
+    } catch (Exception e) {
+      throw new IOFileException("can't read file", packageInfo.getAppname(), packageInfo.getVersion());
+    }
+
+    return new FileSystemResource(file);
   }
 
   private String composeAbsoluteLocalPath(String relativeLocalPath) {

@@ -73,15 +73,10 @@ framework Spring.
 * __spring.jpa.properties.hibernate.dialect__: permette di generare comandi SQL ottimizzati per uno specifico vendor. Di
   default è impostato per generare SQL ottimizzato per Oracle 12c.
 
-#### Indirizzi base
-
-Le seguenti proprietà sono state definite specificatamente per *Package Manager*, entrambe devono essere definite
-coerentemente con l'ambiente di esecuzione dell'applicazione.
+#### Directory base
 
 * __packages.filesystem.base.path__: path assoluto della cartella base in cui verranno salvati i files delle
   applicazioni android secondo il pattern specificato precedentemente. __DA DEFINIRSI OBBLIGATORIAMENTE__
-* __packages.web.base.url__: URL pubblico base della cartella dei files delle applicazioni android. __DA DEFINIRSI
-  OBBLIGATORIAMENTE__
 
 #### Gestione files
 
@@ -116,6 +111,24 @@ configurazione (vedasi documentazione dei servizi REST)
   kbps
 * __upload.max.kbitPerSecond__: velocità massima consentita per upload verso l'applicazione. Valore di default: 4000
   kbps
+  
+#### Contesto di deployment
+
+* __server.servlet.context-path__: questa proprietà permette di definire il contesto di deployment dell'applicazione.  
+  __IL PRIMO CARATTERE DEVE OBBLIGATORIAMENTE ESSERE / E L'ULTIMO CARATTERE NON PUO ESSERE LO STESSO /.__  
+  Il valore di default di questa proprietà è  
+  __/package-manager__  
+  Il contesto dell'applicazione si trova dopo l'indirizzo base del server e prima dell'indirizzo specifico di un servizio REST di package manager secondo lo schema  
+__{schema}://{indirizzo-base}:{porta}/{contesto}/{indirizzo-specifico}__  
+Qui un esempio dei componenti di un indirizzo di un servizio di Package Manager  
+  https://10.1.1.5:8080/package-manager/api/v1/listPackages  
+  * schema: *https*
+  * indirizzo base: *10.1.1.5*
+  * porta: *8080*
+  * contesto: *package-manager*
+  * indirizzo specifico: *api/v1/listPackages*  
+    
+ 
 
 ## Installazione
 
@@ -133,8 +146,7 @@ __mvn package spring-boot:repackage__
 Questo comando, in aggiunta a quanto riportato sopra, genera anche il file  
 __target/package-manager-microservice.jar__  
 direttamente eseguibile da shell tramite il comando  
-__java -jar package-manager-microservice.jar__  
-
+__java -jar package-manager-microservice.jar__
 
 
 ## Servizi REST

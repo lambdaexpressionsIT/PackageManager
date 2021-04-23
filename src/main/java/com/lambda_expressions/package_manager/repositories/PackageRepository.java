@@ -25,4 +25,7 @@ public interface PackageRepository extends CrudRepository<Package, Long> {
 
   @Nullable
   Package findByAppnameIgnoreCaseAndVersionIgnoreCase(String appname, String version);
+
+  @Nullable
+  Package findByAppnameIgnoreCaseAndVersionIgnoreCaseAndFilenameIgnoreCase(String appname, String version, String fileName);
 }

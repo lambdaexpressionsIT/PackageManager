@@ -536,6 +536,43 @@ include::{snippets}/deletePackagesByIdNoParams/http-response.adoc[]
 
 <<<
 
+== Servizi warehouse
+
+=== URL pubblico dei files apk
+Package Manager, indipendentemente dall'ambiente di esecuzione e dal webserver utilizzato, rende i files delle applicazioni accessibili attraverso una semplice HTTP GET ad un URL pubblico. Questo indirizzo pubblico è quello ritornato nel campo URL delle informazioni di ogni versione di applicazione documentato precedentemente ed è composto come segue
+
+include::{snippets}/warehouseOK/path-parameters.adoc[]
+
+.HTTP request
+include::{snippets}/warehouseOK/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/warehouseOK/http-response.adoc[]
+
+==== Errori
+
+===== Applicazione/versione non presente
+
+Nel caso in cui la combinazione applicazione/versione ricercata non sia presente sul server, il servizio risponde con una HTTP response vuota con HTTP status 404
+
+.HTTP request
+include::{snippets}/warehouseNotFound/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/warehouseNotFound/http-response.adoc[]
+
+===== File illeggibile
+
+Nel caso in cui l'applicazione richiesta sia presente sul server ma si verifichi un errore di lettura del rispettivo file, il servizio risponde con una HTTP response vuota e HTTP status 500.
+
+.HTTP request
+include::{snippets}/warehouseNotReadable/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/warehouseNotReadable/http-response.adoc[]
+
+<<<
+
 == Servizi di configurazione
 
 === Installazione framework di risorse per la decodifica dei files apk
