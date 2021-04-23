@@ -7,8 +7,8 @@ import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import com.lambda_expressions.package_manager.v1.model.VersionDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
 import java.net.URI;
@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class PackageUtils {
-  @Value("${packages.web.base.url}")
-  private String PACKAGES_WEBSERVER_BASEURL;
+  private final String WAREHOUSE_PREFIX = "warehouse";
 
   public PackageListDTO composePackageListDTOFromPackage(List<Package> packageVersions, String appName, String packageName) {
     return PackageListDTO.builder()
@@ -36,7 +35,7 @@ public class PackageUtils {
                 .appVersion(pInfo.getVersion())
                 .fileName(pInfo.getFilename())
                 .valid(pInfo.isValid())
-                .url(composeURLFromLocalPath(pInfo.getPath()))
+                .url(composeWarehouseURLFromLocalPath(pInfo.getPath()))
                 .build())
             .collect(Collectors.toList()))
         .build();
@@ -56,7 +55,7 @@ public class PackageUtils {
           .appVersion(pInfo.getVersion())
           .fileName(pInfo.getFilename())
           .valid(pInfo.isValid())
-          .url(composeURLFromLocalPath(pInfo.getPath()))
+          .url(composeWarehouseURLFromLocalPath(pInfo.getPath()))
           .build());
     });
 
@@ -71,7 +70,7 @@ public class PackageUtils {
         .appVersion(packageInfo.getVersion())
         .fileName(packageInfo.getFilename())
         .valid(packageInfo.isValid())
-        .url(composeURLFromLocalPath(packageInfo.getPath()))
+        .url(composeWarehouseURLFromLocalPath(packageInfo.getPath()))
         .build();
   }
 
@@ -79,9 +78,10 @@ public class PackageUtils {
     return String.format("%s%s%s%s%s", appName, File.separator, version, File.separator, fileName);
   }
 
-  public String composeURLFromLocalPath(String localPath) {
+  public String composeWarehouseURLFromLocalPath(String localPath) {
     String localPathToUrl = localPath.replace(File.separator, "/");
-    String resourceUrl = String.format("%s/%s", PACKAGES_WEBSERVER_BASEURL, localPathToUrl);
+    String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
+    String resourceUrl = String.format("%s/%s/%s", baseURL, WAREHOUSE_PREFIX, localPathToUrl);
 
     try {
       resourceUrl = new URI(null, resourceUrl, null).toString();
