@@ -7,11 +7,12 @@ import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import com.lambda_expressions.package_manager.v1.model.VersionDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PackageUtils {
   private final String WAREHOUSE_PREFIX = "warehouse";
+
+  @Value("${application.public.base.url}")
+  private String PUBLIC_BASE_URL;
 
   public PackageListDTO composePackageListDTOFromPackage(List<Package> packageVersions, String appName, String packageName) {
     return PackageListDTO.builder()
@@ -80,16 +84,16 @@ public class PackageUtils {
 
   public String composeWarehouseURLFromLocalPath(String localPath) {
     String localPathToUrl = localPath.replace(File.separator, "/");
-    String baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
-    String resourceUrl = String.format("%s/%s/%s", baseURL, WAREHOUSE_PREFIX, localPathToUrl);
+    String baseURL;
 
-    try {
-      resourceUrl = new URI(null, resourceUrl, null).toString();
-    } catch (Exception e) {
-      log.info("Unparsable resource URL: " + resourceUrl);
+    if (StringUtils.isBlank(PUBLIC_BASE_URL)){
+      baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
+    } else{
+      String deploymentContext = ServletUriComponentsBuilder.fromCurrentContextPath().build().getPath();
+      baseURL = String.format("%s%s", PUBLIC_BASE_URL, deploymentContext);
     }
 
-    return resourceUrl;
+    return String.format("%s/%s/%s", baseURL, WAREHOUSE_PREFIX, localPathToUrl);
   }
 
   public void checkPackageValidity(Package packageInfo) throws InvalidPackageException {
