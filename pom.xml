@@ -12,7 +12,7 @@
     <artifactId>package-manager</artifactId>
     <version>1-SNAPSHOT</version>
 <!--    package a war for dev environment jBoss deployment -->
-<!--    <packaging>war</packaging>-->
+    <packaging>war</packaging>
     <name>Package manager</name>
     <description>Package manager for android devices</description>
 
@@ -94,6 +94,9 @@
     </dependencies>
 
     <build>
+        <finalName>
+            package-manager
+        </finalName>
         <plugins>
             <plugin>
                 <groupId>org.asciidoctor</groupId>

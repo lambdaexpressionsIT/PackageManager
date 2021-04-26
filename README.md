@@ -111,24 +111,40 @@ configurazione (vedasi documentazione dei servizi REST)
   kbps
 * __upload.max.kbitPerSecond__: velocità massima consentita per upload verso l'applicazione. Valore di default: 4000
   kbps
-  
-#### Contesto di deployment
+
+#### Dati deployment
+
+Definiti come segue i componenti dell'URL di deployment di Package Manager
+__{schema}://{indirizzo-base}:{porta}/{contesto}/{indirizzo-specifico}__  
+qui un esempio dei componenti di un indirizzo di un servizio di Package Manager  
+https://104.196.36.251:8080/package-manager/api/v1/listPackages
+
+* schema: *https*
+* indirizzo base: *104.196.36.251*
+* porta: *8080*
+* contesto: *package-manager*
+* indirizzo specifico: *api/v1/listPackages*
+
+Le seguenti proprietà possono essere definite per personalizzare l'ambiente di esecuzione
+
+* __application.public.base.url__: questa proprietà contiene l'indirizzo pubblico di base a cui è raggiungibile Package
+  Manager. Viene utilizzata per comporre l'URL pubblico del servizio warehouse (vedasi documentazione servizi REST). Nel
+  caso in cui sia specificata, il suo valore deve avere il seguente formato  
+  __{schema}://{indirizzo-base}:{porta}__  
+  ad esempio  
+  https://www.package-manager-instance.com:9090  
+  Nel caso in cui il valore della proprietà sia lasciato vuoto, l'URL pubblico del servizio warehouse viene costruito a
+  runtime usando l'indirizzo a cui è stato invocato il servizio REST di Package Manager interrogato. Ad esempio se viene
+  invocato Package Manager al seguente specifico servizio REST  
+  https://104.196.36.251:8080/package-manager/api/v1/listPackages/  
+  l'indirizzo base calcolato a runtime sarà  
+  https://104.196.36.251:8080  
+  Valore di default: (non definito)
+
 
 * __server.servlet.context-path__: questa proprietà permette di definire il contesto di deployment dell'applicazione.  
   __IL PRIMO CARATTERE DEVE OBBLIGATORIAMENTE ESSERE / E L'ULTIMO CARATTERE NON PUO ESSERE LO STESSO /.__  
-  Il valore di default di questa proprietà è  
-  __/package-manager__  
-  Il contesto dell'applicazione si trova dopo l'indirizzo base del server e prima dell'indirizzo specifico di un servizio REST di package manager secondo lo schema  
-__{schema}://{indirizzo-base}:{porta}/{contesto}/{indirizzo-specifico}__  
-Qui un esempio dei componenti di un indirizzo di un servizio di Package Manager  
-  https://10.1.1.5:8080/package-manager/api/v1/listPackages  
-  * schema: *https*
-  * indirizzo base: *10.1.1.5*
-  * porta: *8080*
-  * contesto: *package-manager*
-  * indirizzo specifico: *api/v1/listPackages*  
-    
- 
+  Valore di default: /package-manager
 
 ## Installazione
 
@@ -141,13 +157,13 @@ Questo file prodotto è quindi pronto per essere caricato ed eseguito nell'ambie
 l'utilizzo di questo comando in quanto permette la generazione automatica della documentazione dei servizi REST.
 
 ### Creazione di un jar eseguibile
+
 Per ottenere un file jar eseguibile è necessario compilare questi sorgenti con il comando  
 __mvn package spring-boot:repackage__  
 Questo comando, in aggiunta a quanto riportato sopra, genera anche il file  
 __target/package-manager-microservice.jar__  
 direttamente eseguibile da shell tramite il comando  
 __java -jar package-manager-microservice.jar__
-
 
 ## Servizi REST
 
