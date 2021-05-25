@@ -14,7 +14,6 @@ import javax.persistence.Id;
  * at 9:37 AM
  */
 @Entity
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

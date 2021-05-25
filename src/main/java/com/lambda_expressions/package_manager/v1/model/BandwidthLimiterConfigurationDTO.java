@@ -1,7 +1,6 @@
 package com.lambda_expressions.package_manager.v1.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,9 +10,8 @@ import lombok.NoArgsConstructor;
  * at 5:51 PM
  */
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class BandwidthLimiterConfigurationDTO {
   private long maxThresholdKbps;
   private long downstreamKbps;

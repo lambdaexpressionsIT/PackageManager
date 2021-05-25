@@ -81,22 +81,22 @@ class PackageManagerControllerTest {
 
   private static final String GET_PACKAGES_PARAM_NAME = "idList";
 
-  private static final VersionDTO version1DTO = VersionDTO.builder()
-      .id(PACKAGE_V1_ID)
-      .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION))
-      .valid(true)
-      .appVersion(PACKAGE_VERSION_1)
-      .appVersionNumber(PACKAGE_VERSION_NUMBER_1)
-      .build();
-  private static final VersionDTO version2DTO = VersionDTO.builder()
-      .id(PACKAGE_V2_ID)
-      .fileName("Spending_2.5.apk")
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + "Spending_2.5" + PACKAGES_FILE_EXTENSION))
-      .valid(true)
-      .appVersion(PACKAGE_VERSION_2)
-      .appVersionNumber(PACKAGE_VERSION_NUMBER_2)
-      .build();
+  private static final VersionDTO version1DTO = new VersionDTO(
+      PACKAGE_V1_ID,
+      PACKAGE_VERSION_1,
+      PACKAGE_VERSION_NUMBER_1,
+      PACKAGE_FILENAME,
+      PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+      true
+  );
+  private static final VersionDTO version2DTO = new VersionDTO(
+      PACKAGE_V2_ID,
+      PACKAGE_VERSION_2,
+      PACKAGE_VERSION_NUMBER_2,
+      "Spending_2.5.apk",
+      PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + "Spending_2.5" + PACKAGES_FILE_EXTENSION,
+      true
+  );
 
   private final FieldDescriptor[] globalArrayField = new FieldDescriptor[]{
       fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server")
@@ -148,24 +148,24 @@ class PackageManagerControllerTest {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
     ArrayList<VersionDTO> lisXTeVersionDTOArrayList = new ArrayList<>();
     ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
-    PackageListDTO spendingPackageListDTO = PackageListDTO.builder()
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .versions(versionDTOArrayList)
-        .build();
-    PackageListDTO lisXTePackageListDTO = PackageListDTO.builder()
-        .appName("LisXTe")
-        .packageName("com.package.LisXTe")
-        .versions(lisXTeVersionDTOArrayList)
-        .build();
-    VersionDTO lisXTeVersion1 = VersionDTO.builder()
-        .id(300L)
-        .appVersion("1")
-        .appVersionNumber(1L)
-        .fileName("LisXTe_1.0.10_b1.apk")
-        .url(PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk")
-        .valid(true)
-        .build();
+    PackageListDTO spendingPackageListDTO = new PackageListDTO(
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME,
+        versionDTOArrayList
+    );
+    PackageListDTO lisXTePackageListDTO = new PackageListDTO(
+        "LisXTe",
+        "com.package.LisXTe",
+        lisXTeVersionDTOArrayList
+    );
+    VersionDTO lisXTeVersion1 = new VersionDTO(
+        300L,
+        "1",
+        1L,
+        "LisXTe_1.0.10_b1.apk",
+        PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk",
+        true
+    );
 
     packageListDTOS.add(spendingPackageListDTO);
     packageListDTOS.add(lisXTePackageListDTO);
@@ -233,12 +233,11 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackageVersions() throws Exception {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
-    PackageListDTO packageListDTO = PackageListDTO.builder()
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .versions(versionDTOArrayList)
-        .build();
-
+    PackageListDTO packageListDTO = new PackageListDTO(
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME,
+        versionDTOArrayList
+    );
     versionDTOArrayList.add(version1DTO);
     versionDTOArrayList.add(version2DTO);
 
@@ -295,15 +294,16 @@ class PackageManagerControllerTest {
    */
   @Test
   public void testGetPackageVersion() throws Exception {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .id(PACKAGE_V1_ID)
-        .fileName(PACKAGE_FILENAME)
-        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
-        .valid(true)
-        .appVersion(PACKAGE_VERSION_1)
-        .appName(PACKAGE_APPNAME)
-        .packageName((PACKAGE_PACKAGENAME))
-        .build();
+    PackageDTO packageDTO = new PackageDTO(
+        PACKAGE_V1_ID,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_FILENAME,
+        PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+        true,
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME
+    );
     //given
     given(packageService.getPackageInfo(anyString(), anyString())).willReturn(packageDTO);
     //when
@@ -354,16 +354,16 @@ class PackageManagerControllerTest {
    */
   @Test
   public void testGetPackageById() throws Exception {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .id(PACKAGE_V1_ID)
-        .fileName(PACKAGE_FILENAME)
-        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
-        .valid(true)
-        .appVersion(PACKAGE_VERSION_1)
-        .appVersionNumber(PACKAGE_VERSION_NUMBER_1)
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .build();
+    PackageDTO packageDTO = new PackageDTO(
+        PACKAGE_V1_ID,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_FILENAME,
+        PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+        true,
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME
+    );
     //given
     given(packageService.getPackageInfoById(anyLong())).willReturn(packageDTO);
     //when
@@ -449,24 +449,24 @@ class PackageManagerControllerTest {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
     ArrayList<VersionDTO> lisXTeVersionDTOArrayList = new ArrayList<>();
     ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
-    PackageListDTO spendingPackageListDTO = PackageListDTO.builder()
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .versions(versionDTOArrayList)
-        .build();
-    PackageListDTO lisXTePackageListDTO = PackageListDTO.builder()
-        .appName("LisXTe")
-        .packageName("com.package.LisXTe")
-        .versions(lisXTeVersionDTOArrayList)
-        .build();
-    VersionDTO lisXTeVersion1 = VersionDTO.builder()
-        .id(300L)
-        .appVersion("1")
-        .appVersionNumber(1L)
-        .fileName("LisXTe_1.0.10_b1.apk")
-        .url(PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk")
-        .valid(true)
-        .build();
+    PackageListDTO spendingPackageListDTO = new PackageListDTO(
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME,
+        versionDTOArrayList
+    );
+    PackageListDTO lisXTePackageListDTO = new PackageListDTO(
+        "LisXTe",
+        "com.package.LisXTe",
+        lisXTeVersionDTOArrayList
+    );
+    VersionDTO lisXTeVersion1 = new VersionDTO(
+        300L,
+        "1",
+        1L,
+        "LisXTe_1.0.10_b1.apk",
+        PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk",
+        true
+    );
 
     packageListDTOS.add(spendingPackageListDTO);
     packageListDTOS.add(lisXTePackageListDTO);
@@ -809,16 +809,16 @@ class PackageManagerControllerTest {
 
   @Test
   public void testUploadPackageAutodetect() throws Exception {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .id(PACKAGE_V1_ID)
-        .fileName(PACKAGE_FILENAME)
-        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
-        .valid(true)
-        .appVersion(PACKAGE_VERSION_1)
-        .appVersionNumber(PACKAGE_VERSION_NUMBER_1)
-        .appName(PACKAGE_APPNAME)
-        .packageName((PACKAGE_PACKAGENAME))
-        .build();
+    PackageDTO packageDTO = new PackageDTO(
+        PACKAGE_V1_ID,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_FILENAME,
+        PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+        true,
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME
+    );
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
     //given
     given(packageService.installPackageFile(anyString(), any(MultipartFile.class))).willReturn(packageDTO);

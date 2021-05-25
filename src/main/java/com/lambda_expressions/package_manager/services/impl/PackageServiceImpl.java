@@ -182,15 +182,14 @@ public class PackageServiceImpl implements PackageService {
     try {
       this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     } catch (PackageNotFoundException e) {
-      packageInfo = Package.builder()
-          .appname(appName)
-          .packagename(packageName)
-          .version(version)
-          .versionnumber(versionNumber)
-          .filename(fileName)
-          .valid(false)
-          .path(this.packageUtils.composeLocalRelativePath(appName, version, fileName))
-          .build();
+      packageInfo = new Package();
+      packageInfo.setAppname(appName);
+      packageInfo.setPackagename(packageName);
+      packageInfo.setFilename(fileName);
+      packageInfo.setPath(this.packageUtils.composeLocalRelativePath(appName, version, fileName));
+      packageInfo.setValid(false);
+      packageInfo.setVersion(version);
+      packageInfo.setVersionnumber(versionNumber);
     }
 
     if (!packageInfo.isValid()) {

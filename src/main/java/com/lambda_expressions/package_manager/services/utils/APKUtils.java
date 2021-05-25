@@ -145,12 +145,14 @@ public class APKUtils {
       throw new AutoDetectionException("Cannot get app info", appName, packageName);
     }
 
-    return PackageDTO.builder()
-        .packageName(packageName)
-        .appName(appName)
-        .appVersion(versionName)
-        .appVersionNumber(versionCode)
-        .build();
+    PackageDTO partialDTO = new PackageDTO();
+
+    partialDTO.setPackageName(packageName);
+    partialDTO.setAppName(appName);
+    partialDTO.setAppVersion(versionName);
+    partialDTO.setAppVersionNumber(versionCode);
+
+    return partialDTO;
   }
 
   private File setUpWorkDirectory() {

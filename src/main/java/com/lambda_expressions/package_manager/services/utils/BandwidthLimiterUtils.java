@@ -24,16 +24,15 @@ public class BandwidthLimiterUtils {
     this.streamManager = streamManager;
   }
 
-  public BandwidthLimiterConfigurationDTO getConfiguration(){
-    return BandwidthLimiterConfigurationDTO.builder()
-        .isActive(streamManager.isActive())
-        .maxThresholdKbps(bandwidthLimitKbps)
-        .downstreamKbps(downloadLimitKbps)
-        .upstreamKbps(uploadLimitKbps)
-        .build();
+  public BandwidthLimiterConfigurationDTO getConfiguration() {
+    return new BandwidthLimiterConfigurationDTO(
+        bandwidthLimitKbps,
+        downloadLimitKbps,
+        uploadLimitKbps,
+        this.streamManager.isActive());
   }
 
-  public void setConfiguration(BandwidthLimiterConfigurationDTO configurationDTO){
+  public void setConfiguration(BandwidthLimiterConfigurationDTO configurationDTO) {
     this.bandwidthLimitKbps = configurationDTO.getMaxThresholdKbps();
     this.downloadLimitKbps = configurationDTO.getDownstreamKbps();
     this.uploadLimitKbps = configurationDTO.getUpstreamKbps();
