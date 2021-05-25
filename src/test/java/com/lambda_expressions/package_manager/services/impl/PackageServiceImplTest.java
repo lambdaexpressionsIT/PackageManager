@@ -54,56 +54,56 @@ class PackageServiceImplTest {
   private static final long PACKAGE_VERSION_NUMBER_2 = 2;
   private static final byte[] DUMMY_BYTE_ARRAY = "Some dummy string converted to byte array".getBytes();
 
-  private static final Package PACKAGE_V1_INFO = Package.builder()
-      .id(PACKAGE_V1_ID)
-      .filename(PACKAGE_FILENAME)
-      .packagename(PACKAGE_PACKAGENAME)
-      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
-      .valid(true)
-      .version(PACKAGE_VERSION_1)
-      .versionnumber(PACKAGE_VERSION_NUMBER_1)
-      .appname(PACKAGE_APPNAME)
-      .build();
+  private static final Package PACKAGE_V1_INFO = new Package(
+      PACKAGE_V1_ID,
+      PACKAGE_APPNAME,
+      PACKAGE_FILENAME,
+      PACKAGE_VERSION_1,
+      PACKAGE_VERSION_NUMBER_1,
+      PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME,
+      true,
+      PACKAGE_PACKAGENAME
+  );
 
-  private static final Package PACKAGE_V2_INFO = Package.builder()
-      .id(PACKAGE_V2_ID)
-      .filename(PACKAGE_FILENAME)
-      .packagename(PACKAGE_PACKAGENAME)
-      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_2 + File.separator + PACKAGE_FILENAME)
-      .valid(true)
-      .version(PACKAGE_VERSION_2)
-      .versionnumber(PACKAGE_VERSION_NUMBER_2)
-      .appname(PACKAGE_APPNAME)
-      .build();
+  private static final Package PACKAGE_V2_INFO = new Package(
+      PACKAGE_V2_ID,
+      PACKAGE_APPNAME,
+      PACKAGE_FILENAME,
+      PACKAGE_VERSION_2,
+      PACKAGE_VERSION_NUMBER_2,
+      PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_2 + File.separator + PACKAGE_FILENAME,
+      true,
+      PACKAGE_PACKAGENAME
+  );
 
-  private static final PackageDTO PACKAGE_DTO = PackageDTO.builder()
-      .id(PACKAGE_V2_ID)
-      .fileName(PACKAGE_FILENAME)
-      .packageName(PACKAGE_PACKAGENAME)
-      .url(PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME)
-      .valid(true)
-      .appVersion(PACKAGE_VERSION_2)
-      .appVersionNumber(PACKAGE_VERSION_NUMBER_2)
-      .appName(PACKAGE_APPNAME)
-      .build();
+  private static final PackageDTO PACKAGE_DTO = new PackageDTO(
+      PACKAGE_V2_ID,
+      PACKAGE_VERSION_2,
+      PACKAGE_VERSION_NUMBER_2,
+      PACKAGE_FILENAME,
+      PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME,
+      true,
+      PACKAGE_APPNAME,
+      PACKAGE_PACKAGENAME
+  );
 
-  private static final VersionDTO VERSION_1_DTO = VersionDTO.builder()
-      .id(PACKAGE_V1_ID)
-      .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME))
-      .valid(true)
-      .appVersion(PACKAGE_VERSION_1)
-      .appVersionNumber(PACKAGE_VERSION_NUMBER_1)
-      .build();
+  private static final VersionDTO VERSION_1_DTO = new VersionDTO(
+      PACKAGE_V1_ID,
+      PACKAGE_VERSION_1,
+      PACKAGE_VERSION_NUMBER_1,
+      PACKAGE_FILENAME,
+      PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME,
+      true
+  );
 
-  private static final VersionDTO VERSION_2_DTO = VersionDTO.builder()
-      .id(PACKAGE_V2_ID)
-      .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME))
-      .valid(true)
-      .appVersion(PACKAGE_VERSION_2)
-      .appVersionNumber(PACKAGE_VERSION_NUMBER_2)
-      .build();
+  private static final VersionDTO VERSION_2_DTO = new VersionDTO(
+      PACKAGE_V2_ID,
+      PACKAGE_VERSION_2,
+      PACKAGE_VERSION_NUMBER_2,
+      PACKAGE_FILENAME,
+      PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME,
+      true
+  );
 
   @Mock
   PackageRepository repository;
@@ -233,16 +233,17 @@ class PackageServiceImplTest {
   @Test
   void getPackagesById() throws PackageNotFoundException {
     List<Package> packageList = new ArrayList<>();
-    Package anotherPackage = Package.builder()
-        .id(PACKAGE_V2_ID)
-        .filename("anotherAppName")
-        .path("anotherAppName" + File.separator + PACKAGE_VERSION_2 + File.separator + "anotherAppName.apk")
-        .valid(true)
-        .version(PACKAGE_VERSION_2)
-        .versionnumber(PACKAGE_VERSION_NUMBER_2)
-        .appname("anotherAppName")
-        .packagename("com.package.anotherAppName")
-        .build();
+    Package anotherPackage = new Package(
+        PACKAGE_V2_ID,
+        "anotherAppName",
+        "anotherAppName.apk",
+        PACKAGE_VERSION_2,
+        PACKAGE_VERSION_NUMBER_2,
+        "anotherAppName" + File.separator + PACKAGE_VERSION_2 + File.separator + "anotherAppName.apk",
+        true,
+        "com.package.anotherAppName"
+    );
+
     String anotherPackageDTOUrl = (PACKAGES_WAREHOUSE_BASEURL + "/" + "anotherAppName" + "/" +
         PACKAGE_VERSION_2 + "/" + "anotherAppName.apk");
 
@@ -319,15 +320,17 @@ class PackageServiceImplTest {
 
   @Test
   void invalidatePackage() throws PackageNotFoundException {
-    Package packageToInvalidate = Package.builder()
-        .filename(PACKAGE_FILENAME)
-        .packagename(PACKAGE_PACKAGENAME)
-        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
-        .valid(true)
-        .version(PACKAGE_VERSION_1)
-        .versionnumber(PACKAGE_VERSION_NUMBER_1)
-        .appname(PACKAGE_APPNAME)
-        .build();
+    Package packageToInvalidate = new Package(
+        PACKAGE_V1_ID,
+        PACKAGE_APPNAME,
+        PACKAGE_FILENAME,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME,
+        true,
+        PACKAGE_PACKAGENAME
+    );
+
     //given
     given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(packageToInvalidate);
     //when
@@ -367,15 +370,16 @@ class PackageServiceImplTest {
 
   @Test
   void getPackageFileInvalid() {
-    Package invalidPackage = Package.builder()
-        .filename(PACKAGE_FILENAME)
-        .packagename(PACKAGE_PACKAGENAME)
-        .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
-        .valid(false)
-        .version(PACKAGE_VERSION_1)
-        .versionnumber(PACKAGE_VERSION_NUMBER_1)
-        .appname(PACKAGE_APPNAME)
-        .build();
+    Package invalidPackage = new Package(
+        PACKAGE_V1_ID,
+        PACKAGE_APPNAME,
+        PACKAGE_FILENAME,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME,
+        false,
+        PACKAGE_PACKAGENAME
+    );
     //given
     given(repository.findByAppnameIgnoreCaseAndVersionIgnoreCase(anyString(), anyString())).willReturn(invalidPackage);
     //when
@@ -437,22 +441,22 @@ class PackageServiceImplTest {
   @Test
   void installPackageFileAutodetect() throws AutoDetectionException, IOFileException, MissingFrameworkException, WrongAppNameException {
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
-    PackageDTO partialDto = PackageDTO.builder()
-        .packageName(PACKAGE_DTO.getPackageName())
-        .appName(PACKAGE_DTO.getAppName())
-        .appVersion(PACKAGE_DTO.getAppVersion())
-        .appVersionNumber(PACKAGE_DTO.getAppVersionNumber())
-        .build();
-    Package savedPackage = Package.builder()
-        .id(PACKAGE_DTO.getId())
-        .filename(PACKAGE_DTO.getFileName())
-        .packagename(partialDto.getPackageName())
-        .appname(partialDto.getAppName())
-        .version(partialDto.getAppVersion())
-        .versionnumber(partialDto.getAppVersionNumber())
-        .valid(true)
-        .path(String.format("%s%s%s%s%s", partialDto.getAppName(), File.separator, partialDto.getAppVersion(), File.separator, PACKAGE_DTO.getFileName()))
-        .build();
+    PackageDTO partialDto = new PackageDTO();
+    partialDto.setPackageName(PACKAGE_DTO.getPackageName());
+    partialDto.setAppName(PACKAGE_DTO.getAppName());
+    partialDto.setAppVersion(PACKAGE_DTO.getAppVersion());
+    partialDto.setAppVersionNumber(PACKAGE_DTO.getAppVersionNumber());
+    Package savedPackage = new Package(
+        PACKAGE_DTO.getId(),
+        partialDto.getAppName(),
+        PACKAGE_DTO.getFileName(),
+        partialDto.getAppVersion(),
+        partialDto.getAppVersionNumber(),
+        String.format("%s%s%s%s%s", partialDto.getAppName(), File.separator, partialDto.getAppVersion(), File.separator, PACKAGE_DTO.getFileName()),
+        true,
+        partialDto.getPackageName()
+    );
+
     //given
     given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
     given(apkUtils.autodetectPackageInfo(any(byte[].class))).willReturn(partialDto);
@@ -474,12 +478,11 @@ class PackageServiceImplTest {
   @Test
   void installPackageFileAutodetectWrongAppNameException() throws IOFileException, AutoDetectionException, MissingFrameworkException {
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
-    PackageDTO partialDto = PackageDTO.builder()
-        .packageName(PACKAGE_DTO.getPackageName())
-        .appName(PACKAGE_DTO.getAppName())
-        .appVersion(PACKAGE_DTO.getAppVersion())
-        .appVersionNumber(PACKAGE_DTO.getAppVersionNumber())
-        .build();
+    PackageDTO partialDto = new PackageDTO();
+    partialDto.setPackageName(PACKAGE_DTO.getPackageName());
+    partialDto.setAppName(PACKAGE_DTO.getAppName());
+    partialDto.setAppVersion(PACKAGE_DTO.getAppVersion());
+    partialDto.setAppVersionNumber(PACKAGE_DTO.getAppVersionNumber());
     List<Package> packageList = new ArrayList<>();
     packageList.add(PACKAGE_V1_INFO);
     //given
@@ -494,12 +497,11 @@ class PackageServiceImplTest {
   @Test
   void installPackageFileAutodetectIOException() throws IOFileException, AutoDetectionException, MissingFrameworkException {
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_DTO.getFileName(), MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
-    PackageDTO partialDto = PackageDTO.builder()
-        .packageName(PACKAGE_DTO.getPackageName())
-        .appName(PACKAGE_DTO.getAppName())
-        .appVersion(PACKAGE_DTO.getAppVersion())
-        .appVersionNumber(PACKAGE_DTO.getAppVersionNumber())
-        .build();
+    PackageDTO partialDto = new PackageDTO();
+    partialDto.setPackageName(PACKAGE_DTO.getPackageName());
+    partialDto.setAppName(PACKAGE_DTO.getAppName());
+    partialDto.setAppVersion(PACKAGE_DTO.getAppVersion());
+    partialDto.setAppVersionNumber(PACKAGE_DTO.getAppVersionNumber());
     //given
     given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
     given(apkUtils.autodetectPackageInfo(any(byte[].class))).willReturn(partialDto);

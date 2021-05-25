@@ -34,18 +34,19 @@ class WarehouseServiceImplTest {
   private static final String PACKAGE_APPNAME = "appName";
   private static final long PACKAGE_V1_ID = 100;
   private static final String PACKAGE_VERSION_1 = "1.1";
+  private static final long PACKAGE_VERSION_NUMBER_1 = 1;
   private static final String PACKAGE_VERSION_2 = "2.4";
-  private static final byte[] DUMMY_BYTE_ARRAY = "Some dummy string converted to byte array".getBytes();
 
-  private static final Package PACKAGE_V1_INFO = Package.builder()
-      .id(PACKAGE_V1_ID)
-      .filename(PACKAGE_FILENAME)
-      .packagename(PACKAGE_PACKAGENAME)
-      .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
-      .valid(true)
-      .version(PACKAGE_VERSION_1)
-      .appname(PACKAGE_APPNAME)
-      .build();
+  private static final Package PACKAGE_V1_INFO = new Package(
+      PACKAGE_V1_ID,
+      PACKAGE_APPNAME,
+      PACKAGE_FILENAME,
+      PACKAGE_VERSION_1,
+      PACKAGE_VERSION_NUMBER_1,
+      PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME,
+      true,
+      PACKAGE_PACKAGENAME
+  );
 
   @Mock
   PackageRepository repository;
