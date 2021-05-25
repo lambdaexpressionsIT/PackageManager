@@ -93,12 +93,12 @@ public class PackageServiceImpl implements PackageService {
   }
 
   @Override
-  public void installPackageFile(String packageName, String appName, String version, String fileName, byte[] file) throws IOFileException, WrongAppNameException {
+  public void installPackageFile(String packageName, String appName, long versionNumber, String version, String fileName, byte[] file) throws IOFileException, WrongAppNameException {
     this.checkPackageAppName(packageName, appName, null);
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(appName, version);
 
     this.fileIOUtils.savePackageFile(appName, version, fileName, file, this.packageUtils);
-    this.persistNewPackageInfo(packageInfo, packageName, appName, version, fileName);
+    this.persistNewPackageInfo(packageInfo, packageName, appName, version, versionNumber, fileName);
   }
 
   @Override
@@ -111,7 +111,7 @@ public class PackageServiceImpl implements PackageService {
     Package packageInfo = this.packageRepo.findByAppnameIgnoreCaseAndVersionIgnoreCase(partialDTO.getAppName(), partialDTO.getAppVersion());
 
     this.fileIOUtils.savePackageFile(partialDTO.getAppName(), partialDTO.getAppVersion(), fileName, file, this.packageUtils);
-    packageInfo = this.persistNewPackageInfo(packageInfo, partialDTO.getPackageName(), partialDTO.getAppName(), partialDTO.getAppVersion(), fileName);
+    packageInfo = this.persistNewPackageInfo(packageInfo, partialDTO.getPackageName(), partialDTO.getAppName(), partialDTO.getAppVersion(), partialDTO.getAppVersionNumber(), fileName);
 
     return this.packageUtils.composePackageDTOFromPackage(packageInfo);
   }
@@ -178,7 +178,7 @@ public class PackageServiceImpl implements PackageService {
     this.packageRepo.save(packageInfo);
   }
 
-  private Package persistNewPackageInfo(Package packageInfo, String packageName, String appName, String version, String fileName) {
+  private Package persistNewPackageInfo(Package packageInfo, String packageName, String appName, String version, long versionNumber, String fileName) {
     try {
       this.packageUtils.checkRepositoryResult(packageInfo, appName, version);
     } catch (PackageNotFoundException e) {
@@ -186,6 +186,7 @@ public class PackageServiceImpl implements PackageService {
           .appname(appName)
           .packagename(packageName)
           .version(version)
+          .versionnumber(versionNumber)
           .filename(fileName)
           .valid(false)
           .path(this.packageUtils.composeLocalRelativePath(appName, version, fileName))

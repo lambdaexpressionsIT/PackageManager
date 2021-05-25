@@ -50,6 +50,8 @@ class PackageServiceImplTest {
   private static final long PACKAGE_V2_ID = 200;
   private static final String PACKAGE_VERSION_1 = "1.1";
   private static final String PACKAGE_VERSION_2 = "2.4";
+  private static final long PACKAGE_VERSION_NUMBER_1 = 1;
+  private static final long PACKAGE_VERSION_NUMBER_2 = 2;
   private static final byte[] DUMMY_BYTE_ARRAY = "Some dummy string converted to byte array".getBytes();
 
   private static final Package PACKAGE_V1_INFO = Package.builder()
@@ -59,6 +61,7 @@ class PackageServiceImplTest {
       .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
       .valid(true)
       .version(PACKAGE_VERSION_1)
+      .versionnumber(PACKAGE_VERSION_NUMBER_1)
       .appname(PACKAGE_APPNAME)
       .build();
 
@@ -69,6 +72,7 @@ class PackageServiceImplTest {
       .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_2 + File.separator + PACKAGE_FILENAME)
       .valid(true)
       .version(PACKAGE_VERSION_2)
+      .versionnumber(PACKAGE_VERSION_NUMBER_2)
       .appname(PACKAGE_APPNAME)
       .build();
 
@@ -79,6 +83,7 @@ class PackageServiceImplTest {
       .url(PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME)
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
+      .appVersionNumber(PACKAGE_VERSION_NUMBER_2)
       .appName(PACKAGE_APPNAME)
       .build();
 
@@ -88,6 +93,7 @@ class PackageServiceImplTest {
       .url((PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME))
       .valid(true)
       .appVersion(PACKAGE_VERSION_1)
+      .appVersionNumber(PACKAGE_VERSION_NUMBER_1)
       .build();
 
   private static final VersionDTO VERSION_2_DTO = VersionDTO.builder()
@@ -96,6 +102,7 @@ class PackageServiceImplTest {
       .url((PACKAGES_WAREHOUSE_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + PACKAGE_FILENAME))
       .valid(true)
       .appVersion(PACKAGE_VERSION_2)
+      .appVersionNumber(PACKAGE_VERSION_NUMBER_2)
       .build();
 
   @Mock
@@ -138,11 +145,13 @@ class PackageServiceImplTest {
     assertEquals(listDTOS.iterator().next().getVersions().get(0).getId(), VERSION_1_DTO.getId());
     assertEquals(listDTOS.iterator().next().getVersions().get(0).isValid(), VERSION_1_DTO.isValid());
     assertEquals(listDTOS.iterator().next().getVersions().get(0).getAppVersion(), VERSION_1_DTO.getAppVersion());
+    assertEquals(listDTOS.iterator().next().getVersions().get(0).getAppVersionNumber(), VERSION_1_DTO.getAppVersionNumber());
     assertEquals(listDTOS.iterator().next().getVersions().get(0).getFileName(), VERSION_1_DTO.getFileName());
     assertEquals(listDTOS.iterator().next().getVersions().get(0).getUrl(), VERSION_1_DTO.getUrl());
     assertEquals(listDTOS.iterator().next().getVersions().get(1).getId(), VERSION_2_DTO.getId());
     assertEquals(listDTOS.iterator().next().getVersions().get(1).isValid(), VERSION_2_DTO.isValid());
     assertEquals(listDTOS.iterator().next().getVersions().get(1).getAppVersion(), VERSION_2_DTO.getAppVersion());
+    assertEquals(listDTOS.iterator().next().getVersions().get(1).getAppVersionNumber(), VERSION_2_DTO.getAppVersionNumber());
     assertEquals(listDTOS.iterator().next().getVersions().get(1).getFileName(), VERSION_2_DTO.getFileName());
     assertEquals(listDTOS.iterator().next().getVersions().get(1).getUrl(), VERSION_2_DTO.getUrl());
   }
@@ -175,11 +184,13 @@ class PackageServiceImplTest {
     assertEquals(packageDTO.getVersions().get(0).getId(), VERSION_1_DTO.getId());
     assertEquals(packageDTO.getVersions().get(0).isValid(), VERSION_1_DTO.isValid());
     assertEquals(packageDTO.getVersions().get(0).getAppVersion(), VERSION_1_DTO.getAppVersion());
+    assertEquals(packageDTO.getVersions().get(0).getAppVersionNumber(), VERSION_1_DTO.getAppVersionNumber());
     assertEquals(packageDTO.getVersions().get(0).getFileName(), VERSION_1_DTO.getFileName());
     assertEquals(packageDTO.getVersions().get(0).getUrl(), VERSION_1_DTO.getUrl());
     assertEquals(packageDTO.getVersions().get(1).getId(), VERSION_2_DTO.getId());
     assertEquals(packageDTO.getVersions().get(1).isValid(), VERSION_2_DTO.isValid());
     assertEquals(packageDTO.getVersions().get(1).getAppVersion(), VERSION_2_DTO.getAppVersion());
+    assertEquals(packageDTO.getVersions().get(1).getAppVersionNumber(), VERSION_2_DTO.getAppVersionNumber());
     assertEquals(packageDTO.getVersions().get(1).getFileName(), VERSION_2_DTO.getFileName());
     assertEquals(packageDTO.getVersions().get(1).getUrl(), VERSION_2_DTO.getUrl());
   }
@@ -205,6 +216,7 @@ class PackageServiceImplTest {
     assertEquals(packageDTO.getPackageName(), PACKAGE_DTO.getPackageName());
     assertEquals(packageDTO.isValid(), PACKAGE_DTO.isValid());
     assertEquals(packageDTO.getAppVersion(), PACKAGE_DTO.getAppVersion());
+    assertEquals(packageDTO.getAppVersionNumber(), PACKAGE_DTO.getAppVersionNumber());
     assertEquals(packageDTO.getFileName(), PACKAGE_DTO.getFileName());
     assertEquals(packageDTO.getUrl(), PACKAGE_DTO.getUrl());
   }
@@ -227,6 +239,7 @@ class PackageServiceImplTest {
         .path("anotherAppName" + File.separator + PACKAGE_VERSION_2 + File.separator + "anotherAppName.apk")
         .valid(true)
         .version(PACKAGE_VERSION_2)
+        .versionnumber(PACKAGE_VERSION_NUMBER_2)
         .appname("anotherAppName")
         .packagename("com.package.anotherAppName")
         .build();
@@ -248,6 +261,7 @@ class PackageServiceImplTest {
     assertEquals(listDTOS.get(0).getVersions().get(0).getId(), anotherPackage.getId());
     assertEquals(listDTOS.get(0).getVersions().get(0).isValid(), anotherPackage.isValid());
     assertEquals(listDTOS.get(0).getVersions().get(0).getAppVersion(), anotherPackage.getVersion());
+    assertEquals(listDTOS.get(0).getVersions().get(0).getAppVersionNumber(), anotherPackage.getVersionnumber());
     assertEquals(listDTOS.get(0).getVersions().get(0).getFileName(), anotherPackage.getFilename());
     assertEquals(listDTOS.get(0).getVersions().get(0).getUrl(), anotherPackageDTOUrl);
     assertEquals(listDTOS.get(1).getAppName(), PACKAGE_V1_INFO.getAppname());
@@ -256,11 +270,13 @@ class PackageServiceImplTest {
     assertEquals(listDTOS.get(1).getVersions().get(0).getId(), VERSION_1_DTO.getId());
     assertEquals(listDTOS.get(1).getVersions().get(0).isValid(), VERSION_1_DTO.isValid());
     assertEquals(listDTOS.get(1).getVersions().get(0).getAppVersion(), VERSION_1_DTO.getAppVersion());
+    assertEquals(listDTOS.get(1).getVersions().get(0).getAppVersionNumber(), VERSION_1_DTO.getAppVersionNumber());
     assertEquals(listDTOS.get(1).getVersions().get(0).getFileName(), VERSION_1_DTO.getFileName());
     assertEquals(listDTOS.get(1).getVersions().get(0).getUrl(), VERSION_1_DTO.getUrl());
     assertEquals(listDTOS.get(1).getVersions().get(1).getId(), VERSION_2_DTO.getId());
     assertEquals(listDTOS.get(1).getVersions().get(1).isValid(), VERSION_2_DTO.isValid());
     assertEquals(listDTOS.get(1).getVersions().get(1).getAppVersion(), VERSION_2_DTO.getAppVersion());
+    assertEquals(listDTOS.get(1).getVersions().get(1).getAppVersionNumber(), VERSION_2_DTO.getAppVersionNumber());
     assertEquals(listDTOS.get(1).getVersions().get(1).getFileName(), VERSION_2_DTO.getFileName());
     assertEquals(listDTOS.get(1).getVersions().get(1).getUrl(), VERSION_2_DTO.getUrl());
   }
@@ -287,6 +303,7 @@ class PackageServiceImplTest {
     assertEquals(packageDTO.getPackageName(), PACKAGE_DTO.getPackageName());
     assertEquals(packageDTO.isValid(), PACKAGE_DTO.isValid());
     assertEquals(packageDTO.getAppVersion(), PACKAGE_DTO.getAppVersion());
+    assertEquals(packageDTO.getAppVersionNumber(), PACKAGE_DTO.getAppVersionNumber());
     assertEquals(packageDTO.getFileName(), PACKAGE_DTO.getFileName());
     assertEquals(packageDTO.getUrl(), PACKAGE_DTO.getUrl());
   }
@@ -308,6 +325,7 @@ class PackageServiceImplTest {
         .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
         .valid(true)
         .version(PACKAGE_VERSION_1)
+        .versionnumber(PACKAGE_VERSION_NUMBER_1)
         .appname(PACKAGE_APPNAME)
         .build();
     //given
@@ -355,6 +373,7 @@ class PackageServiceImplTest {
         .path(PACKAGE_APPNAME + File.separator + PACKAGE_VERSION_1 + File.separator + PACKAGE_FILENAME)
         .valid(false)
         .version(PACKAGE_VERSION_1)
+        .versionnumber(PACKAGE_VERSION_NUMBER_1)
         .appname(PACKAGE_APPNAME)
         .build();
     //given
@@ -380,12 +399,13 @@ class PackageServiceImplTest {
     ArgumentCaptor<byte[]> fileCaptor = ArgumentCaptor.forClass(byte[].class);
     //given
     //when
-    packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY);
+    packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_NUMBER_1, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY);
     //then
     verify(repository, times(1)).save(packageCaptor.capture());
     assertEquals(packageCaptor.getValue().getAppname(), PACKAGE_APPNAME);
     assertEquals(packageCaptor.getValue().getPackagename(), PACKAGE_PACKAGENAME);
     assertEquals(packageCaptor.getValue().getVersion(), PACKAGE_VERSION_1);
+    assertEquals(packageCaptor.getValue().getVersionnumber(), PACKAGE_VERSION_NUMBER_1);
     assertEquals(packageCaptor.getValue().getFilename(), PACKAGE_FILENAME);
     assertEquals(packageCaptor.getValue().getPath(), PACKAGE_V1_INFO.getPath());
     assertTrue(packageCaptor.getValue().isValid());
@@ -400,7 +420,7 @@ class PackageServiceImplTest {
     //when
     doThrow(IOFileException.class).when(fileIOUtils).savePackageFile(anyString(), anyString(), anyString(), any(byte[].class), any(PackageUtils.class));
     //then
-    assertThrows(IOFileException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
+    assertThrows(IOFileException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_NUMBER_1, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
   }
 
   @Test
@@ -411,7 +431,7 @@ class PackageServiceImplTest {
     given(repository.findByPackagenameIgnoreCaseAndAppnameIgnoreCaseNot(anyString(), anyString())).willReturn(packageList);
     //when
     //then
-    assertThrows(WrongAppNameException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
+    assertThrows(WrongAppNameException.class, () -> packageService.installPackageFile(PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_NUMBER_1, PACKAGE_VERSION_1, PACKAGE_FILENAME, DUMMY_BYTE_ARRAY));
   }
 
   @Test
@@ -421,6 +441,7 @@ class PackageServiceImplTest {
         .packageName(PACKAGE_DTO.getPackageName())
         .appName(PACKAGE_DTO.getAppName())
         .appVersion(PACKAGE_DTO.getAppVersion())
+        .appVersionNumber(PACKAGE_DTO.getAppVersionNumber())
         .build();
     Package savedPackage = Package.builder()
         .id(PACKAGE_DTO.getId())
@@ -428,6 +449,7 @@ class PackageServiceImplTest {
         .packagename(partialDto.getPackageName())
         .appname(partialDto.getAppName())
         .version(partialDto.getAppVersion())
+        .versionnumber(partialDto.getAppVersionNumber())
         .valid(true)
         .path(String.format("%s%s%s%s%s", partialDto.getAppName(), File.separator, partialDto.getAppVersion(), File.separator, PACKAGE_DTO.getFileName()))
         .build();
@@ -443,6 +465,7 @@ class PackageServiceImplTest {
     assertEquals(packageDTO.getPackageName(), partialDto.getPackageName());
     assertEquals(packageDTO.isValid(), true);
     assertEquals(packageDTO.getAppVersion(), partialDto.getAppVersion());
+    assertEquals(packageDTO.getAppVersionNumber(), partialDto.getAppVersionNumber());
     assertEquals(packageDTO.getFileName(), PACKAGE_DTO.getFileName());
     assertEquals(packageDTO.getUrl(), PACKAGE_DTO.getUrl());
     verify(fileIOUtils, times(1)).savePackageFile(anyString(), anyString(), anyString(), any(byte[].class), any(PackageUtils.class));
@@ -455,6 +478,7 @@ class PackageServiceImplTest {
         .packageName(PACKAGE_DTO.getPackageName())
         .appName(PACKAGE_DTO.getAppName())
         .appVersion(PACKAGE_DTO.getAppVersion())
+        .appVersionNumber(PACKAGE_DTO.getAppVersionNumber())
         .build();
     List<Package> packageList = new ArrayList<>();
     packageList.add(PACKAGE_V1_INFO);
@@ -474,6 +498,7 @@ class PackageServiceImplTest {
         .packageName(PACKAGE_DTO.getPackageName())
         .appName(PACKAGE_DTO.getAppName())
         .appVersion(PACKAGE_DTO.getAppVersion())
+        .appVersionNumber(PACKAGE_DTO.getAppVersionNumber())
         .build();
     //given
     given(fileIOUtils.getMultipartFileBytes(any(MultipartFile.class))).willReturn(DUMMY_BYTE_ARRAY);
@@ -522,6 +547,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().getId());
     assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().getAppname());
     assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().getVersion());
+    assertEquals(PACKAGE_V1_INFO.getVersionnumber(), packageCaptor.getValue().getVersionnumber());
     assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().getPackagename());
     assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().getPath());
     assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().getFilename());
@@ -557,6 +583,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
     assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
     assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getVersionnumber(), packageCaptor.getValue().get(0).getVersionnumber());
     assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
     assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
     assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
@@ -564,6 +591,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
     assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
     assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getVersionnumber(), packageCaptor.getValue().get(1).getVersionnumber());
     assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
     assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
     assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());
@@ -573,6 +601,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
     assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
     assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getVersionnumber(), packageCaptor.getValue().get(0).getVersionnumber());
     assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
     assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
     assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
@@ -580,6 +609,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
     assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
     assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getVersionnumber(), packageCaptor.getValue().get(1).getVersionnumber());
     assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
     assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
     assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());
@@ -618,6 +648,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
     assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
     assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getVersionnumber(), packageCaptor.getValue().get(0).getVersionnumber());
     assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
     assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
     assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
@@ -625,6 +656,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
     assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
     assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getVersionnumber(), packageCaptor.getValue().get(1).getVersionnumber());
     assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
     assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
     assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());
@@ -634,6 +666,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V1_INFO.getId(), packageCaptor.getValue().get(0).getId());
     assertEquals(PACKAGE_V1_INFO.getAppname(), packageCaptor.getValue().get(0).getAppname());
     assertEquals(PACKAGE_V1_INFO.getVersion(), packageCaptor.getValue().get(0).getVersion());
+    assertEquals(PACKAGE_V1_INFO.getVersionnumber(), packageCaptor.getValue().get(0).getVersionnumber());
     assertEquals(PACKAGE_V1_INFO.getPackagename(), packageCaptor.getValue().get(0).getPackagename());
     assertEquals(PACKAGE_V1_INFO.getPath(), packageCaptor.getValue().get(0).getPath());
     assertEquals(PACKAGE_V1_INFO.getFilename(), packageCaptor.getValue().get(0).getFilename());
@@ -641,6 +674,7 @@ class PackageServiceImplTest {
     assertEquals(PACKAGE_V2_INFO.getId(), packageCaptor.getValue().get(1).getId());
     assertEquals(PACKAGE_V2_INFO.getAppname(), packageCaptor.getValue().get(1).getAppname());
     assertEquals(PACKAGE_V2_INFO.getVersion(), packageCaptor.getValue().get(1).getVersion());
+    assertEquals(PACKAGE_V2_INFO.getVersionnumber(), packageCaptor.getValue().get(1).getVersionnumber());
     assertEquals(PACKAGE_V2_INFO.getPackagename(), packageCaptor.getValue().get(1).getPackagename());
     assertEquals(PACKAGE_V2_INFO.getPath(), packageCaptor.getValue().get(1).getPath());
     assertEquals(PACKAGE_V2_INFO.getFilename(), packageCaptor.getValue().get(1).getFilename());

@@ -26,6 +26,7 @@ public class Package {
   private String appname;
   private String filename;
   private String version;
+  private Long versionnumber;
   private String path;
   private boolean valid;
   private String packagename;
