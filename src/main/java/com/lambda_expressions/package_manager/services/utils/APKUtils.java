@@ -57,7 +57,7 @@ public class APKUtils {
     try {
       ResTable resourcesTable = getResourceTable(fileBytes, tmpWorkDir.getAbsolutePath());
       partialDTO = getPackageInfo(resourcesTable);
-    } catch(MissingFrameworkException | AutoDetectionException e) {
+    } catch (MissingFrameworkException | AutoDetectionException e) {
       throw e;
     } catch (Exception e) {
       throw new AutoDetectionException("Cannot autodetect package information", "", "");
@@ -74,7 +74,7 @@ public class APKUtils {
     ApkOptions apkOptions = new ApkOptions();
     Androlib androlib = new Androlib(apkOptions);
 
-    if(!StringUtils.isBlank(frameworkTag)){
+    if (!StringUtils.isBlank(frameworkTag)) {
       apkOptions.frameworkTag = frameworkTag;
     }
 
@@ -99,8 +99,10 @@ public class APKUtils {
 
       resourceTable = apkDecoder.getResTable();
     } catch (CantFindFrameworkResException e) {
+      log.error(e.getMessage());
       throw new MissingFrameworkException(e.getMessage(), e.getPkgId());
     } catch (Exception e) {
+      log.error(e.getMessage());
       throw new AutoDetectionException("Cannot autodetect package information", "", "");
     } finally {
       try {
@@ -122,6 +124,13 @@ public class APKUtils {
     String packageName = resourcesTable.getPackageRenamed();
     String versionName = resourcesTable.getVersionInfo().versionName;
     String appName = resourcesTable.getAppName();
+    long versionCode;
+
+    try {
+      versionCode = Long.parseLong(resourcesTable.getVersionInfo().versionCode);
+    } catch (NumberFormatException e) {
+      throw new AutoDetectionException("Cannot get app version code", appName, packageName);
+    }
 
     if (StringUtils.isEmpty(appName)) {
       ResResSpec resResSpec = resourcesTable.getCurrentResPackage().listResSpecs().stream()
@@ -132,7 +141,7 @@ public class APKUtils {
       appName = ((ResStringValue) resResSpec.getDefaultResource().getValue()).encodeAsResXmlValue();
     }
 
-    if (StringUtils.isBlank(packageName) || StringUtils.isBlank(versionName) || StringUtils.isBlank(appName)) {
+    if (StringUtils.isBlank(packageName) || StringUtils.isBlank(versionName) || StringUtils.isBlank(appName) || versionCode <= 0) {
       throw new AutoDetectionException("Cannot get app info", appName, packageName);
     }
 
@@ -140,6 +149,7 @@ public class APKUtils {
         .packageName(packageName)
         .appName(appName)
         .appVersion(versionName)
+        .appVersionNumber(versionCode)
         .build();
   }
 
