@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 @Component
 public class ControllerUtils {
 
-  public long checkIdParameter(String appId) throws MalformedURLException {
+  public long checkNumericParameter(String numericParameter, String paramName) throws MalformedURLException {
     long longId;
 
     try {
-      longId = Long.parseLong(appId);
+      longId = Long.parseLong(numericParameter);
     } catch (NumberFormatException formatException) {
-      throw new MalformedURLException("ID is not a number", "unknown appName", appId);
+      throw new MalformedURLException(paramName + " is not a number", "unknown appName", numericParameter);
     }
 
     return longId;

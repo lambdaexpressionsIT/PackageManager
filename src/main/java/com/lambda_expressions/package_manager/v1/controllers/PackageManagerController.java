@@ -34,14 +34,16 @@ public class PackageManagerController {
   }
 
   @ResponseStatus(HttpStatus.CREATED)
-  @PostMapping(value = {"uploadPackage/{packageName}/{appName}/{version}/{fileName}", "uploadPackage/{packageName}/{appName}/{version}/{fileName}/"},
+  @PostMapping(value = {"uploadPackage/{packageName}/{appName}/{version}/{versionNumber}/{fileName}", "uploadPackage/{packageName}/{appName}/{version}/{versionNumber}/{fileName}/"},
       consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public void uploadPackage(HttpServletRequest httpRequest, @PathVariable String packageName, @PathVariable String appName,
-                            @PathVariable String version, @PathVariable String fileName, @RequestBody byte[] file)
-      throws UnauthenticatedRequestException, IOFileException, WrongAppNameException {
+                            @PathVariable String version, @PathVariable String versionNumber, @PathVariable String fileName,
+                            @RequestBody byte[] file)
+      throws UnauthenticatedRequestException, IOFileException, WrongAppNameException, MalformedURLException {
     this.authService.authenticateRequest(httpRequest);
+    long longVersionNumber = controllerUtils.checkNumericParameter(versionNumber, "version number");
 
-    this.packageService.installPackageFile(packageName, appName, version, fileName, file);
+    this.packageService.installPackageFile(packageName, appName, longVersionNumber, version, fileName, file);
   }
 
   @ResponseStatus(HttpStatus.CREATED)
@@ -107,7 +109,7 @@ public class PackageManagerController {
   public PackageDTO getPackageInfoById(HttpServletRequest httpRequest, @PathVariable String appId)
       throws UnauthenticatedRequestException, MalformedURLException, PackageNotFoundException {
     this.authService.authenticateRequest(httpRequest);
-    long longId = controllerUtils.checkIdParameter(appId);
+    long longId = controllerUtils.checkNumericParameter(appId, "appId");
 
     return this.packageService.getPackageInfoById(longId);
   }

@@ -1,3 +1,10 @@
+:sectnums:
+:sectnumlevels: 5
+:toc: left
+:toc-title:
+:toclevels: 4
+:page-layout: docs
+
 = Package Manager
 
 :table-caption!:
@@ -287,6 +294,16 @@ include::{snippets}/uploadPackage/http-request.adoc[]
 include::{snippets}/uploadPackage/http-response.adoc[]
 
 ==== Errori
+
+===== Malformed URL
+
+Nel caso in cui il parametro *_appVersionnumber_* nell'indirizzo della request non sia del formato corretto (intero), il servizio risponde con una HTTP response vuota e HTTP status 400
+
+.HTTP request
+include::{snippets}/uploadWrongAppVersionNumber/http-request.adoc[]
+
+.HTTP response
+include::{snippets}/uploadWrongAppVersionNumber/http-response.adoc[]
 
 ===== Package già presente con diverso appName
 
