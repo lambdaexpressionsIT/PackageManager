@@ -1,6 +1,6 @@
 package com.lambda_expressions.package_manager.v1.model;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * at 12:21 PM
  */
 @Data
-@Builder
+@AllArgsConstructor
 public class PackageListDTO {
   private String appName;
   private String packageName;

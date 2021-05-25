@@ -61,6 +61,8 @@ class PackageManagerControllerTest {
   private static final long PACKAGE_V2_ID = 200;
   private static final String PACKAGE_VERSION_1 = "1.9";
   private static final String PACKAGE_VERSION_2 = "2.5";
+  private static final long PACKAGE_VERSION_NUMBER_1 = 1;
+  private static final long PACKAGE_VERSION_NUMBER_2 = 2;
   private static final byte[] DUMMY_BYTE_ARRAY = "This is the payload of an uploadPackage request, the byte array of a package file".getBytes();
 
   private static final String REST_SERVICES_BASE_URL = "/api/v1";
@@ -74,25 +76,27 @@ class PackageManagerControllerTest {
   private static final String GET_PACKAGES_BY_ID_URL = REST_SERVICES_BASE_URL + "/getPackages/";
   private static final String INVALIDATE_PACKAGE_URL = REST_SERVICES_BASE_URL + "/invalidatePackage/{appName}/{appVersion}";
   private static final String UPLOAD_PACKAGE_URL = REST_SERVICES_BASE_URL + "/uploadPackage";
-  private static final String UPLOAD_PACKAGE_WITH_PARAMS_URL = REST_SERVICES_BASE_URL + "/uploadPackage/{packageName}/{appName}/{appVersion}/{fileName}";
+  private static final String UPLOAD_PACKAGE_WITH_PARAMS_URL = REST_SERVICES_BASE_URL + "/uploadPackage/{packageName}/{appName}/{appVersion}/{appVersionNumber}/{fileName}";
   private static final String GET_PACKAGE_FILE_URL = REST_SERVICES_BASE_URL + "/downloadPackage/{appName}/{appVersion}";
 
   private static final String GET_PACKAGES_PARAM_NAME = "idList";
 
-  private static final VersionDTO version1DTO = VersionDTO.builder()
-      .id(PACKAGE_V1_ID)
-      .fileName(PACKAGE_FILENAME)
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION))
-      .valid(true)
-      .appVersion(PACKAGE_VERSION_1)
-      .build();
-  private static final VersionDTO version2DTO = VersionDTO.builder()
-      .id(PACKAGE_V2_ID)
-      .fileName("Spending_2.5.apk")
-      .url((PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + "Spending_2.5" + PACKAGES_FILE_EXTENSION))
-      .valid(true)
-      .appVersion(PACKAGE_VERSION_2)
-      .build();
+  private static final VersionDTO version1DTO = new VersionDTO(
+      PACKAGE_V1_ID,
+      PACKAGE_VERSION_1,
+      PACKAGE_VERSION_NUMBER_1,
+      PACKAGE_FILENAME,
+      PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+      true
+  );
+  private static final VersionDTO version2DTO = new VersionDTO(
+      PACKAGE_V2_ID,
+      PACKAGE_VERSION_2,
+      PACKAGE_VERSION_NUMBER_2,
+      "Spending_2.5.apk",
+      PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_2 + "/" + "Spending_2.5" + PACKAGES_FILE_EXTENSION,
+      true
+  );
 
   private final FieldDescriptor[] globalArrayField = new FieldDescriptor[]{
       fieldWithPath("[]").description("Array popolato dagli oggetti contenenti le informazioni delle applicazioni presenti sul server")
@@ -106,7 +110,8 @@ class PackageManagerControllerTest {
   };
   private final FieldDescriptor[] versionFields = new FieldDescriptor[]{
       fieldWithPath("id").description("Identificativo univoco della combinazione applicazione/versione (intero)"),
-      fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione"),
+      fieldWithPath("appVersion").description("Identificativo della versione dell'applicazione (valore alfanumerico)"),
+      fieldWithPath("appVersionNumber").description("Valore incrementale della versione dell'applicazione (valore numerico)"),
       fieldWithPath("fileName").description("Nome del file dell'applicazione presente sul server."),
       fieldWithPath("valid").description("Flag indicante la validità di un package. Se settato a false, il file corrispondente non puo essere scaricato tramite il servizio 'downloadPackage'"),
       fieldWithPath("url").description("URL del servizio warehouse dal quale puo essere scaricato il file dell'applicazione.")
@@ -143,23 +148,24 @@ class PackageManagerControllerTest {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
     ArrayList<VersionDTO> lisXTeVersionDTOArrayList = new ArrayList<>();
     ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
-    PackageListDTO spendingPackageListDTO = PackageListDTO.builder()
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .versions(versionDTOArrayList)
-        .build();
-    PackageListDTO lisXTePackageListDTO = PackageListDTO.builder()
-        .appName("LisXTe")
-        .packageName("com.package.LisXTe")
-        .versions(lisXTeVersionDTOArrayList)
-        .build();
-    VersionDTO lisXTeVersion1 = VersionDTO.builder()
-        .id(300L)
-        .appVersion("1")
-        .fileName("LisXTe_1.0.10_b1.apk")
-        .url(PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk")
-        .valid(true)
-        .build();
+    PackageListDTO spendingPackageListDTO = new PackageListDTO(
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME,
+        versionDTOArrayList
+    );
+    PackageListDTO lisXTePackageListDTO = new PackageListDTO(
+        "LisXTe",
+        "com.package.LisXTe",
+        lisXTeVersionDTOArrayList
+    );
+    VersionDTO lisXTeVersion1 = new VersionDTO(
+        300L,
+        "1",
+        1L,
+        "LisXTe_1.0.10_b1.apk",
+        PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk",
+        true
+    );
 
     packageListDTOS.add(spendingPackageListDTO);
     packageListDTOS.add(lisXTePackageListDTO);
@@ -183,11 +189,13 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$[0].versions.length()").value(spendingPackageListDTO.getVersions().size()))
         .andExpect(jsonPath("$[0].versions[0].id").value(spendingPackageListDTO.getVersions().get(0).getId()))
         .andExpect(jsonPath("$[0].versions[0].appVersion").value(spendingPackageListDTO.getVersions().get(0).getAppVersion()))
+        .andExpect(jsonPath("$[0].versions[0].appVersionNumber").value(spendingPackageListDTO.getVersions().get(0).getAppVersionNumber()))
         .andExpect(jsonPath("$[0].versions[0].fileName").value(spendingPackageListDTO.getVersions().get(0).getFileName()))
         .andExpect(jsonPath("$[0].versions[0].valid").value(spendingPackageListDTO.getVersions().get(0).isValid()))
         .andExpect(jsonPath("$[0].versions[0].url").value(spendingPackageListDTO.getVersions().get(0).getUrl()))
         .andExpect(jsonPath("$[0].versions[1].id").value(spendingPackageListDTO.getVersions().get(1).getId()))
         .andExpect(jsonPath("$[0].versions[1].appVersion").value(spendingPackageListDTO.getVersions().get(1).getAppVersion()))
+        .andExpect(jsonPath("$[0].versions[1].appVersionNumber").value(spendingPackageListDTO.getVersions().get(1).getAppVersionNumber()))
         .andExpect(jsonPath("$[0].versions[1].fileName").value(spendingPackageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$[0].versions[1].valid").value(spendingPackageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$[0].versions[1].url").value(spendingPackageListDTO.getVersions().get(1).getUrl()))
@@ -225,12 +233,11 @@ class PackageManagerControllerTest {
   @Test
   public void testGetPackageVersions() throws Exception {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
-    PackageListDTO packageListDTO = PackageListDTO.builder()
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .versions(versionDTOArrayList)
-        .build();
-
+    PackageListDTO packageListDTO = new PackageListDTO(
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME,
+        versionDTOArrayList
+    );
     versionDTOArrayList.add(version1DTO);
     versionDTOArrayList.add(version2DTO);
 
@@ -246,11 +253,13 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.versions.length()").value(packageListDTO.getVersions().size()))
         .andExpect(jsonPath("$.versions[0].id").value(packageListDTO.getVersions().get(0).getId()))
         .andExpect(jsonPath("$.versions[0].appVersion").value(packageListDTO.getVersions().get(0).getAppVersion()))
+        .andExpect(jsonPath("$.versions[0].appVersionNumber").value(packageListDTO.getVersions().get(0).getAppVersionNumber()))
         .andExpect(jsonPath("$.versions[0].fileName").value(packageListDTO.getVersions().get(0).getFileName()))
         .andExpect(jsonPath("$.versions[0].valid").value(packageListDTO.getVersions().get(0).isValid()))
         .andExpect(jsonPath("$.versions[0].url").value(packageListDTO.getVersions().get(0).getUrl()))
         .andExpect(jsonPath("$.versions[1].id").value(packageListDTO.getVersions().get(1).getId()))
         .andExpect(jsonPath("$.versions[1].appVersion").value(packageListDTO.getVersions().get(1).getAppVersion()))
+        .andExpect(jsonPath("$.versions[1].appVersionNumber").value(packageListDTO.getVersions().get(1).getAppVersionNumber()))
         .andExpect(jsonPath("$.versions[1].fileName").value(packageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$.versions[1].valid").value(packageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$.versions[1].url").value(packageListDTO.getVersions().get(1).getUrl()))
@@ -285,15 +294,16 @@ class PackageManagerControllerTest {
    */
   @Test
   public void testGetPackageVersion() throws Exception {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .id(PACKAGE_V1_ID)
-        .fileName(PACKAGE_FILENAME)
-        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
-        .valid(true)
-        .appVersion(PACKAGE_VERSION_1)
-        .appName(PACKAGE_APPNAME)
-        .packageName((PACKAGE_PACKAGENAME))
-        .build();
+    PackageDTO packageDTO = new PackageDTO(
+        PACKAGE_V1_ID,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_FILENAME,
+        PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+        true,
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME
+    );
     //given
     given(packageService.getPackageInfo(anyString(), anyString())).willReturn(packageDTO);
     //when
@@ -304,6 +314,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
         .andExpect(jsonPath("$.packageName").value(packageDTO.getPackageName()))
         .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
+        .andExpect(jsonPath("$.appVersionNumber").value(packageDTO.getAppVersionNumber()))
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
@@ -343,15 +354,16 @@ class PackageManagerControllerTest {
    */
   @Test
   public void testGetPackageById() throws Exception {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .id(PACKAGE_V1_ID)
-        .fileName(PACKAGE_FILENAME)
-        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
-        .valid(true)
-        .appVersion(PACKAGE_VERSION_1)
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .build();
+    PackageDTO packageDTO = new PackageDTO(
+        PACKAGE_V1_ID,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_FILENAME,
+        PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+        true,
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME
+    );
     //given
     given(packageService.getPackageInfoById(anyLong())).willReturn(packageDTO);
     //when
@@ -362,6 +374,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
         .andExpect(jsonPath("$.packageName").value(packageDTO.getPackageName()))
         .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
+        .andExpect(jsonPath("$.appVersionNumber").value(packageDTO.getAppVersionNumber()))
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))
@@ -436,23 +449,24 @@ class PackageManagerControllerTest {
     ArrayList<VersionDTO> versionDTOArrayList = new ArrayList<>();
     ArrayList<VersionDTO> lisXTeVersionDTOArrayList = new ArrayList<>();
     ArrayList<PackageListDTO> packageListDTOS = new ArrayList<>();
-    PackageListDTO spendingPackageListDTO = PackageListDTO.builder()
-        .appName(PACKAGE_APPNAME)
-        .packageName(PACKAGE_PACKAGENAME)
-        .versions(versionDTOArrayList)
-        .build();
-    PackageListDTO lisXTePackageListDTO = PackageListDTO.builder()
-        .appName("LisXTe")
-        .packageName("com.package.LisXTe")
-        .versions(lisXTeVersionDTOArrayList)
-        .build();
-    VersionDTO lisXTeVersion1 = VersionDTO.builder()
-        .id(300L)
-        .appVersion("1")
-        .fileName("LisXTe_1.0.10_b1.apk")
-        .url(PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk")
-        .valid(true)
-        .build();
+    PackageListDTO spendingPackageListDTO = new PackageListDTO(
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME,
+        versionDTOArrayList
+    );
+    PackageListDTO lisXTePackageListDTO = new PackageListDTO(
+        "LisXTe",
+        "com.package.LisXTe",
+        lisXTeVersionDTOArrayList
+    );
+    VersionDTO lisXTeVersion1 = new VersionDTO(
+        300L,
+        "1",
+        1L,
+        "LisXTe_1.0.10_b1.apk",
+        PACKAGES_WEBSERVER_BASEURL + "/LisXTe/1/LisXTe_1.0.10_b1.apk",
+        true
+    );
 
     packageListDTOS.add(spendingPackageListDTO);
     packageListDTOS.add(lisXTePackageListDTO);
@@ -475,11 +489,13 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$[0].versions.length()").value(spendingPackageListDTO.getVersions().size()))
         .andExpect(jsonPath("$[0].versions[0].id").value(spendingPackageListDTO.getVersions().get(0).getId()))
         .andExpect(jsonPath("$[0].versions[0].appVersion").value(spendingPackageListDTO.getVersions().get(0).getAppVersion()))
+        .andExpect(jsonPath("$[0].versions[0].appVersionNumber").value(spendingPackageListDTO.getVersions().get(0).getAppVersionNumber()))
         .andExpect(jsonPath("$[0].versions[0].fileName").value(spendingPackageListDTO.getVersions().get(0).getFileName()))
         .andExpect(jsonPath("$[0].versions[0].valid").value(spendingPackageListDTO.getVersions().get(0).isValid()))
         .andExpect(jsonPath("$[0].versions[0].url").value(spendingPackageListDTO.getVersions().get(0).getUrl()))
         .andExpect(jsonPath("$[0].versions[1].id").value(spendingPackageListDTO.getVersions().get(1).getId()))
         .andExpect(jsonPath("$[0].versions[1].appVersion").value(spendingPackageListDTO.getVersions().get(1).getAppVersion()))
+        .andExpect(jsonPath("$[0].versions[1].appVersionNumber").value(spendingPackageListDTO.getVersions().get(1).getAppVersionNumber()))
         .andExpect(jsonPath("$[0].versions[1].fileName").value(spendingPackageListDTO.getVersions().get(1).getFileName()))
         .andExpect(jsonPath("$[0].versions[1].valid").value(spendingPackageListDTO.getVersions().get(1).isValid()))
         .andExpect(jsonPath("$[0].versions[1].url").value(spendingPackageListDTO.getVersions().get(1).getUrl()))
@@ -682,10 +698,10 @@ class PackageManagerControllerTest {
   @Test
   public void testUploadPackageFile() throws Exception {
     //given
-    doNothing().when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(), any(byte[].class));
+    doNothing().when(packageService).installPackageFile(anyString(), anyString(), anyLong(), anyString(), anyString(), any(byte[].class));
     //when
     mockMvc.perform(
-        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME)
+        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_VERSION_NUMBER_1, PACKAGE_FILENAME)
             .accept(MediaType.APPLICATION_OCTET_STREAM)
             .content(DUMMY_BYTE_ARRAY)
             .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -697,7 +713,8 @@ class PackageManagerControllerTest {
             pathParameters(
                 parameterWithName("packageName").description("Nome del package dell'applicazione da caricare"),
                 parameterWithName("appName").description("Nome dell'applicazione da caricare"),
-                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare (valore alfanumerico)"),
+                parameterWithName("appVersionNumber").description("Valore incrementale della versione dell'applicazione da caricare (valore numerico)"),
                 parameterWithName("fileName").description("Nome del file dell'applicazione da caricare")
             ),
             requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
@@ -708,11 +725,11 @@ class PackageManagerControllerTest {
   @Test
   public void testUploadPackageFileUnableToWriteFile() throws Exception {
     //given
-    doThrow(IOFileException.class).when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(),
+    doThrow(IOFileException.class).when(packageService).installPackageFile(anyString(), anyString(), anyLong(), anyString(), anyString(),
         any(byte[].class));
     //when
     mockMvc.perform(
-        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME)
+        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_VERSION_NUMBER_1, PACKAGE_FILENAME)
             .accept(MediaType.APPLICATION_OCTET_STREAM)
             .content(DUMMY_BYTE_ARRAY)
             .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -725,7 +742,35 @@ class PackageManagerControllerTest {
             pathParameters(
                 parameterWithName("packageName").description("Nome del package dell'applicazione da caricare"),
                 parameterWithName("appName").description("Nome dell'applicazione da caricare"),
-                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare (valore alfanumerico)"),
+                parameterWithName("appVersionNumber").description("Valore incrementale della versione dell'applicazione da caricare (valore numerico)"),
+                parameterWithName("fileName").description("Nome del file dell'applicazione da caricare, verrà assegnato al file registrato sul server")
+            ),
+            requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
+            requestBody()
+        ));
+  }
+
+  @Test
+  public void testUploadPackageFileWrongAppVersionNumber() throws Exception {
+    //given
+    //when
+    mockMvc.perform(
+        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, "NaN", PACKAGE_FILENAME)
+            .accept(MediaType.APPLICATION_OCTET_STREAM)
+            .content(DUMMY_BYTE_ARRAY)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM))
+        //then
+        .andExpect(status().isBadRequest())
+        .andExpect(mvcResult -> assertTrue(mvcResult.getResolvedException() instanceof MalformedURLException))
+        .andDo(document("uploadWrongAppVersionNumber",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint()),
+            pathParameters(
+                parameterWithName("packageName").description("Nome del package dell'applicazione da caricare"),
+                parameterWithName("appName").description("Nome dell'applicazione da caricare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare (valore alfanumerico)"),
+                parameterWithName("appVersionNumber").description("Valore incrementale della versione dell'applicazione da caricare (valore non accettabile)"),
                 parameterWithName("fileName").description("Nome del file dell'applicazione da caricare, verrà assegnato al file registrato sul server")
             ),
             requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
@@ -736,11 +781,11 @@ class PackageManagerControllerTest {
   @Test
   public void testUploadPackageFileWrongAppName() throws Exception {
     //given
-    doThrow(WrongAppNameException.class).when(packageService).installPackageFile(anyString(), anyString(), anyString(), anyString(),
+    doThrow(WrongAppNameException.class).when(packageService).installPackageFile(anyString(), anyString(), anyLong(), anyString(), anyString(),
         any(byte[].class));
     //when
     mockMvc.perform(
-        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME)
+        post(UPLOAD_PACKAGE_WITH_PARAMS_URL, PACKAGE_PACKAGENAME, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_VERSION_NUMBER_1, PACKAGE_FILENAME)
             .accept(MediaType.APPLICATION_OCTET_STREAM)
             .content(DUMMY_BYTE_ARRAY)
             .contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -753,7 +798,8 @@ class PackageManagerControllerTest {
             pathParameters(
                 parameterWithName("packageName").description("Nome del package dell'applicazione da caricare"),
                 parameterWithName("appName").description("Nome dell'applicazione da caricare"),
-                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare"),
+                parameterWithName("appVersion").description("Identificativo della versione dell'applicazione da caricare (valore alfanumerico)"),
+                parameterWithName("appVersionNumber").description("Valore incrementale della versione dell'applicazione da caricare (valore numerico)"),
                 parameterWithName("fileName").description("Nome del file dell'applicazione da caricare, verrà assegnato al file registrato sul server")
             ),
             requestHeaders(headerWithName("content-type").description("Deve essere settato a 'application/octet-stream' affinché la request sia accettata")),
@@ -763,15 +809,16 @@ class PackageManagerControllerTest {
 
   @Test
   public void testUploadPackageAutodetect() throws Exception {
-    PackageDTO packageDTO = PackageDTO.builder()
-        .id(PACKAGE_V1_ID)
-        .fileName(PACKAGE_FILENAME)
-        .url(PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION)
-        .valid(true)
-        .appVersion(PACKAGE_VERSION_1)
-        .appName(PACKAGE_APPNAME)
-        .packageName((PACKAGE_PACKAGENAME))
-        .build();
+    PackageDTO packageDTO = new PackageDTO(
+        PACKAGE_V1_ID,
+        PACKAGE_VERSION_1,
+        PACKAGE_VERSION_NUMBER_1,
+        PACKAGE_FILENAME,
+        PACKAGES_WEBSERVER_BASEURL + "/" + PACKAGE_APPNAME + "/" + PACKAGE_VERSION_1 + "/" + PACKAGE_FILENAME + PACKAGES_FILE_EXTENSION,
+        true,
+        PACKAGE_APPNAME,
+        PACKAGE_PACKAGENAME
+    );
     MockMultipartFile file = new MockMultipartFile("file", PACKAGE_FILENAME, MediaType.MULTIPART_FORM_DATA_VALUE, DUMMY_BYTE_ARRAY);
     //given
     given(packageService.installPackageFile(anyString(), any(MultipartFile.class))).willReturn(packageDTO);
@@ -786,6 +833,7 @@ class PackageManagerControllerTest {
         .andExpect(jsonPath("$.appName").value(packageDTO.getAppName()))
         .andExpect(jsonPath("$.packageName").value(packageDTO.getPackageName()))
         .andExpect(jsonPath("$.appVersion").value(packageDTO.getAppVersion()))
+        .andExpect(jsonPath("$.appVersionNumber").value(packageDTO.getAppVersionNumber()))
         .andExpect(jsonPath("$.fileName").value(packageDTO.getFileName()))
         .andExpect(jsonPath("$.valid").value(packageDTO.isValid()))
         .andExpect(jsonPath("$.url").value(packageDTO.getUrl()))

@@ -49,13 +49,11 @@ class ConfigurationControllerTest {
   private static final String LIST_FRAMEWORKS_URL = REST_SERVICES_BASE_URL + "installedFrameworks";
   private static final String BANDWIDTH_LIMITER_URL = REST_SERVICES_BASE_URL + "bandwidthLimiter";
 
-  private static byte[] DUMMY_FILE = "This is the payload of an uploadFramework request, the byte array of a framework file".getBytes();
-  private static BandwidthLimiterConfigurationDTO CONFIGURATION_DTO = BandwidthLimiterConfigurationDTO.builder()
-      .upstreamKbps(1000)
-      .downstreamKbps(500)
-      .maxThresholdKbps(1000)
-      .isActive(true)
-      .build();
+  private static final byte[] DUMMY_FILE = "This is the payload of an uploadFramework request, the byte array of a framework file".getBytes();
+  private static final BandwidthLimiterConfigurationDTO CONFIGURATION_DTO = new BandwidthLimiterConfigurationDTO(
+      1000, 500, 1000, true
+  );
+
 
   private final FieldDescriptor[] bandwidthConfigurationFields = new FieldDescriptor[]{
       fieldWithPath("maxThresholdKbps").description("Banda massima allocata per l'applicazione (in kbps). Se inferiore a uno dei due seguenti valori, ne limita il valore sostituendovi il proprio, se superiore o uguale ai due seguenti, non ne modifica i valori"),

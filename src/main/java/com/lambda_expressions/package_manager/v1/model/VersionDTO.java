@@ -1,19 +1,22 @@
 package com.lambda_expressions.package_manager.v1.model;
 
-import lombok.Getter;
-import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Created by steccothal
  * on Friday 22 January 2021
  * at 12:22 PM
  */
-@Getter
-@SuperBuilder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class VersionDTO {
-  private final long id;
-  private final String appVersion;
-  private final String fileName;
-  private final String url;
-  private final boolean valid;
+  private long id;
+  private String appVersion;
+  private Long appVersionNumber;
+  private String fileName;
+  private String url;
+  private boolean valid;
 }

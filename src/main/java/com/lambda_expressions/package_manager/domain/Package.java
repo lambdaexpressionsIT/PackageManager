@@ -14,7 +14,6 @@ import javax.persistence.Id;
  * at 9:37 AM
  */
 @Entity
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -26,6 +25,7 @@ public class Package {
   private String appname;
   private String filename;
   private String version;
+  private Long versionnumber;
   private String path;
   private boolean valid;
   private String packagename;

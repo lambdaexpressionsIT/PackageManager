@@ -30,52 +30,59 @@ public class PackageUtils {
   private String PUBLIC_BASE_URL;
 
   public PackageListDTO composePackageListDTOFromPackage(List<Package> packageVersions, String appName, String packageName) {
-    return PackageListDTO.builder()
-        .appName(appName)
-        .packageName(packageName)
-        .versions(packageVersions.stream()
-            .map(pInfo -> VersionDTO.builder()
-                .id(pInfo.getId())
-                .appVersion(pInfo.getVersion())
-                .fileName(pInfo.getFilename())
-                .valid(pInfo.isValid())
-                .url(composeWarehouseURLFromLocalPath(pInfo.getPath()))
-                .build())
-            .collect(Collectors.toList()))
-        .build();
+    return new PackageListDTO(
+        appName,
+        packageName,
+        packageVersions.stream()
+            .map(pInfo -> new VersionDTO(
+                pInfo.getId(),
+                pInfo.getVersion(),
+                pInfo.getVersionnumber(),
+                pInfo.getFilename(),
+                composeWarehouseURLFromLocalPath(pInfo.getPath()),
+                pInfo.isValid())
+            )
+            .collect(Collectors.toList())
+    );
   }
 
   public Collection<PackageListDTO> composePackageListDTOFromPackageList(Iterable<Package> packages) {
     Map<String, PackageListDTO> packagesMap = new HashMap<>();
 
     packages.forEach(pInfo -> {
-      packagesMap.putIfAbsent(pInfo.getAppname(), PackageListDTO.builder()
-          .appName(pInfo.getAppname())
-          .packageName(pInfo.getPackagename())
-          .versions(new ArrayList<>())
-          .build());
-      packagesMap.get(pInfo.getAppname()).getVersions().add(VersionDTO.builder()
-          .id(pInfo.getId())
-          .appVersion(pInfo.getVersion())
-          .fileName(pInfo.getFilename())
-          .valid(pInfo.isValid())
-          .url(composeWarehouseURLFromLocalPath(pInfo.getPath()))
-          .build());
+      packagesMap.putIfAbsent(pInfo.getAppname(),
+          new PackageListDTO(
+              pInfo.getAppname(),
+              pInfo.getPackagename(),
+              new ArrayList<>()
+          ));
+      packagesMap.get(pInfo.getAppname()).getVersions().add(
+          new VersionDTO(
+              pInfo.getId(),
+              pInfo.getVersion(),
+              pInfo.getVersionnumber(),
+              pInfo.getFilename(),
+              composeWarehouseURLFromLocalPath(pInfo.getPath()),
+              pInfo.isValid()
+          ));
     });
 
     return packagesMap.values();
   }
 
   public PackageDTO composePackageDTOFromPackage(Package packageInfo) {
-    return PackageDTO.builder()
-        .id(packageInfo.getId())
-        .packageName(packageInfo.getPackagename())
-        .appName(packageInfo.getAppname())
-        .appVersion(packageInfo.getVersion())
-        .fileName(packageInfo.getFilename())
-        .valid(packageInfo.isValid())
-        .url(composeWarehouseURLFromLocalPath(packageInfo.getPath()))
-        .build();
+    PackageDTO packageDTO = new PackageDTO();
+
+    packageDTO.setId(packageInfo.getId());
+    packageDTO.setPackageName(packageInfo.getPackagename());
+    packageDTO.setAppName(packageInfo.getAppname());
+    packageDTO.setAppVersion(packageInfo.getVersion());
+    packageDTO.setAppVersionNumber(packageInfo.getVersionnumber());
+    packageDTO.setFileName(packageInfo.getFilename());
+    packageDTO.setValid(packageInfo.isValid());
+    packageDTO.setUrl(composeWarehouseURLFromLocalPath(packageInfo.getPath()));
+
+    return packageDTO;
   }
 
   public String composeLocalRelativePath(String appName, String version, String fileName) {
@@ -86,9 +93,9 @@ public class PackageUtils {
     String localPathToUrl = localPath.replace(File.separator, "/");
     String baseURL;
 
-    if (StringUtils.isBlank(PUBLIC_BASE_URL)){
+    if (StringUtils.isBlank(PUBLIC_BASE_URL)) {
       baseURL = ServletUriComponentsBuilder.fromCurrentContextPath().build().toString();
-    } else{
+    } else {
       String deploymentContext = ServletUriComponentsBuilder.fromCurrentContextPath().build().getPath();
       baseURL = String.format("%s%s", PUBLIC_BASE_URL, deploymentContext);
     }
