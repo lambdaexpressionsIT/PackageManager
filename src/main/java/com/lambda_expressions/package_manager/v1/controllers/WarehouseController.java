@@ -2,14 +2,11 @@ package com.lambda_expressions.package_manager.v1.controllers;
 
 import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
-import com.lambda_expressions.package_manager.exceptions.UnauthenticatedRequestException;
-import com.lambda_expressions.package_manager.services.AuthenticationService;
 import com.lambda_expressions.package_manager.services.WarehouseService;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -22,20 +19,17 @@ import javax.servlet.http.HttpServletResponse;
 public class WarehouseController {
 
   private WarehouseService warehouseService;
-  private AuthenticationService authService;
 
-  public WarehouseController(WarehouseService warehouseService, AuthenticationService authService) {
+  public WarehouseController(WarehouseService warehouseService) {
     this.warehouseService = warehouseService;
-    this.authService = authService;
   }
 
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"{appName}/{version}/{fileName}", "{appName}/{version}/{fileName}/"})
-  public FileSystemResource getPackageFile(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+  public FileSystemResource getPackageFile(HttpServletResponse httpResponse,
                                            @PathVariable String appName, @PathVariable String version,
                                            @PathVariable String fileName)
-      throws UnauthenticatedRequestException, PackageNotFoundException, IOFileException {
-    this.authService.authenticateRequest(httpRequest);
+      throws PackageNotFoundException, IOFileException {
     FileSystemResource packageFile = this.warehouseService.getPackageFile(appName, version, fileName);
 
     httpResponse.addHeader("Content-Disposition", "attachment; filename=" + fileName);

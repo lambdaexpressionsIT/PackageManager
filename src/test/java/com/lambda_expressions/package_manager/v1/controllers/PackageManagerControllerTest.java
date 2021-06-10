@@ -1,13 +1,13 @@
 package com.lambda_expressions.package_manager.v1.controllers;
 
 import com.lambda_expressions.package_manager.exceptions.*;
-import com.lambda_expressions.package_manager.services.AuthenticationService;
 import com.lambda_expressions.package_manager.services.PackageService;
 import com.lambda_expressions.package_manager.v1.RESTExceptionHandler;
 import com.lambda_expressions.package_manager.v1.controllers.utils.ControllerUtils;
 import com.lambda_expressions.package_manager.v1.model.PackageDTO;
 import com.lambda_expressions.package_manager.v1.model.PackageListDTO;
 import com.lambda_expressions.package_manager.v1.model.VersionDTO;
+import oracle.net.ano.AuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -121,8 +121,6 @@ class PackageManagerControllerTest {
   ControllerUtils controllerUtils;
   @Mock
   PackageService packageService;
-  @Mock
-  AuthenticationService authService;
   @InjectMocks
   PackageManagerController controller;
   MockMvc mockMvc;

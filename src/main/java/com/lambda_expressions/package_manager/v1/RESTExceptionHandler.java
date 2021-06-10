@@ -17,11 +17,6 @@ public class RESTExceptionHandler extends ResponseEntityExceptionHandler {
 
   public static String MISSING_FRAMEWORK_MESSAGE = "Cannot decode apk file, missing resource framework with packageId: %d";
 
-  @ExceptionHandler(UnauthenticatedRequestException.class)
-  public ResponseEntity handleUnauthenticatedRequestException() {
-    return new ResponseEntity(HttpStatus.UNAUTHORIZED);
-  }
-
   @ExceptionHandler(MalformedURLException.class)
   public ResponseEntity handleMalformedURLException() {
     return new ResponseEntity(HttpStatus.BAD_REQUEST);
