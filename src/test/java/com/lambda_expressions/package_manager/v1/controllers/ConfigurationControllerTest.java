@@ -2,10 +2,10 @@ package com.lambda_expressions.package_manager.v1.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lambda_expressions.package_manager.exceptions.FrameworkInstallationException;
-import com.lambda_expressions.package_manager.services.AuthenticationService;
 import com.lambda_expressions.package_manager.services.ConfigurationService;
 import com.lambda_expressions.package_manager.v1.RESTExceptionHandler;
 import com.lambda_expressions.package_manager.v1.model.BandwidthLimiterConfigurationDTO;
+import oracle.net.ano.AuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
