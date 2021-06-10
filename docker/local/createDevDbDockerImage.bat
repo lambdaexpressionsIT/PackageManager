@@ -1,1 +1,0 @@
-docker build -t pacman-dev-db-img .
