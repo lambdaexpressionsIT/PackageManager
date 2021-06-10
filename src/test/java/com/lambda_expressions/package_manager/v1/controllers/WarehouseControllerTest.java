@@ -2,7 +2,6 @@ package com.lambda_expressions.package_manager.v1.controllers;
 
 import com.lambda_expressions.package_manager.exceptions.IOFileException;
 import com.lambda_expressions.package_manager.exceptions.PackageNotFoundException;
-import com.lambda_expressions.package_manager.services.AuthenticationService;
 import com.lambda_expressions.package_manager.services.WarehouseService;
 import com.lambda_expressions.package_manager.v1.RESTExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +16,6 @@ import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -41,10 +39,10 @@ class WarehouseControllerTest {
 
   private static final String WAREHOUSE_GENERIC_URL = "/warehouse/{appName}/{appVersion}/{fileName}";
 
+  private static final String DUMMY_APK = "src/test/resources/dummy.apk";
+
   @Mock
   WarehouseService warehouseService;
-  @Mock
-  AuthenticationService authService;
   @InjectMocks
   WarehouseController controller;
   MockMvc mockMvc;
@@ -65,7 +63,7 @@ class WarehouseControllerTest {
   @Test
   void getPackageFile() throws Exception {
     //given
-    given(warehouseService.getPackageFile(anyString(), anyString(), anyString())).willReturn(any(FileSystemResource.class));
+    given(warehouseService.getPackageFile(anyString(), anyString(), anyString())).willReturn(new FileSystemResource(DUMMY_APK));
     //when
     mockMvc.perform(
         get(WAREHOUSE_GENERIC_URL, PACKAGE_APPNAME, PACKAGE_VERSION_1, PACKAGE_FILENAME))
