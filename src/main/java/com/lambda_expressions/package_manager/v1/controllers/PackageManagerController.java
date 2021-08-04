@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/")
 public class PackageManagerController {
+
   PackageService packageService;
   ControllerUtils controllerUtils;
 
@@ -29,6 +31,7 @@ public class PackageManagerController {
     this.controllerUtils = controllerUtils;
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = {"uploadPackage/{packageName}/{appName}/{version}/{versionNumber}/{fileName}", "uploadPackage/{packageName}/{appName}/{version}/{versionNumber}/{fileName}/"},
       consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -41,6 +44,7 @@ public class PackageManagerController {
     this.packageService.installPackageFile(packageName, appName, longVersionNumber, version, fileName, file);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = {"uploadPackage", "uploadPackage/"},
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -51,6 +55,7 @@ public class PackageManagerController {
     return this.packageService.installPackageFile(fileName, file);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping(value = {"invalidatePackage/{appName}/{version}", "invalidatePackage/{appName}/{version}/"})
   public void invalidatePackage(@PathVariable String appName, @PathVariable String version) throws PackageNotFoundException {
@@ -58,6 +63,7 @@ public class PackageManagerController {
     this.packageService.invalidatePackage(appName, version);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"downloadPackage/{appName}/{version}", "downloadPackage/{appName}/{version}/"},
       produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -67,12 +73,14 @@ public class PackageManagerController {
     return this.packageService.getPackageFile(appName, version);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"listPackages", "listPackages/"})
   public Collection<PackageListDTO> listPackages() throws PackageNotFoundException {
     return this.packageService.listAllPackages();
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"listPackages/{appName}", "listPackages/{appName}/"})
   public PackageListDTO listVersions(@PathVariable String appName) throws PackageNotFoundException {
@@ -80,6 +88,7 @@ public class PackageManagerController {
     return this.packageService.listAllVersions(appName);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"listPackages/{appName}/{version}", "listPackages/{appName}/{version}/"})
   public PackageDTO listPackageInfo( @PathVariable String appName, @PathVariable String version) throws PackageNotFoundException {
@@ -87,6 +96,7 @@ public class PackageManagerController {
     return this.packageService.getPackageInfo(appName, version);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"getPackage/{appId}", "getPackage/{appId}/"})
   public PackageDTO getPackageInfoById(@PathVariable String appId) throws MalformedURLException, PackageNotFoundException {
@@ -95,6 +105,7 @@ public class PackageManagerController {
     return this.packageService.getPackageInfoById(longId);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"getPackages", "getPackages/"})
   public Collection<PackageListDTO> getPackagesById(@RequestParam List<String> idList) throws PackageNotFoundException {
@@ -103,6 +114,7 @@ public class PackageManagerController {
     return this.packageService.getPackagesById(idLongList);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = {"deletePackage/{appName}", "deletePackage/{appName}/"})
   public void deleteAllVersions(@PathVariable String appName) throws PackageNotFoundException {
@@ -110,6 +122,7 @@ public class PackageManagerController {
     this.packageService.deleteAllVersions(appName);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = {"deletePackage/{appName}/{version}", "deletePackage/{appName}/{version}/"})
   public void deleteSingleVersion(@PathVariable String appName, @PathVariable String version) throws PackageNotFoundException {
@@ -117,6 +130,7 @@ public class PackageManagerController {
     this.packageService.deleteVersionPackage(appName, version);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @DeleteMapping(value = {"deletePackage", "deletePackage/"})
   public void deleteById(@RequestParam List<String> idList) throws PackageNotFoundException {

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
 /**
@@ -24,6 +25,7 @@ public class ConfigurationController {
     this.configurationService = configurationService;
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(value = {"uploadFramework", "uploadFramework/", "uploadFramework/{frameworkTag}/", "uploadFramework/{frameworkTag}"},
       consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -33,6 +35,7 @@ public class ConfigurationController {
     this.configurationService.installFramework(frameworkTag, file);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"installedFrameworks/", "installedFrameworks"})
   public List<String> listInstalledFrameworks()
@@ -41,6 +44,7 @@ public class ConfigurationController {
     return this.configurationService.listFrameworks();
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping(value = {"bandwidthLimiter", "bandwidthLimiter/"},
       consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -49,6 +53,7 @@ public class ConfigurationController {
     this.configurationService.updateBandwidthLimiterConfiguration(configurationDTO);
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"bandwidthLimiter", "bandwidthLimiter/"})
   public BandwidthLimiterConfigurationDTO getBandwidthLimiterConfiguration() {

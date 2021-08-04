@@ -7,6 +7,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -24,6 +25,7 @@ public class WarehouseController {
     this.warehouseService = warehouseService;
   }
 
+  @RolesAllowed("viewer")
   @ResponseStatus(HttpStatus.OK)
   @GetMapping(value = {"{appName}/{version}/{fileName}", "{appName}/{version}/{fileName}/"})
   public FileSystemResource getPackageFile(HttpServletResponse httpResponse,
