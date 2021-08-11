@@ -12,6 +12,7 @@ import java.security.Security;
 public class PackageManagerApplication extends SpringBootServletInitializer {
 
   public static void main(String[] args) {
+    Security.addProvider(new BouncyCastleProvider());
     SpringApplication.run(PackageManagerApplication.class, args);
   }
 
