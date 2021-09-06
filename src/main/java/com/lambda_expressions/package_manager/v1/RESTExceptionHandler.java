@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
@@ -55,5 +56,10 @@ public class RESTExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(MissingFrameworkException.class)
   public ResponseEntity<String> handleMissingFrameworkException(MissingFrameworkException e) {
     return new ResponseEntity<>(String.format(RESTExceptionHandler.MISSING_FRAMEWORK_MESSAGE, e.getId()), HttpStatus.UNPROCESSABLE_ENTITY);
+  }
+
+  @ExceptionHandler(MaxUploadSizeExceededException.class)
+  public ResponseEntity handlePayloadTooLarge(){
+    return new ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE);
   }
 }
