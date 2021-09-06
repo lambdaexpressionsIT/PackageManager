@@ -441,6 +441,10 @@ include::{snippets}/uploadPackageAutodetecUnableToWriteFile/http-request.adoc[]
 .HTTP response
 include::{snippets}/uploadPackageAutodetecUnableToWriteFile/http-response.adoc[]
 
+===== Dimensioni del file allegato eccessive
+
+Nel caso in cui le dimensioni del file inviato eccedano il limite massimo definito nella proprietà _spring.servlet.multipart.max-file-size_, il servizio risponde con una HTTP response vuota e HTTP status 413.
+
 <<<
 
 === Eliminazione di una specifica versione (per applicazione/versione)
