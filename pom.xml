@@ -8,9 +8,9 @@
         <version>2.3.8.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.lambda_expressions</groupId>
+    <groupId>it.lottomatica.utis.mdm</groupId>
     <artifactId>package-manager</artifactId>
-    <version>1.8.3</version>
+    <version>1.9.0</version>
     <name>Package manager</name>
     <description>Package manager for android devices</description>
 
