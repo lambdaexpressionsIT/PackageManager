@@ -153,8 +153,8 @@ __PackageManager.yyyy-MM-dd.x.log__
 
 dove yyyy è l'anno, MM il mese è dd il giorno, mentre x è il contatore del numero di files per il giorno corrente. Le seguenti proprietà sono necessarie per configurare l'attività di logging
 
-__logging.file.path__: percorso della cartella in cui i files di log verranno salvati. Valore di default: ./logs
-__logging.level.root__: livello minimo dei messaggi di log da salvare nei file di log. Valore di default: info
+* __logging.file.path__: percorso della cartella in cui i files di log verranno salvati. Valore di default: ./logs  
+* __logging.level.root__: livello minimo dei messaggi di log da salvare nei file di log. Valore di default: info
 
 ## Installazione
 
