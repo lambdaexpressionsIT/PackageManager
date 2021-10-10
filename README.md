@@ -146,6 +146,16 @@ Le seguenti proprietà possono essere definite per personalizzare l'ambiente di 
   __IL PRIMO CARATTERE DEVE OBBLIGATORIAMENTE ESSERE / E L'ULTIMO CARATTERE NON PUO ESSERE LO STESSO /.__  
   Valore di default: /package-manager
 
+#### Configurazione logging
+L'applicazione produce automaticamente dei file di log giornalieri. La dimensione massima del singolo file di log è 10 MB. Superata questa soglia il log corrente viene salvato su file e ne viene creato un secondo per il giorno attuale. I files hanno il seguente nome
+
+__PackageManager.yyyy-MM-dd.x.log__
+
+dove yyyy è l'anno, MM il mese è dd il giorno, mentre x è il contatore del numero di files per il giorno corrente. Le seguenti proprietà sono necessarie per configurare l'attività di logging
+
+__logging.file.path__: percorso della cartella in cui i files di log verranno salvati. Valore di default: ./logs
+__logging.level.root__: livello minimo dei messaggi di log da salvare nei file di log. Valore di default: info
+
 ## Installazione
 
 Per installare l'applicazione in qualsiasi webserver è prima necessario compilare questi sorgenti con il comando  
